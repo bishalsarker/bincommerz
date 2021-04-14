@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BComm.PM.Repositories.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    [Migration("20210414075257_TagsTableCreation")]
+    [Migration("20210414163946_TagsTableCreation")]
     partial class TagsTableCreation
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,15 @@ namespace BComm.PM.Repositories.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ShopId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ShopId")
+                        .IsUnique()
+                        .HasFilter("[ShopId] IS NOT NULL")
+                        .IsClustered(false);
 
                     b.ToTable("tags", "bcomm_pm");
                 });

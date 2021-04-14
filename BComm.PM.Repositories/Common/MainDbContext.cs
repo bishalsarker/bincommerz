@@ -14,5 +14,13 @@ namespace BComm.PM.Repositories.Common
         {
             optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;");
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Tag>()
+                .HasIndex(t => t.ShopId)
+                .IsUnique()
+                .IsClustered(false);
+        }
     }
 }
