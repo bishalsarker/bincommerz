@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace BComm.PM.Repositories.Common
 {
-    public class CommandsRepository<T> where T : BaseEntity
+    public class CommandsRepository<T> : ICommandsRepository<T> where T : BaseEntity
     {
         public async Task Add(T entity)
         {
-            using(var context = new MainDbContext())
+            using (var context = new MainDbContext())
             {
                 await context.AddAsync<T>(entity);
                 await context.SaveChangesAsync();

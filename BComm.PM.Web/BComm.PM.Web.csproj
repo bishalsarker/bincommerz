@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BComm.PM.Repositories\BComm.PM.Repositories.csproj" />
+    <ProjectReference Include="..\BComm.PM.Services\BComm.PM.Services.csproj" />
   </ItemGroup>
 
 
