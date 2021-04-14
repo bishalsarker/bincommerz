@@ -12,10 +12,7 @@ namespace BComm.PM.Services.Configurations
             services.AddAutoMapper(typeof(TagMappings));
 
             // Services
-            services.AddScoped<ITagService, TagService>();
-
-            // Repositories
-            services.AddTransient(typeof(ICommandsRepository<>), typeof(CommandsRepository<>));
+            services.AddScoped<ITagService, TagService>();          
         }
     }
 }

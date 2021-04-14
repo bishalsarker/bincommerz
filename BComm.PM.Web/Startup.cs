@@ -1,3 +1,4 @@
+using BComm.PM.Repositories.Configurations;
 using BComm.PM.Services.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,6 +22,7 @@ namespace BComm.PM.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddRepositories();
             services.AddBusinessServices();
         }
 

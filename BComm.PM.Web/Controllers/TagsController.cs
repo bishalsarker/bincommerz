@@ -22,5 +22,11 @@ namespace BComm.PM.Web.Controllers
             await _tagService.AddNewTag(newTagRequest);
             return Ok();
         }
+
+        [HttpGet("get/{shopId}")]
+        public async Task<IActionResult> GetTags(string shopId)
+        {
+            return Ok(await _tagService.GetTags(shopId));
+        }
     }
 }

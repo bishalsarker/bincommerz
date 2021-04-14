@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BComm.PM.Dto.Payloads;
+using BComm.PM.Dto.Tags;
 using BComm.PM.Models.Tags;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace BComm.PM.Services.Mappings
         public TagMappings()
         {
             CreateMap<TagPayload, Tag>();
+            CreateMap<Tag, TagsResponse>();
         }
     }
 }

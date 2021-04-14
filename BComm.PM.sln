@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BComm.PM.Services", "BComm.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BComm.PM.Dto", "BComm.PM.Dto\BComm.PM.Dto.csproj", "{BDDD9B16-A063-403B-8C5C-F25113EE0765}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BComm.PM.Shared", "BComm.PM.Shared\BComm.PM.Shared.csproj", "{2DE367EE-DCF7-4033-9CEE-697C77F768DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{BDDD9B16-A063-403B-8C5C-F25113EE0765}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDDD9B16-A063-403B-8C5C-F25113EE0765}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDDD9B16-A063-403B-8C5C-F25113EE0765}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DE367EE-DCF7-4033-9CEE-697C77F768DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DE367EE-DCF7-4033-9CEE-697C77F768DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DE367EE-DCF7-4033-9CEE-697C77F768DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DE367EE-DCF7-4033-9CEE-697C77F768DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
