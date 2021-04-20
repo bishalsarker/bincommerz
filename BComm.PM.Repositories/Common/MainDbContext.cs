@@ -1,4 +1,5 @@
-﻿using BComm.PM.Models.Tags;
+﻿using BComm.PM.Models.Common;
+using BComm.PM.Models.Tags;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,11 @@ namespace BComm.PM.Repositories.Common
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Tag>()
+                .HasIndex(t => t.HashId)
+                .IsUnique()
+                .IsClustered(false);
+
             modelBuilder.Entity<Tag>()
                 .HasIndex(t => t.ShopId)
                 .IsUnique()

@@ -13,7 +13,10 @@ namespace BComm.PM.Services.Mappings
         public TagMappings()
         {
             CreateMap<TagPayload, Tag>();
-            CreateMap<Tag, TagsResponse>();
+
+            CreateMap<Tag, TagsResponse>()
+                .ForMember(dest => dest.Id,
+                opt => opt.MapFrom(src => src.HashId));
         }
     }
 }

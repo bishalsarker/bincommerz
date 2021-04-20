@@ -9,6 +9,13 @@ namespace BComm.PM.Services.Tags
     public interface ITagService
     {
         Task<Response> AddNewTag(TagPayload newTagRequest);
+
+        Task<Response> UpdateTag(TagPayload newTagRequest);
+
+        Task<Response> DeleteTag(string tagId);
+
         Task<Response> GetTags(string shopId);
+
+        Task<Response> GetTag(string tagId);
     }
 }

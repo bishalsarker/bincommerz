@@ -7,6 +7,8 @@ namespace BComm.PM.Dto.Payloads
 {
     public class TagPayload
     {
+        public string Id { get; set; }
+
         [Required]
         public string Name { get; set; }
 

@@ -31,6 +31,7 @@ namespace BComm.PM.Services.Tags
         public async Task<Response> AddNewTag(TagPayload newTagRequest)
         {
             var tagModel = _mapper.Map<Tag>(newTagRequest);
+            tagModel.HashId = Guid.NewGuid().ToString("N");
             tagModel.ShopId = "vbt_xyz";
             await _commandsRepository.Add(tagModel);
 
@@ -42,6 +43,59 @@ namespace BComm.PM.Services.Tags
             };
         }
 
+        public async Task<Response> UpdateTag(TagPayload newTagRequest)
+        {
+            var existingTagModel = await _tagsQueryRepository.GetTag(newTagRequest.Id);
+
+            if (existingTagModel != null)
+            {
+                existingTagModel.HashId = newTagRequest.Id;
+                existingTagModel.Name = newTagRequest.Name;
+                existingTagModel.Description = newTagRequest.Description;
+                
+                await _commandsRepository.Update(existingTagModel);
+
+                return new Response()
+                {
+                    Data = _mapper.Map<TagsResponse>(existingTagModel),
+                    Message = "Tag Updated Successfully",
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Tag Doesn't Exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> DeleteTag(string tagId)
+        {
+            var existingTagModel = await _tagsQueryRepository.GetTag(tagId);
+
+            if (existingTagModel != null)
+            {
+                await _commandsRepository.Delete(existingTagModel);
+
+                return new Response()
+                {
+                    Message = "Tag Deleted Successfully",
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Tag Doesn't Exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
         public async Task<Response> GetTags(string shopId)
         {
             var tagModels = await _tagsQueryRepository.GetTags(shopId);
@@ -50,6 +104,28 @@ namespace BComm.PM.Services.Tags
                 Data = _mapper.Map<IEnumerable<TagsResponse>>(tagModels),
                 IsSuccess = true
             };
+        }
+
+        public async Task<Response> GetTag(string tagId)
+        {
+            var existingTagModel = await _tagsQueryRepository.GetTag(tagId);
+
+            if (existingTagModel != null)
+            {
+                return new Response()
+                {
+                    Data = _mapper.Map<TagsResponse>(existingTagModel),
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Tag Doesn't Exist",
+                    IsSuccess = false
+                };
+            }
         }
     }
 }

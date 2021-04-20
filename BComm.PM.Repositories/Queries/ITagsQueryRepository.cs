@@ -6,6 +6,8 @@ namespace BComm.PM.Repositories.Queries
 {
     public interface ITagsQueryRepository
     {
+        Task<Tag> GetTag(string tagId);
+
         Task<IEnumerable<Tag>> GetTags(string shopId);
     }
 }

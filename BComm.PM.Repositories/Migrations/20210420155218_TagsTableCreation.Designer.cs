@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BComm.PM.Repositories.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    [Migration("20210414163946_TagsTableCreation")]
+    [Migration("20210420155218_TagsTableCreation")]
     partial class TagsTableCreation
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,11 +22,16 @@ namespace BComm.PM.Repositories.Migrations
 
             modelBuilder.Entity("BComm.PM.Models.Tags.Tag", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HashId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -35,6 +40,11 @@ namespace BComm.PM.Repositories.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HashId")
+                        .IsUnique()
+                        .HasFilter("[HashId] IS NOT NULL")
+                        .IsClustered(false);
 
                     b.HasIndex("ShopId")
                         .IsUnique()

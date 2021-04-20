@@ -19,14 +19,31 @@ namespace BComm.PM.Web.Controllers
         [HttpPost("addnew")]
         public async Task<IActionResult> AddNewTag(TagPayload newTagRequest)
         {
-            await _tagService.AddNewTag(newTagRequest);
-            return Ok();
+            return Ok(await _tagService.AddNewTag(newTagRequest));
         }
 
-        [HttpGet("get/{shopId}")]
+        [HttpGet("get/{tagId}")]
+        public async Task<IActionResult> GetTag(string tagId)
+        {
+            return Ok(await _tagService.GetTag(tagId));
+        }
+
+        [HttpGet("get/all/{shopId}")]
         public async Task<IActionResult> GetTags(string shopId)
         {
             return Ok(await _tagService.GetTags(shopId));
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateTag(TagPayload newTagRequest)
+        {
+            return Ok(await _tagService.UpdateTag(newTagRequest));
+        }
+
+        [HttpDelete("delete/{tagId}")]
+        public async Task<IActionResult> DeleteTag(string tagId)
+        {
+            return Ok(await _tagService.DeleteTag(tagId));
         }
     }
 }

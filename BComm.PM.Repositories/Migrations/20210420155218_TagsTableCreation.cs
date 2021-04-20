@@ -14,10 +14,12 @@ namespace BComm.PM.Repositories.Migrations
                 schema: "bcomm_pm",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShopId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    ShopId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    HashId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -25,11 +27,20 @@ namespace BComm.PM.Repositories.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_tags_HashId",
+                schema: "bcomm_pm",
+                table: "tags",
+                column: "HashId",
+                unique: true,
+                filter: "[HashId] IS NOT NULL")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_tags_ShopId",
                 schema: "bcomm_pm",
                 table: "tags",
                 column: "ShopId",
-                unique: true,
+                unique: false,
                 filter: "[ShopId] IS NOT NULL")
                 .Annotation("SqlServer:Clustered", false);
         }
