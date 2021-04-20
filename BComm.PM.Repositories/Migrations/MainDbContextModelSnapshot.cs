@@ -18,6 +18,50 @@ namespace BComm.PM.Repositories.Migrations
                 .HasAnnotation("ProductVersion", "5.0.5")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("BComm.PM.Models.Products.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Discount")
+                        .HasColumnType("float");
+
+                    b.Property<string>("HashId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<string>("ShopId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HashId")
+                        .IsUnique()
+                        .HasFilter("[HashId] IS NOT NULL")
+                        .IsClustered(false);
+
+                    b.HasIndex("ShopId")
+                        .IsClustered(false);
+
+                    b.ToTable("products", "bcomm_pm");
+                });
+
             modelBuilder.Entity("BComm.PM.Models.Tags.Tag", b =>
                 {
                     b.Property<int>("Id")
@@ -32,9 +76,11 @@ namespace BComm.PM.Repositories.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShopId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -45,8 +91,6 @@ namespace BComm.PM.Repositories.Migrations
                         .IsClustered(false);
 
                     b.HasIndex("ShopId")
-                        .IsUnique()
-                        .HasFilter("[ShopId] IS NOT NULL")
                         .IsClustered(false);
 
                     b.ToTable("tags", "bcomm_pm");

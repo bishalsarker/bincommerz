@@ -1,15 +1,14 @@
-﻿using BComm.PM.Models.Common;
+﻿using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BComm.PM.Repositories.Common
 {
     public class MainDbContext : DbContext
     {
         public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -20,12 +19,22 @@ namespace BComm.PM.Repositories.Common
         {
             modelBuilder.Entity<Tag>()
                 .HasIndex(t => t.HashId)
-                .IsUnique()
+                .IsUnique(true)
                 .IsClustered(false);
 
             modelBuilder.Entity<Tag>()
                 .HasIndex(t => t.ShopId)
-                .IsUnique()
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(t => t.ShopId)
+                .IsUnique(false)
                 .IsClustered(false);
         }
     }
