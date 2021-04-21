@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BComm.PM.Dto.Payloads;
+using BComm.PM.Services.Products;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -7,9 +9,21 @@ using System.Threading.Tasks;
 
 namespace BComm.PM.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("products")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
+        private readonly IProductService _productService;
+
+        public ProductsController(IProductService productService)
+        {
+            _productService = productService;
+        }
+
+        [HttpPost("addnew")]
+        public async Task<IActionResult> AddNewTag(ProductPayload newProductRequest)
+        {
+            return Ok(await _productService.AddNewProduct(newProductRequest));
+        }
     }
 }

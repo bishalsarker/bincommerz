@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BComm.PM.Dto.Payloads;
 using BComm.PM.Dto.Tags;
+using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace BComm.PM.Services.Mappings
             CreateMap<Tag, TagsResponse>()
                 .ForMember(dest => dest.Id,
                 opt => opt.MapFrom(src => src.HashId));
+
+            CreateMap<ProductPayload, Product>();
         }
     }
 }

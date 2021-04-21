@@ -12,7 +12,6 @@ namespace BComm.PM.Models.Products
 
         public string Description { get; set; }
 
-        [Required]
         public string ImageUrl { get; set; }
 
         [Required]

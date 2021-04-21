@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Repositories.Common;
 using BComm.PM.Services.Mappings;
+using BComm.PM.Services.Products;
 using BComm.PM.Services.Tags;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +13,8 @@ namespace BComm.PM.Services.Configurations
             services.AddAutoMapper(typeof(TagMappings));
 
             // Services
-            services.AddScoped<ITagService, TagService>();          
+            services.AddScoped<ITagService, TagService>();
+            services.AddScoped<IProductService, ProductService>();
         }
     }
 }
