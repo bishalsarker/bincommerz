@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BComm.PM.Models.Products
 {
     [Table("products", Schema = "bcomm_pm")]
-    public class Product : BaseEntity
+    public class Product : WithHashId
     {
         [Required]
         public string Name { get; set; }

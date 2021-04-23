@@ -7,8 +7,5 @@ namespace BComm.PM.Models.Common
     {
         [Required]
         public int Id { get; set; }
-
-        [Required]
-        public string HashId { get; set; }
     }
 }

@@ -15,9 +15,14 @@ namespace BComm.PM.Dto.Payloads
         public string Description { get; set; }
 
         [Required]
+        public string Image { get; set; }
+
+        [Required]
         public double Price { get; set; }
 
         [Required]
         public double Discount { get; set; }
+
+        public IEnumerable<string> Tags { get; set; }
     }
 }

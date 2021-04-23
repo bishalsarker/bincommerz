@@ -4,15 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BComm.PM.Models.Tags
 {
-    [Table("tags", Schema = "bcomm_pm")]
-    public class Tag: WithHashId
+    [Table("product_tags", Schema = "bcomm_pm")]
+    public class ProductTags : BaseEntity
     {
         [Required]
-        public string Name { get; set; }
-
-        public string Description { get; set; }
+        public string TagHashId { get; set; }
 
         [Required]
-        public string ShopId { get; set; }
+        public string ProductHashId { get; set; }
     }
 }

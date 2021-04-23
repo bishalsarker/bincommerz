@@ -10,6 +10,8 @@ namespace BComm.PM.Repositories.Common
 
         public DbSet<Product> Products { get; set; }
 
+        public DbSet<ProductTags> ProductTags { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;");
@@ -34,6 +36,11 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<Product>()
                 .HasIndex(t => t.ShopId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<ProductTags>()
+                .HasIndex(t => t.ProductHashId)
                 .IsUnique(false)
                 .IsClustered(false);
         }
