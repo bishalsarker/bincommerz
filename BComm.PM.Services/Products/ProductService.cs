@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using BComm.PM.Services.Helpers;
 using System.Collections.Generic;
+using BComm.PM.Models.Images;
 
 namespace BComm.PM.Services.Products
 {
@@ -17,6 +18,8 @@ namespace BComm.PM.Services.Products
     {
         private readonly ICommandsRepository<Product> _productCommandsRepository;
         private readonly ICommandsRepository<ProductTags> _productTagsCommandsRepository;
+        private readonly ICommandsRepository<Image> _imagesCommandsRepository;
+        private readonly ICommandsRepository<ImageGalleryItem> _imageGalleryCommandsRepository;
         private readonly ITagsQueryRepository _tagsQueryRepository;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
@@ -24,12 +27,16 @@ namespace BComm.PM.Services.Products
         public ProductService(
             ICommandsRepository<Product> productCommandsRepository,
             ICommandsRepository<ProductTags> productTagsCommandsRepository,
+            ICommandsRepository<Image> imagesCommandsRepository,
+            ICommandsRepository<ImageGalleryItem> imageGalleryCommandsRepository,
             ITagsQueryRepository tagsQueryRepository,
             IMapper mapper,
             IHostingEnvironment env)
         {
             _productCommandsRepository = productCommandsRepository;
             _productTagsCommandsRepository = productTagsCommandsRepository;
+            _imagesCommandsRepository = imagesCommandsRepository;
+            _imageGalleryCommandsRepository = imageGalleryCommandsRepository;
             _tagsQueryRepository = tagsQueryRepository;
             _mapper = mapper;
             _env = env;
@@ -43,16 +50,23 @@ namespace BComm.PM.Services.Products
                 productModel.HashId = Guid.NewGuid().ToString("N");
                 productModel.ShopId = "vbt_xyz";
 
-                var imageUploader = new ImageUploader(newProductRequest.Image, productModel.HashId, _env);
+                var productImage = new ImageInfo(newProductRequest.Image, productModel.HashId, _env);
 
                 await _productCommandsRepository.Add(productModel);
 
                 await AddTags(newProductRequest.Tags, productModel.HashId);
 
-                await imageUploader.UploadAsync();
-                productModel.ImageUrl = imageUploader.ImageUrl;
+                var imageModel = await AddImages(productImage);
 
+                productModel.ImageUrl = imageModel.HashId;
                 await _productCommandsRepository.Update(productModel);
+
+                await _imageGalleryCommandsRepository.Add(new ImageGalleryItem()
+                {
+                    ImageId = imageModel.HashId,
+                    ProductId = productModel.HashId,
+                    HashId = Guid.NewGuid().ToString("N")
+                });
 
                 return new Response()
                 {
@@ -65,7 +79,7 @@ namespace BComm.PM.Services.Products
             {
                 return new Response()
                 {
-                    Message = "Error: " + e.Message,
+                    Message = "Error: " + e,
                     IsSuccess = false
                 };
             }
@@ -86,6 +100,27 @@ namespace BComm.PM.Services.Products
                     });
                 }
             }
+        }
+
+        private async Task<Image> AddImages(ImageInfo productImage)
+        {
+            var imageUploader = new ImageUploader(productImage);
+            await imageUploader.UploadAsync();
+
+            var thumbnailGenerator = new ThumbnailGenerator(productImage);
+            thumbnailGenerator.Generate();
+
+            var imageModel = new Image()
+            {
+                Directory = productImage.Directory,
+                OriginalImage = imageUploader.FileName,
+                ThumbnailImage = thumbnailGenerator.FileName,
+                HashId = Guid.NewGuid().ToString("N")
+            };
+
+            await _imagesCommandsRepository.Add(imageModel);
+
+            return imageModel;
         }
     }
 }

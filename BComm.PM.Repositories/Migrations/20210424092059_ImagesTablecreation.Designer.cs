@@ -3,14 +3,16 @@ using BComm.PM.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BComm.PM.Repositories.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    partial class MainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210424092059_ImagesTablecreation")]
+    partial class ImagesTablecreation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,7 +28,6 @@ namespace BComm.PM.Repositories.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Directory")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HashId")
@@ -34,7 +35,6 @@ namespace BComm.PM.Repositories.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OriginalImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ThumbnailImage")
@@ -47,37 +47,6 @@ namespace BComm.PM.Repositories.Migrations
                         .IsClustered(false);
 
                     b.ToTable("images", "bcomm_pm");
-                });
-
-            modelBuilder.Entity("BComm.PM.Models.Products.ImageGalleryItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("HashId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ImageId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HashId")
-                        .IsUnique()
-                        .IsClustered(false);
-
-                    b.HasIndex("ProductId")
-                        .IsClustered(false);
-
-                    b.ToTable("image_gallery", "bcomm_pm");
                 });
 
             modelBuilder.Entity("BComm.PM.Models.Products.Product", b =>
