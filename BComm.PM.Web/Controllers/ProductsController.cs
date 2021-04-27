@@ -25,5 +25,11 @@ namespace BComm.PM.Web.Controllers
         {
             return Ok(await _productService.AddNewProduct(newProductRequest));
         }
+
+        [HttpGet("get/all/{shopId}")]
+        public async Task<IActionResult> GetTags(string shopId)
+        {
+            return Ok(await _productService.GetAllProducts());
+        }
     }
 }

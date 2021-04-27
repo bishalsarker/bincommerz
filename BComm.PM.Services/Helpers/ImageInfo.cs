@@ -51,7 +51,7 @@ namespace BComm.PM.Services.Helpers
         public ImageInfo(string fileString, string fileName, IHostingEnvironment env)
         {
             _fileName = fileName;
-            _directory = Path.Combine(env.WebRootPath, "images");
+            _directory = "/images/";
             _fileString = fileString;
             _fileByteArray = Convert.FromBase64String(fileString);
             GetFileExtension();

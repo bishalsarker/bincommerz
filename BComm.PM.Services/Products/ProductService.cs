@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using BComm.PM.Services.Helpers;
 using System.Collections.Generic;
 using BComm.PM.Models.Images;
+using BComm.PM.Dto.Products;
 
 namespace BComm.PM.Services.Products
 {
@@ -20,6 +21,7 @@ namespace BComm.PM.Services.Products
         private readonly ICommandsRepository<ProductTags> _productTagsCommandsRepository;
         private readonly ICommandsRepository<Image> _imagesCommandsRepository;
         private readonly ICommandsRepository<ImageGalleryItem> _imageGalleryCommandsRepository;
+        private readonly IProductQueryRepository _productQueryRepository;
         private readonly ITagsQueryRepository _tagsQueryRepository;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
@@ -29,6 +31,7 @@ namespace BComm.PM.Services.Products
             ICommandsRepository<ProductTags> productTagsCommandsRepository,
             ICommandsRepository<Image> imagesCommandsRepository,
             ICommandsRepository<ImageGalleryItem> imageGalleryCommandsRepository,
+            IProductQueryRepository productQueryRepository,
             ITagsQueryRepository tagsQueryRepository,
             IMapper mapper,
             IHostingEnvironment env)
@@ -37,6 +40,7 @@ namespace BComm.PM.Services.Products
             _productTagsCommandsRepository = productTagsCommandsRepository;
             _imagesCommandsRepository = imagesCommandsRepository;
             _imageGalleryCommandsRepository = imageGalleryCommandsRepository;
+            _productQueryRepository = productQueryRepository;
             _tagsQueryRepository = tagsQueryRepository;
             _mapper = mapper;
             _env = env;
@@ -83,6 +87,17 @@ namespace BComm.PM.Services.Products
                     IsSuccess = false
                 };
             }
+        }
+
+        public async Task<Response> GetAllProducts()
+        {
+            var productModels = await _productQueryRepository.GetProducts("vbt_xyz");
+
+            return new Response()
+            {
+                Data = _mapper.Map<IEnumerable<ProductResponse>>(productModels),
+                IsSuccess = true
+            };
         }
 
         private async Task AddTags(IEnumerable<string> tags, string productHashId)

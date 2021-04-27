@@ -7,5 +7,6 @@ namespace BComm.PM.Services.Products
     public interface IProductService
     {
         Task<Response> AddNewProduct(ProductPayload newProductRequest);
+        Task<Response> GetAllProducts();
     }
 }

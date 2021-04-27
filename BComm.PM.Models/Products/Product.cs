@@ -14,6 +14,9 @@ namespace BComm.PM.Models.Products
 
         public string ImageUrl { get; set; }
 
+        [NotMapped]
+        public string ImageDirectory { get; set; }
+
         [Required]
         public double Price { get; set; }
 

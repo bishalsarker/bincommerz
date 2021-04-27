@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BComm.PM.Dto.Tags
+namespace BComm.PM.Dto.Products
 {
     public class ProductResponse
     {
