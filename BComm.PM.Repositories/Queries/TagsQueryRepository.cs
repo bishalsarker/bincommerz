@@ -11,6 +11,18 @@ namespace BComm.PM.Repositories.Queries
 {
     public class TagsQueryRepository : ITagsQueryRepository
     {
+        public async Task<IEnumerable<ProductTags>> GetTagsByProductId(string productId)
+        {
+            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select TagHashId from {0} where ProductHashId=@productid", TableNameConstants.ProductTagsTable)
+                    .ToString();
+
+               return await conn.QueryAsync<ProductTags>(query, new { @productid = productId });
+            }
+        }
+
         public async Task<Tag> GetTag(string tagId)
         {
             using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))

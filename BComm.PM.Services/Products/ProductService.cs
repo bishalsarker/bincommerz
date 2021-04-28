@@ -12,6 +12,7 @@ using BComm.PM.Services.Helpers;
 using System.Collections.Generic;
 using BComm.PM.Models.Images;
 using BComm.PM.Dto.Products;
+using System.Linq;
 
 namespace BComm.PM.Services.Products
 {
@@ -92,12 +93,69 @@ namespace BComm.PM.Services.Products
         public async Task<Response> GetAllProducts()
         {
             var productModels = await _productQueryRepository.GetProducts("vbt_xyz");
+            var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
+
+            foreach(var productResponse in productResponses)
+            {
+                var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
+                productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+            }
 
             return new Response()
             {
-                Data = _mapper.Map<IEnumerable<ProductResponse>>(productModels),
+                Data = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
                 IsSuccess = true
             };
+        }
+
+        public async Task<Response> GetProductById(string productId)
+        {
+            var productModel = await _productQueryRepository.GetProductById(productId);
+
+            if(productModel != null)
+            {
+                var productResponse = _mapper.Map<ProductResponse>(productModel);
+                var tags = await _tagsQueryRepository.GetTagsByProductId(productId);
+                productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+
+                return new Response()
+                {
+                    Data = productResponse,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Product Doesn't Exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> DeleteProduct(string productId)
+        {
+            var existingTagModel = await _productQueryRepository.GetProductById(productId);
+
+            if (existingTagModel != null)
+            {
+                await _productCommandsRepository.Delete(existingTagModel);
+
+                return new Response()
+                {
+                    Message = "Product Deleted Successfully",
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Product Doesn't Exist",
+                    IsSuccess = false
+                };
+            }
         }
 
         private async Task AddTags(IEnumerable<string> tags, string productHashId)

@@ -17,5 +17,7 @@ namespace BComm.PM.Dto.Products
         public double Price { get; set; }
 
         public double Discount { get; set; }
+
+        public IEnumerable<string> Tags { get; set; }
     }
 }

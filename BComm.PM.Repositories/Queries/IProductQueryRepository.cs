@@ -6,7 +6,8 @@ namespace BComm.PM.Repositories.Queries
 {
     public interface IProductQueryRepository
     {
-        Task<Product> GetProduct(string tagId);
+        Task<Product> GetProductById(string productId);
+        Task<Product> GetProductByTag(string tagId);
         Task<IEnumerable<Product>> GetProducts(string shopId);
     }
 }

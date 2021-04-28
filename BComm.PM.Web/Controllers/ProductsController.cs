@@ -21,15 +21,27 @@ namespace BComm.PM.Web.Controllers
         }
 
         [HttpPost("addnew")]
-        public async Task<IActionResult> AddNewTag(ProductPayload newProductRequest)
+        public async Task<IActionResult> AddNewProduct(ProductPayload newProductRequest)
         {
             return Ok(await _productService.AddNewProduct(newProductRequest));
         }
 
+        [HttpGet("get/{productId}")]
+        public async Task<IActionResult> GetProductById(string productId)
+        {
+            return Ok(await _productService.GetProductById(productId));
+        }
+
         [HttpGet("get/all/{shopId}")]
-        public async Task<IActionResult> GetTags(string shopId)
+        public async Task<IActionResult> GetAllProducts(string shopId)
         {
             return Ok(await _productService.GetAllProducts());
+        }
+
+        [HttpDelete("delete/{productId}")]
+        public async Task<IActionResult> DeleteProduct(string productId)
+        {
+            return Ok(await _productService.DeleteProduct(productId));
         }
     }
 }
