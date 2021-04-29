@@ -30,11 +30,15 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
-        public async Task<Product> GetProductById(string productId)
+        public async Task<Product> GetProductById(string productId, bool resolveImage)
         {
             using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
             {
-                var query = new StringBuilder()
+                var queryAllCol = new StringBuilder()
+                    .AppendFormat("select * from {0} where HashId=@productid", TableNameConstants.ProductsTable)
+                    .ToString();
+
+                var queryWithImageDirectory = new StringBuilder()
                     .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
@@ -43,6 +47,8 @@ namespace BComm.PM.Repositories.Queries
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();
+
+                var query = resolveImage ? queryWithImageDirectory : queryAllCol;
 
                 var model = await conn.QueryAsync<Product>(query, new { @productid = productId });
 

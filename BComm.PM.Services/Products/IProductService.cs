@@ -10,5 +10,6 @@ namespace BComm.PM.Services.Products
         Task<Response> DeleteProduct(string productId);
         Task<Response> GetAllProducts();
         Task<Response> GetProductById(string productId);
+        Task<Response> UpdateProduct(ProductUpdatePayload newProductRequest);
     }
 }

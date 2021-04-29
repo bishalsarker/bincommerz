@@ -38,6 +38,12 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _productService.GetAllProducts());
         }
 
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateProduct(ProductUpdatePayload newProductRequest)
+        {
+            return Ok(await _productService.UpdateProduct(newProductRequest));
+        }
+
         [HttpDelete("delete/{productId}")]
         public async Task<IActionResult> DeleteProduct(string productId)
         {

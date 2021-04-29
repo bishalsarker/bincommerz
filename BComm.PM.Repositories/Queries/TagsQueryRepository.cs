@@ -23,6 +23,18 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
+        public async Task DeleteTagsByProductId(string productId)
+        {
+            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("delete from {0} where ProductHashId=@productid", TableNameConstants.ProductTagsTable)
+                    .ToString();
+
+                await conn.ExecuteAsync(query, new { @productid = productId });
+            }
+        }
+
         public async Task<Tag> GetTag(string tagId)
         {
             using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))

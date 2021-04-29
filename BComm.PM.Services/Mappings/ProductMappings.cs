@@ -14,6 +14,8 @@ namespace BComm.PM.Services.Mappings
         {
             CreateMap<ProductPayload, Product>();
 
+            CreateMap<ProductUpdatePayload, Product>();
+
             CreateMap<Product, ProductResponse>()
                 .ForMember(dest => dest.Id,
                 opt => opt.MapFrom(src => src.HashId))

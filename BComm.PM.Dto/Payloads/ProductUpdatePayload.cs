@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BComm.PM.Dto.Payloads
 {
-    public class ProductPayload
+    public class ProductUpdatePayload
     {
         public string Id { get; set; }
 
@@ -14,7 +14,6 @@ namespace BComm.PM.Dto.Payloads
 
         public string Description { get; set; }
 
-        [Required]
         public string Image { get; set; }
 
         public double Price { get; set; }
