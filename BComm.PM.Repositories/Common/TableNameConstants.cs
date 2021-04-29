@@ -11,5 +11,6 @@ namespace BComm.PM.Repositories.Common
         public static readonly string ProductsTable = SchemaName + "." + "products";
         public static readonly string ProductTagsTable = SchemaName + "." + "product_tags";
         public static readonly string ImagesTable = SchemaName + "." + "images";
+        public static readonly string ImageGalleryTable = SchemaName + "." + "image_gallery";
     }
 }

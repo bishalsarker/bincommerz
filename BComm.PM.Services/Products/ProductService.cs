@@ -203,23 +203,62 @@ namespace BComm.PM.Services.Products
 
         public async Task<Response> DeleteProduct(string productId)
         {
-            var existingTagModel = await _productQueryRepository.GetProductById(productId, false);
-
-            if (existingTagModel != null)
+            try
             {
-                await _productCommandsRepository.Delete(existingTagModel);
+                var existingProductModel = await _productQueryRepository.GetProductById(productId, false);
 
-                return new Response()
+                if (existingProductModel != null)
                 {
-                    Message = "Product Deleted Successfully",
-                    IsSuccess = true
-                };
+                    var imageModel = await _imagesQueryRepository.GetImage(existingProductModel.ImageUrl);
+
+                    if (imageModel != null)
+                    {
+                        var directory = Path.Combine(_env.WebRootPath, "images");
+                        var existingOriginalImagePath = Path.Combine(directory, imageModel.OriginalImage);
+                        var existingThumbnailImagePath = Path.Combine(directory, imageModel.ThumbnailImage);
+
+                        if (File.Exists(existingOriginalImagePath) && File.Exists(existingThumbnailImagePath))
+                        {
+                            File.Delete(existingOriginalImagePath);
+                            File.Delete(existingThumbnailImagePath);
+
+                            await _imagesQueryRepository.DeleteImagesByProductId(productId);
+                            await _imagesCommandsRepository.Delete(imageModel);
+                        }
+
+                        await _tagsQueryRepository.DeleteTagsByProductId(productId);
+
+                        await _productCommandsRepository.Delete(existingProductModel);
+
+                        return new Response()
+                        {
+                            Message = "Product Deleted Successfully",
+                            IsSuccess = true
+                        };
+                    }
+                    else
+                    {
+                        return new Response()
+                        {
+                            Message = "Couldn't resolve image",
+                            IsSuccess = false
+                        };
+                    }
+                }
+                else
+                {
+                    return new Response()
+                    {
+                        Message = "Product Doesn't Exist",
+                        IsSuccess = false
+                    };
+                }
             }
-            else
+            catch (Exception e)
             {
                 return new Response()
                 {
-                    Message = "Product Doesn't Exist",
+                    Message = "Error: " + e,
                     IsSuccess = false
                 };
             }
