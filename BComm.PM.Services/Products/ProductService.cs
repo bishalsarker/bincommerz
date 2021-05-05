@@ -14,6 +14,7 @@ using BComm.PM.Models.Images;
 using BComm.PM.Dto.Products;
 using System.Linq;
 using System.IO;
+using BComm.PM.Dto.Images;
 
 namespace BComm.PM.Services.Products
 {
@@ -157,9 +158,17 @@ namespace BComm.PM.Services.Products
             }
         }
 
-        public async Task<Response> GetAllProducts()
+        public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy)
         {
-            var productModels = await _productQueryRepository.GetProducts("vbt_xyz");
+            var sortCol = "Price";
+            var sortDirection = "asc";
+
+            if (sortBy.Equals("price_high_low"))
+            {
+                sortDirection = "desc";
+            }
+
+            var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection);
             var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
             foreach(var productResponse in productResponses)
@@ -184,6 +193,7 @@ namespace BComm.PM.Services.Products
                 var productResponse = _mapper.Map<ProductResponse>(productModel);
                 var tags = await _tagsQueryRepository.GetTagsByProductId(productId);
                 productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+                productResponse.Images = await GetImageGallery(productId);
 
                 return new Response()
                 {
@@ -333,6 +343,11 @@ namespace BComm.PM.Services.Products
             await _imagesCommandsRepository.Update(imageModel);
 
             return imageModel;
+        }
+
+        private async Task<IEnumerable<ImageResponse>> GetImageGallery(string productId)
+        {
+            return _mapper.Map<IEnumerable<ImageResponse>>(await _imagesQueryRepository.GetImageGallery(productId));
         }
     }
 }

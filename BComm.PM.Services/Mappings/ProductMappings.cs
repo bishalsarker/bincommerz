@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using BComm.PM.Dto.Images;
 using BComm.PM.Dto.Payloads;
 using BComm.PM.Dto.Products;
+using BComm.PM.Models.Images;
 using BComm.PM.Models.Products;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,14 @@ namespace BComm.PM.Services.Mappings
                 opt => opt.MapFrom(src => src.HashId))
                 .ForMember(dest => dest.ImageUrl,
                 opt => opt.MapFrom(src => src.ImageDirectory + src.ImageUrl));
+
+            CreateMap<Image, ImageResponse>()
+                .ForMember(dest => dest.Id,
+                opt => opt.MapFrom(src => src.HashId))
+                .ForMember(dest => dest.OriginalImage,
+                opt => opt.MapFrom(src => src.Directory + src.OriginalImage))
+                .ForMember(dest => dest.ThumbnailImage,
+                opt => opt.MapFrom(src => src.Directory + src.ThumbnailImage));
         }
     }
 }

@@ -8,6 +8,6 @@ namespace BComm.PM.Repositories.Queries
     {
         Task<Product> GetProductById(string productId, bool resolveImage);
         Task<Product> GetProductByTag(string tagId);
-        Task<IEnumerable<Product>> GetProducts(string shopId);
+        Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder);
     }
 }

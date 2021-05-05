@@ -12,7 +12,7 @@ namespace BComm.PM.Repositories.Queries
 {
     public class ProductQueryRepository : IProductQueryRepository
     {
-        public async Task<IEnumerable<Product>> GetProducts(string shopId)
+        public async Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder)
         {
             using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
             {
@@ -20,13 +20,28 @@ namespace BComm.PM.Repositories.Queries
                     .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
-                    "left join {1} on {0}.ImageUrl={1}.HashId " +
-                    "where {0}.ShopId=@shopid",
+                    "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid ",
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();
 
-                return await conn.QueryAsync<Product>(query, new { @shopid = shopId });
+                if (!string.IsNullOrEmpty(tagId))
+                {
+                    query = query + new StringBuilder()
+                    .AppendFormat("inner join {0} on {1}.HashId={0}.ProductHashId and {0}.TagHashId=@tagid ",
+                    TableNameConstants.ProductTagsTable,
+                    TableNameConstants.ProductsTable)
+                    .ToString();
+                }
+
+                query = query + new StringBuilder()
+                    .AppendFormat("order by {0}.{1} {2}",
+                    TableNameConstants.ProductsTable,
+                    sortCol,
+                    sortOrder)
+                    .ToString();
+
+                return await conn.QueryAsync<Product>(query, new { @shopid = shopId, @tagid = tagId });
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Models.Images;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Repositories.Queries
@@ -7,5 +8,6 @@ namespace BComm.PM.Repositories.Queries
     {
         Task DeleteImagesByProductId(string productId);
         Task<Image> GetImage(string imageId);
+        Task<IEnumerable<Image>> GetImageGallery(string productId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Dto.Payloads;
+using BComm.PM.Models.Products;
 using BComm.PM.Services.Products;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,10 +33,10 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _productService.GetProductById(productId));
         }
 
-        [HttpGet("get/all/{shopId}")]
-        public async Task<IActionResult> GetAllProducts(string shopId)
+        [HttpGet("get/all")]
+        public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery)
         {
-            return Ok(await _productService.GetAllProducts());
+            return Ok(await _productService.GetAllProducts("vbt_xyz", filterQuery.TagId, filterQuery.SortBy));
         }
 
         [HttpPut("update")]

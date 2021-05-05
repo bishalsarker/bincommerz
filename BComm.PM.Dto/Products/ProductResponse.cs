@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BComm.PM.Dto.Images;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,6 +14,8 @@ namespace BComm.PM.Dto.Products
         public string Description { get; set; }
 
         public string ImageUrl { get; set; }
+
+        public IEnumerable<ImageResponse> Images { get; set; }
 
         public double Price { get; set; }
 
