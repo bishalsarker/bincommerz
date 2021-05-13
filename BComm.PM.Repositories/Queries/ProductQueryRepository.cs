@@ -71,6 +71,18 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
+        public async Task<IEnumerable<Product>> GetProductsById(List<string> productIds, string shopId)
+        {
+            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select HashId, Name, Price, Discount from {0} where HashId in @productids and ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .ToString();
+
+                return await conn.QueryAsync<Product>(query, new { @productids = productIds, @shopid = shopId });
+            }
+        }
+
         public async Task<Product> GetProductByTag(string tagId)
         {
             using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))

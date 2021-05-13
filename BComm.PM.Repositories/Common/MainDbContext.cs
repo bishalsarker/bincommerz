@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Models.Images;
+using BComm.PM.Models.Orders;
 using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,10 @@ namespace BComm.PM.Repositories.Common
         public DbSet<Image> Images { get; set; }
 
         public DbSet<ImageGalleryItem> ImageGallery { get; set; }
+
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<OrderItemModel> OrderItems { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -60,6 +65,21 @@ namespace BComm.PM.Repositories.Common
                 .IsClustered(false);
 
             modelBuilder.Entity<ImageGalleryItem>()
+                .HasIndex(t => t.ProductId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Order>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Order>()
+                .HasIndex(t => t.ShopId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<OrderItemModel>()
                 .HasIndex(t => t.ProductId)
                 .IsUnique(false)
                 .IsClustered(false);
