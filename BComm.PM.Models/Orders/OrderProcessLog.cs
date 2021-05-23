@@ -7,22 +7,18 @@ using System.Text;
 
 namespace BComm.PM.Models.Orders
 {
-    [Table("order_items", Schema = "bcomm_om")]
-    public class OrderItemModel : BaseEntity
+    [Table("order_process_logs", Schema = "bcomm_om")]
+    public class OrderProcessLog : BaseEntity
     {
         [Required]
         public string OrderId { get; set; }
 
         [Required]
-        public string ProductId { get; set; }
+        public string Title { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string Description { get; set; }
 
-        public double Price { get; set; }
-
-        public double Discount { get; set; }
-
-        public double Quantity { get; set; }
+        public DateTime LogDateTime { get; set; }
     }
 }

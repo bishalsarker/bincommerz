@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BComm.PM.Dto.Orders;
 using BComm.PM.Dto.Payloads;
 using BComm.PM.Models.Orders;
 using BComm.PM.Models.Products;
@@ -13,9 +14,15 @@ namespace BComm.PM.Services.Mappings
         public OrderMappings()
         {
             CreateMap<OrderPayload, Order>();
+            CreateMap<Order, OrderResponse>()
+                .ForMember(dest => dest.Id,
+                opt => opt.MapFrom(src => src.HashId));
+
             CreateMap<Product, OrderItemModel>()
                 .ForMember(dest => dest.ProductId,
                 opt => opt.MapFrom(src => src.HashId));
+
+            CreateMap<OrderItemModel, OrderItemResponse>();
         }
     }
 }

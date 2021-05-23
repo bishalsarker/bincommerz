@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BComm.PM.Repositories.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    [Migration("20210512032441_OrderItemsTableCreation")]
-    partial class OrderItemsTableCreation
+    [Migration("20210519053950_ProcessOrderOrderItemOrderProcessLogsTableCreation")]
+    partial class ProcessOrderOrderItemOrderProcessLogsTableCreation
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -63,6 +63,9 @@ namespace BComm.PM.Repositories.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CurrentProcessId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -75,17 +78,14 @@ namespace BComm.PM.Repositories.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("IsCompleted")
+                    b.Property<bool>("IsCanceled")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsPaid")
+                    b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PaymentNotes")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
@@ -95,17 +95,33 @@ namespace BComm.PM.Repositories.Migrations
                     b.Property<DateTime>("PlacedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<double>("ShippingCharge")
+                        .HasColumnType("float");
+
                     b.Property<string>("ShopId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("TotalDue")
+                        .HasColumnType("float");
 
                     b.Property<double>("TotalPayable")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CurrentProcessId")
+                        .IsClustered(false);
+
                     b.HasIndex("HashId")
                         .IsUnique()
+                        .IsClustered(false);
+
+                    b.HasIndex("IsCompleted")
                         .IsClustered(false);
 
                     b.HasIndex("ShopId")
@@ -128,6 +144,10 @@ namespace BComm.PM.Repositories.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
@@ -140,10 +160,87 @@ namespace BComm.PM.Repositories.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderId")
+                        .IsClustered(false);
+
                     b.HasIndex("ProductId")
                         .IsClustered(false);
 
                     b.ToTable("order_items", "bcomm_om");
+                });
+
+            modelBuilder.Entity("BComm.PM.Models.Orders.OrderProcessLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LogDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsClustered(false);
+
+                    b.ToTable("order_process_logs", "bcomm_om");
+                });
+
+            modelBuilder.Entity("BComm.PM.Models.Processes.Process", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("HashId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShopId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StepNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TrackingDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrackingTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HashId")
+                        .IsUnique()
+                        .IsClustered(false);
+
+                    b.HasIndex("ShopId")
+                        .IsClustered(false);
+
+                    b.ToTable("processes", "bcomm_om");
                 });
 
             modelBuilder.Entity("BComm.PM.Models.Products.ImageGalleryItem", b =>

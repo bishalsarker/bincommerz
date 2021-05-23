@@ -1,28 +1,20 @@
-﻿using BComm.PM.Models.Common;
+﻿using BComm.PM.Dto.Processes;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace BComm.PM.Models.Orders
+namespace BComm.PM.Dto.Orders
 {
-    [Table("orders", Schema = "bcomm_om")]
-    public class Order : WithHashId
+    public class OrderResponse
     {
-        [Required]
-        public string ShopId { get; set; }
+        public string Id { get; set; }
 
-        [Required]
         public string FullName { get; set; }
 
-        [Required]
         public string Phone { get; set; }
 
-        [Required]
         public string Email { get; set; }
 
-        [Required]
         public string Address { get; set; }
 
         public double TotalPayable { get; set; }
@@ -31,7 +23,6 @@ namespace BComm.PM.Models.Orders
 
         public double ShippingCharge { get; set; }
 
-        [Required]
         public string PaymentMethod { get; set; }
 
         public DateTime PlacedOn { get; set; }
@@ -40,9 +31,10 @@ namespace BComm.PM.Models.Orders
 
         public bool IsCompleted { get; set; }
 
-        public string CurrentProcessId { get; set; }
+        public ProcessResponse CurrentProcess { get; set; }
 
-        [Required]
         public string Status { get; set; }
+
+        public IEnumerable<OrderItemResponse> Items { get; set; }
     }
 }

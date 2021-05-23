@@ -12,6 +12,8 @@ namespace BComm.PM.Repositories.Configurations
             services.AddTransient<ITagsQueryRepository, TagsQueryRepository>();
             services.AddTransient<IProductQueryRepository, ProductQueryRepository>();
             services.AddTransient<IImagesQueryRepository, ImagesQueryRepository>();
+            services.AddTransient<IOrderQueryRepository, OrderQueryRepository>();
+            services.AddTransient<IProcessQueryRepository, ProcessQueryRepository>();
         }
     }
 }

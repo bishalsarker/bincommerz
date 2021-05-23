@@ -11,12 +11,13 @@ namespace BComm.PM.Services.Configurations
     {
         public static void AddBusinessServices(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(TagMappings), typeof(ProductMappings), typeof(OrderMappings));
+            services.AddAutoMapper(typeof(TagMappings), typeof(ProductMappings), typeof(OrderMappings), typeof(ProcessMappings));
 
             // Services
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IProcessService, ProcessService>();
         }
     }
 }

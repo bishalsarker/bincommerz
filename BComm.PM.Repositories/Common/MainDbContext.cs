@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Models.Images;
 using BComm.PM.Models.Orders;
+using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
 using Microsoft.EntityFrameworkCore;
@@ -18,9 +19,13 @@ namespace BComm.PM.Repositories.Common
 
         public DbSet<ImageGalleryItem> ImageGallery { get; set; }
 
+        public DbSet<Process> Processes { get; set; }
+
         public DbSet<Order> Orders { get; set; }
 
         public DbSet<OrderItemModel> OrderItems { get; set; }
+
+        public DbSet<OrderProcessLog> OrderProcessLogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -69,6 +74,16 @@ namespace BComm.PM.Repositories.Common
                 .IsUnique(false)
                 .IsClustered(false);
 
+            modelBuilder.Entity<Process>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Process>()
+                .HasIndex(t => t.ShopId)
+                .IsUnique(false)
+                .IsClustered(false);
+
             modelBuilder.Entity<Order>()
                 .HasIndex(t => t.HashId)
                 .IsUnique(true)
@@ -79,8 +94,28 @@ namespace BComm.PM.Repositories.Common
                 .IsUnique(false)
                 .IsClustered(false);
 
+            modelBuilder.Entity<Order>()
+                .HasIndex(t => t.IsCompleted)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Order>()
+                .HasIndex(t => t.CurrentProcessId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<OrderItemModel>()
+                .HasIndex(t => t.OrderId)
+                .IsUnique(false)
+                .IsClustered(false);
+
             modelBuilder.Entity<OrderItemModel>()
                 .HasIndex(t => t.ProductId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<OrderProcessLog>()
+                .HasIndex(t => t.OrderId)
                 .IsUnique(false)
                 .IsClustered(false);
         }
