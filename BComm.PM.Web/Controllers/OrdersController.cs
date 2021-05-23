@@ -38,6 +38,12 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _orderService.GetOrder(order_id));
         }
 
+        [HttpGet("track/{order_id}")]
+        public async Task<IActionResult> TrackOrder(string order_id)
+        {
+            return Ok(await _orderService.TrackOrder(order_id));
+        }
+
         [HttpPatch("updateprocess")]
         public async Task<IActionResult> UpdateProcess(ProcessUpdatePayload processUpdateRequest)
         {

@@ -9,5 +9,6 @@ namespace BComm.PM.Repositories.Queries
         Task<Order> GetOrder(string orderId);
         Task<IEnumerable<OrderItemModel>> GetOrderItems(string orderId);
         Task<IEnumerable<Order>> GetOrders(string shopId, bool isCompleted);
+        Task<IEnumerable<OrderProcessLog>> OrderLogs(string orderId);
     }
 }

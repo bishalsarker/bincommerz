@@ -23,6 +23,7 @@ namespace BComm.PM.Services.Mappings
                 opt => opt.MapFrom(src => src.HashId));
 
             CreateMap<OrderItemModel, OrderItemResponse>();
+            CreateMap<OrderProcessLog, OrderProcessLogResponse>();
         }
     }
 }

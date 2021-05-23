@@ -18,5 +18,6 @@ namespace BComm.PM.Repositories.Common
         public static readonly string ProcessTable = OmSchemaName + "." + "processes";
         public static readonly string OrdersTable = OmSchemaName + "." + "orders";
         public static readonly string OrderItemsTable = OmSchemaName + "." + "order_items";
+        public static readonly string OrderProcessLogsTable = OmSchemaName + "." + "order_process_logs";
     }
 }

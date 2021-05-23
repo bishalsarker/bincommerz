@@ -142,6 +142,17 @@ namespace BComm.PM.Services.Orders
             };
         }
 
+        public async Task<Response> TrackOrder(string orderId)
+        {
+            var orderProcessLogsModel = await _orderQueryRepository.OrderLogs(orderId);
+
+            return new Response()
+            {
+                Data = _mapper.Map<IEnumerable<OrderProcessLogResponse>>(orderProcessLogsModel),
+                IsSuccess = true
+            };
+        }
+
         public async Task<Response> UpdateProcess(ProcessUpdatePayload processUpdateRequest)
         {
             try
