@@ -24,6 +24,9 @@ namespace BComm.PM.Services.Mappings
 
             CreateMap<OrderItemModel, OrderItemResponse>();
             CreateMap<OrderProcessLog, OrderProcessLogResponse>();
+
+            CreateMap<OrderPaymentPayload, OrderPaymentLog>();
+            CreateMap<OrderPaymentLog, OrderPaymentLogResponse>();
         }
     }
 }

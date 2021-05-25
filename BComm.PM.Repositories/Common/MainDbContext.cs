@@ -27,6 +27,8 @@ namespace BComm.PM.Repositories.Common
 
         public DbSet<OrderProcessLog> OrderProcessLogs { get; set; }
 
+        public DbSet<OrderPaymentLog> OrderPaymentLogs { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;");
@@ -115,6 +117,11 @@ namespace BComm.PM.Repositories.Common
                 .IsClustered(false);
 
             modelBuilder.Entity<OrderProcessLog>()
+                .HasIndex(t => t.OrderId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<OrderPaymentLog>()
                 .HasIndex(t => t.OrderId)
                 .IsUnique(false)
                 .IsClustered(false);

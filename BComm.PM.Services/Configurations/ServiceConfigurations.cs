@@ -17,6 +17,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IOrderPaymentService, OrderPaymentService>();
             services.AddScoped<IProcessService, ProcessService>();
         }
     }

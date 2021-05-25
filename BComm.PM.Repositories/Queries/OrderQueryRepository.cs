@@ -55,6 +55,20 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
+        public async Task<IEnumerable<OrderPaymentLog>> OrderPaymentLogs(string orderId)
+        {
+            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select * from {0} " +
+                    "where OrderId=@orderid " +
+                    "order by LogDateTime desc", TableNameConstants.OrderPaymentLogsTable)
+                    .ToString();
+
+                return await conn.QueryAsync<OrderPaymentLog>(query, new { @orderid = orderId });
+            }
+        }
+
         public async Task<IEnumerable<OrderItemModel>> GetOrderItems(string orderId)
         {
             using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))

@@ -14,10 +14,12 @@ namespace BComm.PM.Web.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IOrderPaymentService _orderPaymentService;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(IOrderService orderService, IOrderPaymentService orderPaymentService)
         {
             _orderService = orderService;
+            _orderPaymentService = orderPaymentService;
         }
 
         [HttpPost("addnew")]
@@ -60,6 +62,24 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> CompleteOrder(OrderUpdatePayload orderUpdatePayload)
         {
             return Ok(await _orderService.CompleteOrder(orderUpdatePayload));
+        }
+
+        [HttpGet("payment/logs/{orderId}")]
+        public async Task<IActionResult> GetPaymentLogs(string orderId)
+        {
+            return Ok(await _orderPaymentService.GetPaymentLogs(orderId));
+        }
+
+        [HttpPatch("payment/add")]
+        public async Task<IActionResult> AddOrderPayment(OrderPaymentPayload newOrderPaymentRequest)
+        {
+            return Ok(await _orderPaymentService.AddPayment(newOrderPaymentRequest));
+        }
+
+        [HttpPatch("payment/deduct")]
+        public async Task<IActionResult> DeductOrderPayment(OrderPaymentPayload newOrderPaymentRequest)
+        {
+            return Ok(await _orderPaymentService.DeductPayment(newOrderPaymentRequest));
         }
     }
 }
