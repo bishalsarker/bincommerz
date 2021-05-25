@@ -9,6 +9,7 @@ namespace BComm.PM.Services.Products
         Task<Response> AddNewProduct(ProductPayload newProductRequest);
         Task<Response> DeleteProduct(string productId);
         Task<Response> GetAllProducts(string shopId, string tagId, string sortBy);
+        Task<Response> SearchProducts(string q);
         Task<Response> GetProductById(string productId);
         Task<Response> UpdateProduct(ProductUpdatePayload newProductRequest);
     }

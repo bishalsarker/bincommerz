@@ -45,6 +45,24 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
+        public async Task<IEnumerable<Product>> GetProductsByKeywords(string keyword, string shopId)
+        {
+            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
+                    "from {0} " +
+                    "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid " +
+                    "where {0}.Name like '%" + keyword + "%' or {0}.Description like '%" + keyword + "%'",
+                    TableNameConstants.ProductsTable,
+                    TableNameConstants.ImagesTable)
+                    .ToString();
+
+                return await conn.QueryAsync<Product>(query, new { @shopid = shopId });
+            }
+        }
+
         public async Task<Product> GetProductById(string productId, bool resolveImage)
         {
             using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))

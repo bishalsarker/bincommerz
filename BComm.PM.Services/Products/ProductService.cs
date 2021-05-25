@@ -184,6 +184,24 @@ namespace BComm.PM.Services.Products
             };
         }
 
+        public async Task<Response> SearchProducts(string q)
+        {
+            var productModels = await _productQueryRepository.GetProductsByKeywords(q, "vbt_xyz");
+            var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
+
+            foreach (var productResponse in productResponses)
+            {
+                var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
+                productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+            }
+
+            return new Response()
+            {
+                Data = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                IsSuccess = true
+            };
+        }
+
         public async Task<Response> GetProductById(string productId)
         {
             var productModel = await _productQueryRepository.GetProductById(productId, true);

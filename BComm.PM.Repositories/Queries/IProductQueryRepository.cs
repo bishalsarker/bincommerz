@@ -10,5 +10,6 @@ namespace BComm.PM.Repositories.Queries
         Task<Product> GetProductByTag(string tagId);
         Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder);
         Task<IEnumerable<Product>> GetProductsById(List<string> productIds, string shopId);
+        Task<IEnumerable<Product>> GetProductsByKeywords(string keyword, string shopId);
     }
 }

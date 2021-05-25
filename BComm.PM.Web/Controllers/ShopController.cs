@@ -35,6 +35,12 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _productService.GetAllProducts("vbt_xyz", filterQuery.TagId, filterQuery.SortBy));
         }
 
+        [HttpGet("products/search")]
+        public async Task<IActionResult> SearchProducts(string q)
+        {
+            return Ok(await _productService.SearchProducts(q));
+        }
+
         [HttpGet("products/{productId}/{shopId}")]
         public async Task<IActionResult> GetProductById(string productId, string shopId)
         {
