@@ -6,7 +6,7 @@ namespace BComm.PM.Services.Orders
 {
     public interface IOrderService
     {
-        Task<Response> AddNewOrder(OrderPayload newOrderRequest);
+        Task<Response> AddNewOrder(OrderPayload newOrderRequest, string shopId);
         Task<Response> CancelOrder(OrderUpdatePayload orderUpdatePayload);
         Task<Response> CompleteOrder(OrderUpdatePayload orderUpdatePayload);
         Task<Response> GetAllOrders(string shopId, bool isCompleted);

@@ -56,7 +56,7 @@ namespace BComm.PM.Services.Orders
                     {
                         orderModel.TotalDue = currentDue - newOrderPaymentRequest.Amount;
                         await _orderCommandsRepository.Update(orderModel);
-                        await LogPayment(newOrderPaymentRequest, "deduct");
+                        await LogPayment(newOrderPaymentRequest, "add");
                     }
                 }
 

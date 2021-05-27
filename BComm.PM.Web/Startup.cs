@@ -1,11 +1,14 @@
 using BComm.PM.Repositories.Configurations;
 using BComm.PM.Services.Configurations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace BComm.PM.Web
 {
@@ -37,8 +40,23 @@ namespace BComm.PM.Web
                     .AddJsonOptions(options => 
                     options.JsonSerializerOptions.IgnoreNullValues = true);
 
+            var key = Encoding.ASCII.GetBytes("PDv7DrqznYL6nv7DrqzjnQYO9JxIsWdcjnQYL6nu0f");
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "bincommerz-auth",
+                    ValidAudience = "bincommerz-clients",
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                };
+            });
+
             services.AddRepositories();
             services.AddBusinessServices();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +73,8 @@ namespace BComm.PM.Web
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

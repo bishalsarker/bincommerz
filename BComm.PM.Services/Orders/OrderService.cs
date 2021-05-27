@@ -43,13 +43,13 @@ namespace BComm.PM.Services.Orders
             _mapper = mapper;
         }
 
-        public async Task<Response> AddNewOrder(OrderPayload newOrderRequest)
+        public async Task<Response> AddNewOrder(OrderPayload newOrderRequest, string shopId)
         {
             try
             {
                 var newOrderModel = _mapper.Map<Order>(newOrderRequest);
                 newOrderModel.HashId = Guid.NewGuid().ToString().ToUpper();
-                newOrderModel.ShopId = "vbt_xyz";
+                newOrderModel.ShopId = shopId;
                 newOrderModel.PlacedOn = DateTime.UtcNow;
                 newOrderModel.Status = "PENDING";
 
@@ -117,7 +117,7 @@ namespace BComm.PM.Services.Orders
 
         public async Task<Response> GetAllOrders(string shopId, bool isCompleted)
         {
-            var ordersModel = await _orderQueryRepository.GetOrders("vbt_xyz", isCompleted);
+            var ordersModel = await _orderQueryRepository.GetOrders(shopId, isCompleted);
 
             return new Response()
             {
