@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Models.Common;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,6 +23,12 @@ namespace BComm.PM.Models.Products
 
         [Required]
         public double Discount { get; set; }
+
+        [Required]
+        public string Slug { get; set; }
+
+        [Required]
+        public DateTime AddedOn { get; set; }
 
         [Required]
         public string ShopId { get; set; }

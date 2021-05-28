@@ -34,8 +34,8 @@ namespace BComm.PM.Models.Orders
         [Required]
         public string PaymentMethod { get; set; }
 
-        //[Required]
-        //public string PaymentNotes { get; set; }
+        [Required]
+        public string PaymentNotes { get; set; }
 
         public DateTime PlacedOn { get; set; }
 

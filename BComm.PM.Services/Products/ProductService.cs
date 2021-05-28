@@ -15,6 +15,7 @@ using BComm.PM.Dto.Products;
 using System.Linq;
 using System.IO;
 using BComm.PM.Dto.Images;
+using System.Text.RegularExpressions;
 
 namespace BComm.PM.Services.Products
 {
@@ -59,6 +60,18 @@ namespace BComm.PM.Services.Products
                 var productModel = _mapper.Map<Product>(newProductRequest);
                 productModel.HashId = Guid.NewGuid().ToString("N");
                 productModel.ShopId = "vbt_xyz";
+                productModel.AddedOn = DateTime.Now;
+
+                var slug = GenerateSlug(productModel.Name);
+                var existingSlugs = await _productQueryRepository.GetProductsBySlug(slug, false);
+                if (existingSlugs != null && !existingSlugs.Any())
+                {
+                    productModel.Slug = slug;
+                }
+                else
+                {
+                    productModel.Slug = slug + "-" + (existingSlugs.Count() + 1).ToString();
+                }
 
                 var productImage = new ImageInfo(newProductRequest.Image, productModel.HashId, _env);
 
@@ -166,6 +179,12 @@ namespace BComm.PM.Services.Products
             if (sortBy.Equals("price_high_low"))
             {
                 sortDirection = "desc";
+            }
+
+            if (sortBy.Equals("newest"))
+            {
+                sortCol = "AddedOn";
+                sortDirection = "asc";
             }
 
             var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection);
@@ -366,6 +385,20 @@ namespace BComm.PM.Services.Products
         private async Task<IEnumerable<ImageResponse>> GetImageGallery(string productId)
         {
             return _mapper.Map<IEnumerable<ImageResponse>>(await _imagesQueryRepository.GetImageGallery(productId));
+        }
+
+        private string GenerateSlug(string title)
+        {
+            string str = title.ToLower();
+            // invalid chars           
+            str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            // convert multiple spaces into one space   
+            str = Regex.Replace(str, @"\s+", " ").Trim();
+            // cut and trim 
+            str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
+            str = Regex.Replace(str, @"\s", "-"); // hyphens
+            
+            return str;
         }
     }
 }
