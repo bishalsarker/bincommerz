@@ -70,6 +70,8 @@ namespace BComm.PM.Web
 
             app.UseHttpsRedirection();
 
+            app.UseDefaultFiles();
+
             app.UseStaticFiles();
 
             app.UseRouting();
