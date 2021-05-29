@@ -4,6 +4,7 @@ using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace BComm.PM.Repositories.Common
 {
@@ -29,9 +30,17 @@ namespace BComm.PM.Repositories.Common
 
         public DbSet<OrderPaymentLog> OrderPaymentLogs { get; set; }
 
+
+        private readonly string _connectionString;
+
+        public MainDbContext(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetSection("DbConfig:connStr").Value;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(_connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

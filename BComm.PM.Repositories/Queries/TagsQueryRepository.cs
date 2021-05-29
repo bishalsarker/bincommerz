@@ -1,6 +1,7 @@
 ﻿using BComm.PM.Models.Tags;
 using BComm.PM.Repositories.Common;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -11,9 +12,16 @@ namespace BComm.PM.Repositories.Queries
 {
     public class TagsQueryRepository : ITagsQueryRepository
     {
+        private readonly string _connectionString;
+
+        public TagsQueryRepository(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetSection("DbConfig:connStr").Value;
+        }
+
         public async Task<IEnumerable<ProductTags>> GetTagsByProductId(string productId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select TagHashId from {0} where ProductHashId=@productid", TableNameConstants.ProductTagsTable)
@@ -25,7 +33,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task DeleteTagsByProductId(string productId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("delete from {0} where ProductHashId=@productid", TableNameConstants.ProductTagsTable)
@@ -37,7 +45,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Tag> GetTag(string tagId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select Id, ShopId, Name, Description from {0} where HashId=@tagid", TableNameConstants.TagsTable)
@@ -51,7 +59,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Tag>> GetTags(string shopId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {  
                 var query = new StringBuilder()
                     .AppendFormat("select Id, HashId, Name, Description from {0} where ShopId=@shopid", TableNameConstants.TagsTable)

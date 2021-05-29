@@ -1,6 +1,7 @@
 ﻿using BComm.PM.Models.Orders;
 using BComm.PM.Repositories.Common;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -12,9 +13,16 @@ namespace BComm.PM.Repositories.Queries
 {
     public class OrderQueryRepository : IOrderQueryRepository
     {
+        private readonly string _connectionString;
+
+        public OrderQueryRepository(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetSection("DbConfig:connStr").Value;
+        }
+
         public async Task<IEnumerable<Order>> GetOrders(string shopId, bool isCompleted)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * from {0} " +
@@ -28,7 +36,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Order> GetOrder(string orderId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * from {0} " +
@@ -43,7 +51,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<OrderProcessLog>> OrderLogs(string orderId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * from {0} " +
@@ -57,7 +65,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<OrderPaymentLog>> OrderPaymentLogs(string orderId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * from {0} " +
@@ -71,7 +79,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<OrderItemModel>> GetOrderItems(string orderId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * from {0} " +

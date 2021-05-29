@@ -1,6 +1,7 @@
 ﻿using BComm.PM.Models.Images;
 using BComm.PM.Repositories.Common;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -12,9 +13,16 @@ namespace BComm.PM.Repositories.Queries
 {
     public class ImagesQueryRepository : IImagesQueryRepository
     {
+        private readonly string _connectionString;
+
+        public ImagesQueryRepository(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetSection("DbConfig:connStr").Value;
+        }
+
         public async Task<Image> GetImage(string imageId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * from {0} where HashId=@imageid", TableNameConstants.ImagesTable)
@@ -28,7 +36,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Image>> GetImageGallery(string productId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select {0}.Directory, {0}.ThumbnailImage, {0}.OriginalImage, {0}.HashId " +
@@ -45,7 +53,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task DeleteImagesByProductId(string productId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("delete from {0} where ProductId=@productid", TableNameConstants.ImageGalleryTable)

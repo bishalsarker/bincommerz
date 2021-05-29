@@ -1,6 +1,7 @@
 ﻿using BComm.PM.Models.Products;
 using BComm.PM.Repositories.Common;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -12,9 +13,16 @@ namespace BComm.PM.Repositories.Queries
 {
     public class ProductQueryRepository : IProductQueryRepository
     {
+        private readonly string _connectionString;
+
+        public ProductQueryRepository(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetSection("DbConfig:connStr").Value;
+        }
+
         public async Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
@@ -47,7 +55,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Product>> GetProductsByKeywords(string keyword, string shopId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
@@ -65,7 +73,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Product> GetProductById(string productId, bool resolveImage)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var queryAllCol = new StringBuilder()
                     .AppendFormat("select * from {0} where HashId=@productid", TableNameConstants.ProductsTable)
@@ -91,7 +99,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Product>> GetProductsBySlug(string slug, bool resolveImage)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var queryAllCol = new StringBuilder()
                     .AppendFormat("select * from {0} where Slug=@slug", TableNameConstants.ProductsTable)
@@ -115,7 +123,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Product>> GetProductsById(List<string> productIds, string shopId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select HashId, Name, Price, Discount from {0} where HashId in @productids and ShopId=@shopid", TableNameConstants.ProductsTable)
@@ -127,7 +135,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Product> GetProductByTag(string tagId)
         {
-            using (var conn = new SqlConnection(@"Server=.\SQLEXPRESS;Database=bincommerz;Trusted_Connection=True;"))
+            using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select Id, ShopId, Name, Description from {0} where HashId=@tagid", TableNameConstants.ProductsTable)
