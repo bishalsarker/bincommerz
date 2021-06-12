@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Repositories.Common;
+using BComm.PM.Services.Auth;
 using BComm.PM.Services.Mappings;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Products;
@@ -19,6 +20,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IOrderPaymentService, OrderPaymentService>();
             services.AddScoped<IProcessService, ProcessService>();
+            services.AddScoped<IAuthService, AuthService>();
         }
     }
 }

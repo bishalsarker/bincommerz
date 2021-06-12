@@ -36,7 +36,7 @@ namespace BComm.PM.Web
                 });
             });
 
-            services.AddControllers()
+            services.AddControllersWithViews()
                     .AddJsonOptions(options => 
                     options.JsonSerializerOptions.IgnoreNullValues = true);
 
