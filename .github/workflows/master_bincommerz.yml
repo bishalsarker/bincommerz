@@ -27,7 +27,7 @@ jobs:
       run: dotnet build --configuration Release
 
     - name: dotnet publish
-      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/BComm.PM.Web
+      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
     - name: Run Azure webapp deploy action using publish profile credentials
       uses: azure/webapps-deploy@v2
@@ -35,5 +35,5 @@ jobs:
         app-name: bincommerz
         slot-name: Production
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_26DAAB06F8A34DD191E27F74DA1A0B8A }}
-        package: ${{env.DOTNET_ROOT}}/BComm.PM.Web
+        package: ${{env.DOTNET_ROOT}}/myapp
 
