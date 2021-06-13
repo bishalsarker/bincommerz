@@ -63,7 +63,7 @@ namespace BComm.PM.Services.Auth
                     new Claim(ClaimTypes.Email, shopId)
                 }),
 
-                Expires = DateTime.UtcNow.AddDays(1)
+                Expires = DateTime.UtcNow.AddDays(15)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
