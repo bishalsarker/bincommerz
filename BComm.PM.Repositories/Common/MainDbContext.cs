@@ -4,6 +4,7 @@ using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 
 namespace BComm.PM.Repositories.Common
@@ -40,7 +41,10 @@ namespace BComm.PM.Repositories.Common
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_connectionString);
+            optionsBuilder.UseSqlServer(_connectionString, 
+                x => x.MigrationsHistoryTable(
+                HistoryRepository.DefaultTableName,
+                "bcomm"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
