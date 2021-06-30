@@ -26,12 +26,6 @@ namespace BComm.PM.Web.Controllers
             _authService = new AuthService(httpContextAccessor.HttpContext);
         }
 
-        [HttpPost("addnew")]
-        public async Task<IActionResult> AddNewOrder(OrderPayload newOrderRequest, [FromHeader] string shop_id)
-        {
-            return Ok(await _orderService.AddNewOrder(newOrderRequest, shop_id));
-        }
-
         [HttpGet("get/all")]
         [Authorize]
         public async Task<IActionResult> GetAllOrders(bool is_completed)
@@ -44,12 +38,6 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> GetOrder(string order_id)
         {
             return Ok(await _orderService.GetOrder(order_id));
-        }
-
-        [HttpGet("track/{order_id}")]
-        public async Task<IActionResult> TrackOrder(string order_id)
-        {
-            return Ok(await _orderService.TrackOrder(order_id));
         }
 
         [HttpPatch("updateprocess")]

@@ -1,4 +1,6 @@
-﻿using BComm.PM.Models.Products;
+﻿using BComm.PM.Dto.Payloads;
+using BComm.PM.Models.Products;
+using BComm.PM.Services.Orders;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Tags;
 using Microsoft.AspNetCore.Cors;
@@ -18,11 +20,16 @@ namespace BComm.PM.Web.Controllers
     {
         private readonly ITagService _tagService;
         private readonly IProductService _productService;
+        private readonly IOrderService _orderService;
 
-        public ShopController(ITagService tagService, IProductService productService)
+        public ShopController(
+            ITagService tagService, 
+            IProductService productService,
+            IOrderService orderService)
         {
             _tagService = tagService;
             _productService = productService;
+            _orderService = orderService;
         }
 
         [HttpGet("tags/{shopId}")]
@@ -47,6 +54,18 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> GetProductById(string productId, string shopId)
         {
             return Ok(await _productService.GetProductById(productId));
+        }
+
+        [HttpPost("order/addnew")]
+        public async Task<IActionResult> AddNewOrder(OrderPayload newOrderRequest, [FromHeader] string shop_id)
+        {
+            return Ok(await _orderService.AddNewOrder(newOrderRequest, shop_id));
+        }
+
+        [HttpGet("order/track/{order_id}")]
+        public async Task<IActionResult> TrackOrder(string order_id)
+        {
+            return Ok(await _orderService.TrackOrder(order_id));
         }
     }
 }
