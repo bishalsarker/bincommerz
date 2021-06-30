@@ -76,6 +76,8 @@ namespace BComm.PM.Web
 
             app.UseRouting();
 
+            app.UseCors();
+
             app.UseAuthentication();
 
             app.UseAuthorization();
