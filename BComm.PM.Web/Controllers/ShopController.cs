@@ -1,6 +1,7 @@
 ﻿using BComm.PM.Models.Products;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Tags;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,6 +13,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("shop")]
     [ApiController]
+    [EnableCors("_myAllowSpecificOrigins")]
     public class ShopController : ControllerBase
     {
         private readonly ITagService _tagService;
