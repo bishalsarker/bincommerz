@@ -59,7 +59,7 @@ namespace BComm.PM.Web.Controllers
         [HttpGet("products/{productId}/{shopId}")]
         public async Task<IActionResult> GetProductById(string productId, string shopId)
         {
-            return Ok(await _productService.GetProductById(productId));
+            return Ok(await _productService.GetProductById(productId)); 
         }
 
         [HttpPost("order/addnew")]
