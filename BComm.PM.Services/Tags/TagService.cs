@@ -28,11 +28,11 @@ namespace BComm.PM.Services.Tags
             _mapper = mapper;
         }
 
-        public async Task<Response> AddNewTag(TagPayload newTagRequest)
+        public async Task<Response> AddNewTag(TagPayload newTagRequest, string shopId)
         {
             var tagModel = _mapper.Map<Tag>(newTagRequest);
             tagModel.HashId = Guid.NewGuid().ToString("N");
-            tagModel.ShopId = "vbt_xyz";
+            tagModel.ShopId = shopId;
             await _commandsRepository.Add(tagModel);
 
             return new Response()

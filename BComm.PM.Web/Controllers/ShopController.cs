@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Web.Controllers
@@ -21,15 +22,18 @@ namespace BComm.PM.Web.Controllers
         private readonly ITagService _tagService;
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ShopController(
             ITagService tagService, 
             IProductService productService,
-            IOrderService orderService)
+            IOrderService orderService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _tagService = tagService;
             _productService = productService;
             _orderService = orderService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet("tags/{shopId}")]
@@ -41,7 +45,9 @@ namespace BComm.PM.Web.Controllers
         [HttpGet("get/all")]
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery)
         {
-            return Ok(await _productService.GetAllProducts("vbt_xyz", filterQuery.TagId, filterQuery.SortBy));
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _productService.GetAllProducts(shopId, filterQuery.TagId, filterQuery.SortBy));
         }
 
         [HttpGet("products/search")]
