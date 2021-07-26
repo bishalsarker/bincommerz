@@ -53,5 +53,5 @@ jobs:
       with:
         app-name: 'bincommerz'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_b3b0d7eb1b174e3bbbb33a36c48e3194 }}
+        publish-profile: ${{ secrets.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 }}
         package: .
