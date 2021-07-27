@@ -36,30 +36,26 @@ namespace BComm.PM.Web.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpGet("tags/{shopId}")]
-        public async Task<IActionResult> GetTags(string shopId)
+        [HttpGet("tags")]
+        public async Task<IActionResult> GetTags([FromHeader] string shop_id)
         {
-            return Ok(await _tagService.GetTags(shopId));
+            return Ok(await _tagService.GetTags(shop_id));
         }
 
         [HttpGet("get/all")]
-        public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery)
+        public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery, [FromHeader] string shop_id)
         {
-            var claims = _httpContextAccessor.HttpContext.User.Claims;
-            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
-            return Ok(await _productService.GetAllProducts(shopId, filterQuery.TagId, filterQuery.SortBy));
+            return Ok(await _productService.GetAllProducts(shop_id, filterQuery.TagId, filterQuery.SortBy));
         }
 
         [HttpGet("products/search")]
-        public async Task<IActionResult> SearchProducts(string q)
+        public async Task<IActionResult> SearchProducts(string q, [FromHeader] string shop_id)
         {
-            var claims = _httpContextAccessor.HttpContext.User.Claims;
-            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
-            return Ok(await _productService.SearchProducts(q, shopId));
+            return Ok(await _productService.SearchProducts(q, shop_id));
         }
 
-        [HttpGet("products/{productId}/{shopId}")]
-        public async Task<IActionResult> GetProductById(string productId, string shopId)
+        [HttpGet("products/{productId}")]
+        public async Task<IActionResult> GetProductById(string productId)
         {
             return Ok(await _productService.GetProductById(productId)); 
         }
