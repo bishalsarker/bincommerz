@@ -53,7 +53,9 @@ namespace BComm.PM.Web.Controllers
         [HttpGet("products/search")]
         public async Task<IActionResult> SearchProducts(string q)
         {
-            return Ok(await _productService.SearchProducts(q));
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _productService.SearchProducts(q, shopId));
         }
 
         [HttpGet("products/{productId}/{shopId}")]

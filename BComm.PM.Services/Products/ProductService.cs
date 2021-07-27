@@ -53,13 +53,13 @@ namespace BComm.PM.Services.Products
             _env = env;
         }
 
-        public async Task<Response> AddNewProduct(ProductPayload newProductRequest)
+        public async Task<Response> AddNewProduct(ProductPayload newProductRequest, string shopId)
         {
             try
             {
                 var productModel = _mapper.Map<Product>(newProductRequest);
                 productModel.HashId = Guid.NewGuid().ToString("N");
-                productModel.ShopId = "vbt_xyz";
+                productModel.ShopId = shopId;
                 productModel.AddedOn = DateTime.Now;
 
                 var slug = GenerateSlug(productModel.Name);
@@ -203,9 +203,9 @@ namespace BComm.PM.Services.Products
             };
         }
 
-        public async Task<Response> SearchProducts(string q)
+        public async Task<Response> SearchProducts(string q, string shopId)
         {
-            var productModels = await _productQueryRepository.GetProductsByKeywords(q, "vbt_xyz");
+            var productModels = await _productQueryRepository.GetProductsByKeywords(q, shopId);
             var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
             foreach (var productResponse in productResponses)

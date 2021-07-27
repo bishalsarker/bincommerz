@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Web.Controllers
@@ -18,18 +19,22 @@ namespace BComm.PM.Web.Controllers
     {
         private readonly IProductService _productService;
         private readonly AuthService _authService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ProductsController(IProductService productService, IHttpContextAccessor httpContextAccessor)
         {
             _productService = productService;
             _authService = new AuthService(httpContextAccessor.HttpContext);
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpPost("addnew")]
         [Authorize]
         public async Task<IActionResult> AddNewProduct(ProductPayload newProductRequest)
         {
-            return Ok(await _productService.AddNewProduct(newProductRequest));
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _productService.AddNewProduct(newProductRequest, shopId));
         }
 
         [HttpGet("get/{productId}")]
