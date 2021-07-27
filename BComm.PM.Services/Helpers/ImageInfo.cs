@@ -79,14 +79,14 @@ namespace BComm.PM.Services.Helpers
 
         private void GetFileExtension()
         {
-            if (_fileString.Contains("iVBORw0KGgo"))
+            if (_fileString.ToUpper().Contains("IVBOR"))
             {
                 _fileExtension = ".png";
             }
 
-            if (_fileString.Contains("/9j/4AAQSkZJRgABAQEASABIAAD"))
+            if (_fileString.ToUpper().Contains("/9J/4"))
             {
-                _fileExtension = ".jpeg";
+                _fileExtension = ".jpg";
             }
         }
     }
