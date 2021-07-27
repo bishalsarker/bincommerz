@@ -24,6 +24,7 @@ namespace BComm.PM.Services.Orders
         private readonly IProductQueryRepository _productQueryRepository;
         private readonly IProcessQueryRepository _processQueryRepository;
         private readonly IMapper _mapper;
+        private readonly IDictionary<string, double> _deliveryChargeMap;
 
         public OrderService(
             ICommandsRepository<Order> orderCommandsRepository,
@@ -41,6 +42,9 @@ namespace BComm.PM.Services.Orders
             _processQueryRepository = processQueryRepository;
             _orderProcessLogCommandsRepository = orderProcessLogCommandsRepository;
             _mapper = mapper;
+
+            _deliveryChargeMap = new Dictionary<string, double>();
+            _deliveryChargeMap.Add("potterybd", 150.00);
         }
 
         public async Task<Response> AddNewOrder(OrderPayload newOrderRequest, string shopId)
@@ -58,7 +62,7 @@ namespace BComm.PM.Services.Orders
                     await _orderCommandsRepository.Add(newOrderModel);
 
                     var productModels = await _productQueryRepository.GetProductsById(
-                        newOrderRequest.Items.Select(x => x.ProductId).ToList(), "vbt_xyz");
+                        newOrderRequest.Items.Select(x => x.ProductId).ToList(), shopId);
 
                     var totalPayable = 0.00;
 
@@ -75,9 +79,11 @@ namespace BComm.PM.Services.Orders
                         totalPayable = totalPayable + productPrice * orderItemQuantity;
                     }
 
-                    newOrderModel.ShippingCharge = 70;
-                    newOrderModel.TotalPayable = totalPayable + 70; // shipping charge (70) addition
-                    newOrderModel.TotalDue = totalPayable + 70;
+                    var shippingCharge = GetShippingCharge(shopId);
+
+                    newOrderModel.ShippingCharge = shippingCharge;
+                    newOrderModel.TotalPayable = totalPayable + shippingCharge;
+                    newOrderModel.TotalDue = totalPayable + shippingCharge;
 
                     await _orderCommandsRepository.Update(newOrderModel);
 
@@ -85,7 +91,7 @@ namespace BComm.PM.Services.Orders
                     {
                         OrderId = newOrderModel.HashId,
                         Title = "Order Placed",
-                        Description = "",
+                        Description = "Your have been placed and picked for processing",
                         LogDateTime = DateTime.UtcNow
                     });
                 } 
@@ -261,6 +267,18 @@ namespace BComm.PM.Services.Orders
                     IsSuccess = false
                 };
             }
+        }
+
+        private double GetShippingCharge(string shopId)
+        {
+            double result = 0.00;
+
+            if (_deliveryChargeMap.TryGetValue(shopId, out result))
+            {
+                Console.WriteLine(result);
+            }
+
+            return result;
         }
     }
 }
