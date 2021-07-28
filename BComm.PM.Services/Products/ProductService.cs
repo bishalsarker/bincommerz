@@ -230,7 +230,7 @@ namespace BComm.PM.Services.Products
                 var productResponse = _mapper.Map<ProductResponse>(productModel);
                 var tags = await _tagsQueryRepository.GetTagsByProductId(productId);
                 productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
-                productResponse.Images = await GetImageGallery(productId);
+                productResponse.Images = await GetImages(productId);
 
                 return new Response()
                 {
@@ -256,25 +256,27 @@ namespace BComm.PM.Services.Products
 
                 if (existingProductModel != null)
                 {
-                    var imageModel = await _imagesQueryRepository.GetImage(existingProductModel.ImageUrl);
+                    var galleryImages = await _imagesQueryRepository.GetImageGallery(productId);
 
-                    if (imageModel != null)
+                    try
                     {
-                        var directory = Path.Combine(_env.WebRootPath, "images");
-                        var existingOriginalImagePath = Path.Combine(directory, imageModel.OriginalImage);
-                        var existingThumbnailImagePath = Path.Combine(directory, imageModel.ThumbnailImage);
-
-                        if (File.Exists(existingOriginalImagePath) && File.Exists(existingThumbnailImagePath))
+                        foreach (var galimg in galleryImages)
                         {
-                            File.Delete(existingOriginalImagePath);
-                            File.Delete(existingThumbnailImagePath);
+                            var directory = Path.Combine(_env.WebRootPath, "images");
+                            var existingOriginalImagePath = Path.Combine(directory, galimg.OriginalImage);
+                            var existingThumbnailImagePath = Path.Combine(directory, galimg.ThumbnailImage);
 
-                            await _imagesQueryRepository.DeleteImagesByProductId(productId);
-                            await _imagesCommandsRepository.Delete(imageModel);
+                            if (File.Exists(existingOriginalImagePath) && File.Exists(existingThumbnailImagePath))
+                            {
+                                File.Delete(existingOriginalImagePath);
+                                File.Delete(existingThumbnailImagePath);
+
+                                await _imagesQueryRepository.DeleteByImageId(galimg.HashId, productId);
+                                await _imagesQueryRepository.DeleteImage(galimg.HashId);
+                            }
                         }
 
                         await _tagsQueryRepository.DeleteTagsByProductId(productId);
-
                         await _productCommandsRepository.Delete(existingProductModel);
 
                         return new Response()
@@ -283,11 +285,11 @@ namespace BComm.PM.Services.Products
                             IsSuccess = true
                         };
                     }
-                    else
+                    catch(Exception e)
                     {
                         return new Response()
                         {
-                            Message = "Couldn't resolve image",
+                            Message = "Couldn't delete the product: " + e.Message,
                             IsSuccess = false
                         };
                     }
@@ -309,6 +311,91 @@ namespace BComm.PM.Services.Products
                     IsSuccess = false
                 };
             }
+        }
+
+        public async Task<Response> GetImageGallery(string productId)
+        {
+            var images = await GetImages(productId);
+            var productDetails = await _productQueryRepository.GetProductById(productId, false);
+
+            images.ToList().ForEach(x =>
+            {
+                if(productDetails.ImageUrl == x.Id)
+                {
+                    x.IsDefault = true;
+                }
+            });
+
+            return new Response()
+            {
+                Data = images,
+                IsSuccess = true
+            };
+        }
+
+        public async Task<Response> AddGalleryImage(GalleryImageRequest imageUploadRequest)
+        {
+            var productImage = new ImageInfo(imageUploadRequest.Image, Guid.NewGuid().ToString("N"), _env);
+
+            var imageModel = await AddImages(productImage);
+
+            var galleryItemId = Guid.NewGuid().ToString("N");
+
+            await _imageGalleryCommandsRepository.Add(new ImageGalleryItem()
+            {
+                ImageId = imageModel.HashId,
+                ProductId = imageUploadRequest.ProductId,
+                HashId = galleryItemId
+            });
+
+            return new Response()
+            {
+                Data = galleryItemId,
+                IsSuccess = true
+            };
+        }
+
+        public async Task<Response> DeleteGalleryImage(string imageId, string productId)
+        {
+            var imageModel = await _imagesQueryRepository.GetImage(imageId);
+            if (imageModel != null)
+            {
+                var directory = Path.Combine(_env.WebRootPath, "images");
+                var existingOriginalImagePath = Path.Combine(directory, imageModel.OriginalImage);
+                var existingThumbnailImagePath = Path.Combine(directory, imageModel.ThumbnailImage);
+
+                if (File.Exists(existingOriginalImagePath) && File.Exists(existingThumbnailImagePath))
+                {
+                    File.Delete(existingOriginalImagePath);
+                    File.Delete(existingThumbnailImagePath);
+
+                    await _imagesQueryRepository.DeleteByImageId(imageId, productId);
+                    await _imagesCommandsRepository.Delete(imageModel);
+                }
+
+                return new Response()
+                {
+                    Message = "Image Deleted Successfully",
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Couldn't resolve image",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        private async Task<IEnumerable<ImageResponse>> GetImages(string productId)
+        {
+            var images = _mapper.Map<IEnumerable<ImageResponse>>(
+                await _imagesQueryRepository.GetImageGallery(productId)
+            );
+
+            return images;
         }
 
         private async Task AddTags(IEnumerable<string> tags, string productHashId)
@@ -380,11 +467,6 @@ namespace BComm.PM.Services.Products
             await _imagesCommandsRepository.Update(imageModel);
 
             return imageModel;
-        }
-
-        private async Task<IEnumerable<ImageResponse>> GetImageGallery(string productId)
-        {
-            return _mapper.Map<IEnumerable<ImageResponse>>(await _imagesQueryRepository.GetImageGallery(productId));
         }
 
         private string GenerateSlug(string title)

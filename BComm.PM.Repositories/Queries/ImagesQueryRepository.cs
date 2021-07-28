@@ -62,5 +62,29 @@ namespace BComm.PM.Repositories.Queries
                 await conn.ExecuteAsync(query, new { @productid = productId });
             }
         }
+
+        public async Task DeleteByImageId(string imageId, string productId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("delete from {0} where ImageId=@imageid and ProductId=@productid", TableNameConstants.ImageGalleryTable)
+                    .ToString();
+
+                await conn.ExecuteAsync(query, new { @imageid = imageId, @productid = productId });
+            }
+        }
+
+        public async Task DeleteImage(string imageHashId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("delete from {0} where HashId=@imageid", TableNameConstants.ImagesTable)
+                    .ToString();
+
+                await conn.ExecuteAsync(query, new { @imageid = imageHashId });
+            }
+        }
     }
 }

@@ -11,5 +11,7 @@ namespace BComm.PM.Dto.Images
         public string OriginalImage { get; set; }
 
         public string ThumbnailImage { get; set; }
+
+        public bool IsDefault { get; set; }
     }
 }

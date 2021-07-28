@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Dto.Payloads;
+using BComm.PM.Models.Images;
 using BComm.PM.Models.Products;
 using BComm.PM.Services.Common;
 using BComm.PM.Services.Products;
@@ -63,6 +64,27 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> DeleteProduct(string productId)
         {
             return Ok(await _productService.DeleteProduct(productId));
+        }
+
+        [HttpGet("imagegallery/{productId}")]
+        [Authorize]
+        public async Task<IActionResult> GetImageGallery(string productId)
+        {
+            return Ok(await _productService.GetImageGallery(productId));
+        }
+
+        [HttpPost("imagegallery/add")]
+        [Authorize]
+        public async Task<IActionResult> AddImageToGallery(GalleryImageRequest imageUploadRequest)
+        {
+            return Ok(await _productService.AddGalleryImage(imageUploadRequest));
+        }
+
+        [HttpDelete("imagegallery/delete/{productId}/{imageId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteImageFromGallery(string productId, string imageId)
+        {
+            return Ok(await _productService.DeleteGalleryImage(imageId, productId));
         }
     }
 }

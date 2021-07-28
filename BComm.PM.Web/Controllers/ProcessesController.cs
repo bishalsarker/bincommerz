@@ -1,9 +1,11 @@
 ﻿using BComm.PM.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Web.Controllers
@@ -13,16 +15,21 @@ namespace BComm.PM.Web.Controllers
     public class ProcessesController : ControllerBase
     {
         private readonly IProcessService _processService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ProcessesController(IProcessService processService)
+        public ProcessesController(IProcessService processService, IHttpContextAccessor httpContextAccessor)
         {
             _processService = processService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet("getnextprocess/{currentStep}")]
+        [Authorize]
         public async Task<IActionResult> GetNextProcess(int currentStep)
         {
-            return Ok(await _processService.GetNextProcess("vbt_xyz", currentStep));
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _processService.GetNextProcess(shopId, currentStep));
         }
     }
 }
