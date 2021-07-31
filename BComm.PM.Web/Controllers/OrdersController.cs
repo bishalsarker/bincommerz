@@ -33,6 +33,27 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _orderService.GetAllOrders(_authService.GetShopId(), is_completed));
         }
 
+        [HttpGet("get/incomplete")]
+        [Authorize]
+        public async Task<IActionResult> GetIncompletedOrders()
+        {
+            return Ok(await _orderService.GetAllOrders(_authService.GetShopId(), false));
+        }
+
+        [HttpGet("get/completed")]
+        [Authorize]
+        public async Task<IActionResult> GetCompletedOrders()
+        {
+            return Ok(await _orderService.GetAllOrders(_authService.GetShopId(), true));
+        }
+
+        [HttpGet("get/canceled")]
+        [Authorize]
+        public async Task<IActionResult> GetCanceledOrders()
+        {
+            return Ok(await _orderService.GetCanceledOrders(_authService.GetShopId()));
+        }
+
         [HttpGet("get/{order_id}")]
         [Authorize]
         public async Task<IActionResult> GetOrder(string order_id)
@@ -59,6 +80,13 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> CompleteOrder(OrderUpdatePayload orderUpdatePayload)
         {
             return Ok(await _orderService.CompleteOrder(orderUpdatePayload));
+        }
+
+        [HttpDelete("deleteorder/{orderId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteOrder(string orderId)
+        {
+            return Ok(await _orderService.DeleteOrder(orderId));
         }
 
         [HttpGet("payment/logs/{orderId}")]

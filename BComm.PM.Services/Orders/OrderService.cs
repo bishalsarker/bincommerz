@@ -148,6 +148,18 @@ namespace BComm.PM.Services.Orders
             };
         }
 
+        public async Task<Response> GetCanceledOrders(string shopId)
+        {
+            var ordersModel = await _orderQueryRepository.GetCanceledOrders(shopId);
+
+            return new Response()
+            {
+                Data = _mapper.Map<IEnumerable<OrderResponse>>(ordersModel),
+                IsSuccess = true
+            };
+        }
+
+
         public async Task<Response> GetOrder(string orderId)
         {
             var ordersModel = await _orderQueryRepository.GetOrder(orderId);
@@ -274,6 +286,44 @@ namespace BComm.PM.Services.Orders
                     Message = "Order Completed",
                     IsSuccess = true
                 };
+            }
+            catch (Exception e)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + e,
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> DeleteOrder(string orderId)
+        {
+            try
+            {
+                var orderModel = await _orderQueryRepository.GetOrder(orderId);
+
+                if (orderModel.IsCompleted || orderModel.IsCanceled)
+                {
+                    await _orderCommandsRepository.Delete(orderModel);
+                    await _orderQueryRepository.DeleteOrderItems(orderModel.HashId);
+                    await _orderQueryRepository.DeleteOrderProcessLogs(orderModel.HashId);
+                    await _orderQueryRepository.DeleteOrderPaymentLogs(orderModel.HashId);
+
+                    return new Response()
+                    {
+                        Message = "Order Deleted",
+                        IsSuccess = true
+                    };
+                }
+                else
+                {
+                    return new Response()
+                    {
+                        Message = "Order deletion is not allowed",
+                        IsSuccess = false
+                    };
+                }
             }
             catch (Exception e)
             {

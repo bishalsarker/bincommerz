@@ -6,6 +6,10 @@ namespace BComm.PM.Repositories.Queries
 {
     public interface IOrderQueryRepository
     {
+        Task DeleteOrderItems(string orderId);
+        Task DeleteOrderPaymentLogs(string orderId);
+        Task DeleteOrderProcessLogs(string orderId);
+        Task<IEnumerable<Order>> GetCanceledOrders(string shopId);
         Task<Order> GetOrder(string orderId);
         Task<IEnumerable<OrderItemModel>> GetOrderItems(string orderId);
         Task<IEnumerable<Order>> GetOrders(string shopId, bool isCompleted);
