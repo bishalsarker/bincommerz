@@ -31,6 +31,18 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
+        public async Task<IEnumerable<ProductTags>> GetTagReference(string tagId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select ProductHashId from {0} where TagHashId=@tagid", TableNameConstants.ProductTagsTable)
+                    .ToString();
+
+                return await conn.QueryAsync<ProductTags>(query, new { @tagid = tagId });
+            }
+        }
+
         public async Task DeleteTagsByProductId(string productId)
         {
             using (var conn = new SqlConnection(_connectionString))

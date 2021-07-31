@@ -7,6 +7,7 @@ using BComm.PM.Repositories.Common;
 using BComm.PM.Repositories.Queries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -78,13 +79,26 @@ namespace BComm.PM.Services.Tags
 
             if (existingTagModel != null)
             {
-                await _commandsRepository.Delete(existingTagModel);
+                var tagReferences = await _tagsQueryRepository.GetTagReference(tagId);
 
-                return new Response()
+                if (tagReferences.Any())
                 {
-                    Message = "Tag Deleted Successfully",
-                    IsSuccess = true
-                };
+                    return new Response()
+                    {
+                        Message = "Can't delete tag as it has product references",
+                        IsSuccess = false
+                    };
+                }
+                else
+                {
+                    await _commandsRepository.Delete(existingTagModel);
+
+                    return new Response()
+                    {
+                        Message = "Tag Deleted Successfully",
+                        IsSuccess = true
+                    };
+                }
             }
             else
             {
