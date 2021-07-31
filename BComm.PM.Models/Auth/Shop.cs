@@ -11,5 +11,7 @@ namespace BComm.PM.Models.Auth
         public string Password { get; set; }
 
         public string ShopId { get; set; }
+
+        public string OrderCode { get; set; }
     }
 }

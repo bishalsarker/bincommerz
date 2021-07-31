@@ -23,6 +23,7 @@ namespace BComm.PM.Services.Orders
         private readonly IOrderQueryRepository _orderQueryRepository;
         private readonly IProductQueryRepository _productQueryRepository;
         private readonly IProcessQueryRepository _processQueryRepository;
+        private readonly IShopQueryRepository _shopQueryRepository;
         private readonly IMapper _mapper;
         private readonly IDictionary<string, double> _deliveryChargeMap;
 
@@ -33,6 +34,7 @@ namespace BComm.PM.Services.Orders
             IProductQueryRepository productQueryRepository,
             IOrderQueryRepository orderQueryRepository,
             IProcessQueryRepository processQueryRepository,
+            IShopQueryRepository shopQueryRepository,
             IMapper mapper)
         {
             _orderCommandsRepository = orderCommandsRepository;
@@ -41,6 +43,7 @@ namespace BComm.PM.Services.Orders
             _orderQueryRepository = orderQueryRepository;
             _processQueryRepository = processQueryRepository;
             _orderProcessLogCommandsRepository = orderProcessLogCommandsRepository;
+            _shopQueryRepository = shopQueryRepository;
             _mapper = mapper;
 
             _deliveryChargeMap = new Dictionary<string, double>();
@@ -51,65 +54,78 @@ namespace BComm.PM.Services.Orders
         {
             try
             {
-                var newOrderModel = _mapper.Map<Order>(newOrderRequest);
-                newOrderModel.HashId = Guid.NewGuid().ToString().ToUpper();
-                newOrderModel.ShopId = shopId;
-                newOrderModel.PlacedOn = DateTime.UtcNow;
-                newOrderModel.Status = "PENDING";
-
-                if(newOrderRequest.Items.Any())
+                var shopModel = _shopQueryRepository.GetShopById(shopId);
+                if (shopModel != null)
                 {
-                    await _orderCommandsRepository.Add(newOrderModel);
+                    var newOrderModel = _mapper.Map<Order>(newOrderRequest);
+                    newOrderModel.HashId = GenerateOrderId(shopModel.OrderCode);
+                    newOrderModel.ShopId = shopId;
+                    newOrderModel.PlacedOn = DateTime.UtcNow;
+                    newOrderModel.Status = "PENDING";
 
-                    var productModels = await _productQueryRepository.GetProductsById(
-                        newOrderRequest.Items.Select(x => x.ProductId).ToList(), shopId);
-
-                    var totalPayable = 0.00;
-
-                    foreach (var product in productModels)
+                    if (newOrderRequest.Items.Any())
                     {
-                        var orderItemModel = _mapper.Map<OrderItemModel>(product);
-                        orderItemModel.OrderId = newOrderModel.HashId;
-                        var orderItemQuantity = newOrderRequest.Items
-                            .FirstOrDefault(x => x.ProductId == product.HashId).Quantity;
-                        orderItemModel.Quantity = orderItemQuantity;
-                        await _orderItemCommandsRepository.Add(orderItemModel);
-                        var discountAmount = product.Discount > 0 ? product.Price * (product.Discount / 100) : 0;
-                        var productPrice = product.Price - discountAmount;
-                        totalPayable = totalPayable + productPrice * orderItemQuantity;
+                        await _orderCommandsRepository.Add(newOrderModel);
+
+                        var productModels = await _productQueryRepository.GetProductsById(
+                            newOrderRequest.Items.Select(x => x.ProductId).ToList(), shopId);
+
+                        var totalPayable = 0.00;
+
+                        foreach (var product in productModels)
+                        {
+                            var orderItemModel = _mapper.Map<OrderItemModel>(product);
+                            orderItemModel.OrderId = newOrderModel.HashId;
+                            var orderItemQuantity = newOrderRequest.Items
+                                .FirstOrDefault(x => x.ProductId == product.HashId).Quantity;
+                            orderItemModel.Quantity = orderItemQuantity;
+                            await _orderItemCommandsRepository.Add(orderItemModel);
+                            var discountAmount = product.Discount > 0 ? product.Price * (product.Discount / 100) : 0;
+                            var productPrice = product.Price - discountAmount;
+                            totalPayable = totalPayable + productPrice * orderItemQuantity;
+                        }
+
+                        var shippingCharge = GetShippingCharge(shopId);
+
+                        newOrderModel.ShippingCharge = shippingCharge;
+                        newOrderModel.TotalPayable = totalPayable + shippingCharge;
+                        newOrderModel.TotalDue = totalPayable + shippingCharge;
+
+                        await _orderCommandsRepository.Update(newOrderModel);
+
+                        await _orderProcessLogCommandsRepository.Add(new OrderProcessLog()
+                        {
+                            OrderId = newOrderModel.HashId,
+                            Title = "Order Placed",
+                            Description = "Your have been placed and picked for processing",
+                            LogDateTime = DateTime.UtcNow
+                        });
+                    }
+                    else
+                    {
+                        return new Response()
+                        {
+                            Message = "No items in order",
+                            IsSuccess = false
+                        };
                     }
 
-                    var shippingCharge = GetShippingCharge(shopId);
-
-                    newOrderModel.ShippingCharge = shippingCharge;
-                    newOrderModel.TotalPayable = totalPayable + shippingCharge;
-                    newOrderModel.TotalDue = totalPayable + shippingCharge;
-
-                    await _orderCommandsRepository.Update(newOrderModel);
-
-                    await _orderProcessLogCommandsRepository.Add(new OrderProcessLog()
+                    return new Response()
                     {
-                        OrderId = newOrderModel.HashId,
-                        Title = "Order Placed",
-                        Description = "Your have been placed and picked for processing",
-                        LogDateTime = DateTime.UtcNow
-                    });
-                } 
+                        Data = new { id = newOrderModel.HashId },
+                        Message = "Order Placed Successfully",
+                        IsSuccess = true
+                    };
+                }
                 else
                 {
                     return new Response()
                     {
-                        Message = "No items in order",
+                        Message = "Couldn't find specific shop",
                         IsSuccess = false
                     };
                 }
-
-                return new Response()
-                {
-                    Data = new { id = newOrderModel.HashId },
-                    Message = "Order Placed Successfully",
-                    IsSuccess = true
-                };
+                
             }
             catch (Exception e)
             {
@@ -279,6 +295,12 @@ namespace BComm.PM.Services.Orders
             }
 
             return result;
+        }
+
+        private string GenerateOrderId(string shopOrderCode)
+        {
+            var time_stamp = DateTime.UtcNow.Ticks.ToString();
+            return shopOrderCode + "-" + time_stamp.Substring(time_stamp.Length / 2);
         }
     }
 }
