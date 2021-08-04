@@ -24,7 +24,12 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select TagHashId from {0} where ProductHashId=@productid", TableNameConstants.ProductTagsTable)
+                    .AppendFormat("select {0}.TagHashId, {1}.Name as TagName " +
+                    "from {0} " +
+                    "inner join {1} on {0}.TagHashId = {1}.HashId " +
+                    "where ProductHashId=@productid", 
+                    TableNameConstants.ProductTagsTable,
+                    TableNameConstants.TagsTable)
                     .ToString();
 
                return await conn.QueryAsync<ProductTags>(query, new { @productid = productId });

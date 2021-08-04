@@ -20,6 +20,20 @@ namespace BComm.PM.Repositories.Queries
             _connectionString = configuration.GetSection("DbConfig:connStr").Value;
         }
 
+        public async Task<IEnumerable<Product>> GetAllProducts(string shopId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount " +
+                    "from {0} where {0}.ShopId=@shopid",
+                    TableNameConstants.ProductsTable)
+                    .ToString();
+
+                return await conn.QueryAsync<Product>(query, new { @shopid = shopId });
+            }
+        }
+
         public async Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder)
         {
             using (var conn = new SqlConnection(_connectionString))

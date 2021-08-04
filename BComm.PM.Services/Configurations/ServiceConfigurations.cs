@@ -3,6 +3,7 @@ using BComm.PM.Services.Auth;
 using BComm.PM.Services.Mappings;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Products;
+using BComm.PM.Services.Reports;
 using BComm.PM.Services.Tags;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +22,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<IOrderPaymentService, OrderPaymentService>();
             services.AddScoped<IProcessService, ProcessService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IReportService, ReportService>();
         }
     }
 }

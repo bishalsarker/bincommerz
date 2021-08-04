@@ -10,6 +10,9 @@ namespace BComm.PM.Models.Tags
         [Required]
         public string TagHashId { get; set; }
 
+        [NotMapped]
+        public string TagName { get; set; }
+
         [Required]
         public string ProductHashId { get; set; }
     }
