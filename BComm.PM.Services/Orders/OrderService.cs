@@ -306,9 +306,9 @@ namespace BComm.PM.Services.Orders
                 if (orderModel.IsCompleted || orderModel.IsCanceled)
                 {
                     await _orderCommandsRepository.Delete(orderModel);
-                    await _orderQueryRepository.DeleteOrderItems(orderModel.HashId);
-                    await _orderQueryRepository.DeleteOrderProcessLogs(orderModel.HashId);
-                    await _orderQueryRepository.DeleteOrderPaymentLogs(orderModel.HashId);
+                    await _orderQueryRepository.DeleteOrderItems(orderId);
+                    await _orderQueryRepository.DeleteOrderProcessLogs(orderId);
+                    await _orderQueryRepository.DeleteOrderPaymentLogs(orderId);
 
                     return new Response()
                     {
