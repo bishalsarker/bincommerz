@@ -10,6 +10,7 @@ namespace BComm.PM.Repositories.Configurations
         {
             services.AddTransient(typeof(ICommandsRepository<>), typeof(CommandsRepository<>));
             services.AddTransient<ITagsQueryRepository, TagsQueryRepository>();
+            services.AddTransient<ICategoryQueryService, CategoryQueryService>();
             services.AddTransient<IProductQueryRepository, ProductQueryRepository>();
             services.AddTransient<IImagesQueryRepository, ImagesQueryRepository>();
             services.AddTransient<IOrderQueryRepository, OrderQueryRepository>();

@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Repositories.Common;
 using BComm.PM.Services.Auth;
+using BComm.PM.Services.Categories;
 using BComm.PM.Services.Mappings;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Products;
@@ -13,10 +14,16 @@ namespace BComm.PM.Services.Configurations
     {
         public static void AddBusinessServices(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(TagMappings), typeof(ProductMappings), typeof(OrderMappings), typeof(ProcessMappings));
+            services.AddAutoMapper(
+                typeof(TagMappings), 
+                typeof(ProductMappings), 
+                typeof(OrderMappings), 
+                typeof(ProcessMappings),
+                typeof(CategoryMapping));
 
             // Services
             services.AddScoped<ITagService, TagService>();
+            services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IOrderPaymentService, OrderPaymentService>();

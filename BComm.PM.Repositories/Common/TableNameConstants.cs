@@ -10,6 +10,7 @@ namespace BComm.PM.Repositories.Common
         public static readonly string OmSchemaName = "bcomm_om";
 
         public static readonly string TagsTable = PmSchemaName + "." + "tags";
+        public static readonly string CategoriesTable = PmSchemaName + "." + "categories";
         public static readonly string ProductsTable = PmSchemaName + "." + "products";
         public static readonly string ProductTagsTable = PmSchemaName + "." + "product_tags";
         public static readonly string ImagesTable = PmSchemaName + "." + "images";

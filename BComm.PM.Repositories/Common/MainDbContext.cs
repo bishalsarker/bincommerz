@@ -1,4 +1,5 @@
-﻿using BComm.PM.Models.Images;
+﻿using BComm.PM.Models.Categories;
+using BComm.PM.Models.Images;
 using BComm.PM.Models.Orders;
 using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
@@ -12,6 +13,8 @@ namespace BComm.PM.Repositories.Common
     public class MainDbContext : DbContext
     {
         public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<Category> Categories { get; set; }
 
         public DbSet<Product> Products { get; set; }
 
@@ -55,6 +58,16 @@ namespace BComm.PM.Repositories.Common
                 .IsClustered(false);
 
             modelBuilder.Entity<Tag>()
+                .HasIndex(t => t.ShopId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Category>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Category>()
                 .HasIndex(t => t.ShopId)
                 .IsUnique(false)
                 .IsClustered(false);
