@@ -25,7 +25,12 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select HashId, Name, Description from {0} where ShopId=@shopid", TableNameConstants.CategoriesTable)
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {1}.Name as TagName " +
+                    "from {0} " +
+                    "inner join {1} on {0}.TagHashId = {1}.HashId " +
+                    "where {0}.ShopId=@shopid", 
+                    TableNameConstants.CategoriesTable,
+                    TableNameConstants.TagsTable)
                     .ToString();
 
                 return await conn.QueryAsync<Category>(query, new { @shopid = shopId });

@@ -12,6 +12,10 @@ namespace BComm.PM.Dto.Categories
 
         public string TagHashId { get; set; }
 
+        public string TagName { get; set; }
+
+        public string ImageUrl { get; set; }
+
         public string Description { get; set; }
     }
 }

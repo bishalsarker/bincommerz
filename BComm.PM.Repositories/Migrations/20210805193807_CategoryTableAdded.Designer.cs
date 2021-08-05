@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BComm.PM.Repositories.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    [Migration("20210805162449_CategoryTableAdded")]
+    [Migration("20210805193807_CategoryTableAdded")]
     partial class CategoryTableAdded
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,12 +35,15 @@ namespace BComm.PM.Repositories.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ImageId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ParentCategoryId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShopId")

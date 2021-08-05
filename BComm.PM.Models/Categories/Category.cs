@@ -18,6 +18,12 @@ namespace BComm.PM.Models.Categories
         [Required]
         public string TagHashId { get; set; }
 
+        [NotMapped]
+        public string TagName { get; set; }
+
+        [Required]
+        public string ImageId { get; set; }
+
         public string ParentCategoryId { get; set; }
 
         [Required]
