@@ -16,6 +16,7 @@ namespace BComm.PM.Repositories.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TagHashId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ParentCategoryId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ShopId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     HashId = table.Column<string>(type: "nvarchar(450)", nullable: false)

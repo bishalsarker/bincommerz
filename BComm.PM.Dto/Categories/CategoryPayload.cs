@@ -17,6 +17,9 @@ namespace BComm.PM.Dto
         [Required]
         public string TagHashId { get; set; }
 
+        [Required]
+        public string Image { get; set; }
+
         public string ParentCategoryId { get; set; }
     }
 }
