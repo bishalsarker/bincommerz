@@ -18,5 +18,6 @@ namespace BComm.PM.Services.Products
         Task<Response> GetImageGallery(string productId);
         Task<Response> AddGalleryImage(GalleryImageRequest imageUploadRequest);
         Task<Response> DeleteGalleryImage(string imageId, string productId);
+        Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy);
     }
 }

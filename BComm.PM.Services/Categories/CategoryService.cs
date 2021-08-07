@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Services.Categories
@@ -48,21 +49,34 @@ namespace BComm.PM.Services.Categories
                 var catModel = _mapper.Map<Category>(newCategoryRequest);
                 catModel.HashId = Guid.NewGuid().ToString("N");
                 catModel.ShopId = shopId;
-                catModel.ParentCategoryId = "";
+                catModel.ParentCategoryId = newCategoryRequest.ParentCategoryId;
 
-                var productImage = new ImageInfo(newCategoryRequest.Image, Guid.NewGuid().ToString("N"), _env);
-                var imageModel = await AddImages(productImage);
+                var existingCategoryModel = await _categoryQueryRepository.GetCategoryBySlug(catModel.Slug, shopId);
 
-                catModel.ImageId = imageModel.HashId;
-
-                await _commandsRepository.Add(catModel);
-
-                return new Response()
+                if (existingCategoryModel == null)
                 {
-                    Data = _mapper.Map<CategoryResponse>(catModel),
-                    Message = "Category Created Successfully",
-                    IsSuccess = true
-                };
+                    var productImage = new ImageInfo(newCategoryRequest.Image, Guid.NewGuid().ToString("N"), _env);
+                    var imageModel = await AddImages(productImage);
+                    catModel.ImageId = imageModel.HashId;
+
+                    await _commandsRepository.Add(catModel);
+
+                    return new Response()
+                    {
+                        Data = _mapper.Map<CategoryResponse>(catModel),
+                        Message = "Category Created Successfully",
+                        IsSuccess = true
+                    };
+                }
+                else
+                {
+                    return new Response()
+                    {
+                        Message = "Slug already exists",
+                        IsSuccess = false
+                    };
+                }
+                
             }
             catch(Exception e)
             {
@@ -151,6 +165,32 @@ namespace BComm.PM.Services.Categories
         public async Task<Response> GetCategory(string categoryId)
         {
             var existingCategoryModel = await _categoryQueryRepository.GetCategory(categoryId);
+
+            if (existingCategoryModel != null)
+            {
+                var response = _mapper.Map<CategoryResponse>(existingCategoryModel);
+                var imageModel = await _imagesQueryRepository.GetImage(existingCategoryModel.ImageId);
+                response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+
+                return new Response()
+                {
+                    Data = response,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Category Doesn't Exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> GetCategoryBySlug(string slug, string shopId)
+        {
+            var existingCategoryModel = await _categoryQueryRepository.GetCategoryBySlug(slug, shopId);
 
             if (existingCategoryModel != null)
             {

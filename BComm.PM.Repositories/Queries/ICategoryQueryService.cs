@@ -8,5 +8,6 @@ namespace BComm.PM.Repositories.Queries
     {
         Task<IEnumerable<Category>> GetCategories(string shopId);
         Task<Category> GetCategory(string categoryId);
+        Task<Category> GetCategoryBySlug(string slug, string shopId);
     }
 }

@@ -28,6 +28,7 @@ namespace BComm.PM.Services.Products
         private readonly IProductQueryRepository _productQueryRepository;
         private readonly ITagsQueryRepository _tagsQueryRepository;
         private readonly IImagesQueryRepository _imagesQueryRepository;
+        private readonly ICategoryQueryService _categoryQueryService;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
 
@@ -39,6 +40,7 @@ namespace BComm.PM.Services.Products
             IProductQueryRepository productQueryRepository,
             ITagsQueryRepository tagsQueryRepository,
             IImagesQueryRepository imagesQueryRepository,
+            ICategoryQueryService categoryQueryService,
             IMapper mapper,
             IHostingEnvironment env)
         {
@@ -49,6 +51,7 @@ namespace BComm.PM.Services.Products
             _productQueryRepository = productQueryRepository;
             _tagsQueryRepository = tagsQueryRepository;
             _imagesQueryRepository = imagesQueryRepository;
+            _categoryQueryService = categoryQueryService;
             _mapper = mapper;
             _env = env;
         }
@@ -171,6 +174,65 @@ namespace BComm.PM.Services.Products
             }
         }
 
+        public async Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy)
+        {
+            var sortCol = "Price";
+            var sortDirection = "asc";
+
+            if (sortBy.Equals("price_high_low"))
+            {
+                sortDirection = "desc";
+            }
+
+            if (sortBy.Equals("newest"))
+            {
+                sortCol = "AddedOn";
+                sortDirection = "asc";
+            }
+
+            try
+            {
+                var catModel = await _categoryQueryService.GetCategoryBySlug(catSlug, shopId);
+
+                if (catModel != null)
+                {
+                    var productModels = await _productQueryRepository.GetProducts(shopId, catModel.TagHashId, sortCol, sortDirection);
+                    var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
+
+                    foreach (var productResponse in productResponses)
+                    {
+                        var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
+                        productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+                    }
+
+                    return new Response()
+                    {
+                        Data = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                        IsSuccess = true
+                    };
+                }
+                else
+                {
+                    return new Response()
+                    {
+                        Message = "Invalid slug",
+                        IsSuccess = false
+                    };
+                }
+                
+            }
+            catch (Exception e)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + e.Message,
+                    IsSuccess = false
+                };
+            }
+
+
+        }
+
         public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy)
         {
             var sortCol = "Price";
@@ -187,20 +249,33 @@ namespace BComm.PM.Services.Products
                 sortDirection = "asc";
             }
 
-            var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection);
-            var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
-
-            foreach(var productResponse in productResponses)
+            try
             {
-                var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
-                productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+                var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection);
+                var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
+
+                foreach (var productResponse in productResponses)
+                {
+                    var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
+                    productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+                }
+
+                return new Response()
+                {
+                    Data = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                    IsSuccess = true
+                };
+            }
+            catch (Exception e)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + e.Message,
+                    IsSuccess = false
+                };
             }
 
-            return new Response()
-            {
-                Data = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
-                IsSuccess = true
-            };
+            
         }
 
         public async Task<Response> SearchProducts(string q, string shopId)

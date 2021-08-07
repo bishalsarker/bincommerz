@@ -25,7 +25,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {1}.Name as TagName " +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Slug, {1}.Name as TagName " +
                     "from {0} " +
                     "inner join {1} on {0}.TagHashId = {1}.HashId " +
                     "where {0}.ShopId=@shopid", 
@@ -46,6 +46,20 @@ namespace BComm.PM.Repositories.Queries
                     .ToString();
 
                 var result = await conn.QueryAsync<Category>(query, new { @hashid = categoryId });
+
+                return result.FirstOrDefault();
+            }
+        }
+
+        public async Task<Category> GetCategoryBySlug(string slug, string shopId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select * from {0} where Slug=@slug and ShopId=@shopid", TableNameConstants.CategoriesTable)
+                    .ToString();
+
+                var result = await conn.QueryAsync<Category>(query, new { @slug = slug, @shopid = shopId });
 
                 return result.FirstOrDefault();
             }

@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Dto.Payloads;
 using BComm.PM.Models.Products;
+using BComm.PM.Services.Categories;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Tags;
@@ -20,32 +21,41 @@ namespace BComm.PM.Web.Controllers
     public class ShopController : ControllerBase
     {
         private readonly ITagService _tagService;
+        private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ShopController(
             ITagService tagService, 
+            ICategoryService categoryService,
             IProductService productService,
             IOrderService orderService,
             IHttpContextAccessor httpContextAccessor)
         {
             _tagService = tagService;
+            _categoryService = categoryService;
             _productService = productService;
             _orderService = orderService;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpGet("tags")]
-        public async Task<IActionResult> GetTags([FromHeader] string shop_id)
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories([FromHeader] string shop_id)
         {
-            return Ok(await _tagService.GetTags(shop_id));
+            return Ok(await _categoryService.GetCategories(shop_id));
         }
 
-        [HttpGet("get/all")]
+        [HttpGet("category/{slug}")]
+        public async Task<IActionResult> GetCategory(string slug, [FromHeader] string shop_id)
+        {
+            return Ok(await _categoryService.GetCategoryBySlug(slug, shop_id));
+        }
+
+        [HttpGet("products/get")]
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery, [FromHeader] string shop_id)
         {
-            return Ok(await _productService.GetAllProducts(shop_id, filterQuery.TagId, filterQuery.SortBy));
+            return Ok(await _productService.GetProductsByCategory(shop_id, filterQuery.CatSlug, filterQuery.SortBy));
         }
 
         [HttpGet("products/search")]

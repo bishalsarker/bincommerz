@@ -15,6 +15,9 @@ namespace BComm.PM.Dto
         public string Description { get; set; }
 
         [Required]
+        public string Slug { get; set; }
+
+        [Required]
         public string TagHashId { get; set; }
 
         [Required]

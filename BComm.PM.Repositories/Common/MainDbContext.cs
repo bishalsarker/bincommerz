@@ -47,7 +47,7 @@ namespace BComm.PM.Repositories.Common
             optionsBuilder.UseSqlServer(_connectionString, 
                 x => x.MigrationsHistoryTable(
                 HistoryRepository.DefaultTableName,
-                "bcomm"));
+                "dbo"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -66,6 +66,11 @@ namespace BComm.PM.Repositories.Common
                 .HasIndex(t => t.HashId)
                 .IsUnique(true)
                 .IsClustered(false);
+
+            modelBuilder.Entity<Category>()
+               .HasIndex(t => t.Slug)
+               .IsUnique(true)
+               .IsClustered(false);
 
             modelBuilder.Entity<Category>()
                 .HasIndex(t => t.ShopId)
