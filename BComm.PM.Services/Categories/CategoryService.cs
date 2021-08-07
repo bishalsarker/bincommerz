@@ -154,12 +154,33 @@ namespace BComm.PM.Services.Categories
 
         public async Task<Response> GetCategories(string shopId)
         {
-            var categoryModels = await _categoryQueryRepository.GetCategories(shopId);
-            return new Response()
+            try
             {
-                Data = _mapper.Map<IEnumerable<CategoryResponse>>(categoryModels),
-                IsSuccess = true
-            };
+                var categoryModels = await _categoryQueryRepository.GetCategories(shopId);
+                var categoryResponseModels = new List<CategoryResponse>();
+
+                foreach (var categoryModel in categoryModels)
+                {
+                    var imageModel = await _imagesQueryRepository.GetImage(categoryModel.ImageId);
+                    var response = _mapper.Map<CategoryResponse>(categoryModel);
+                    response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+                    categoryResponseModels.Add(response);
+                }
+
+                return new Response()
+                {
+                    Data = categoryResponseModels,
+                    IsSuccess = true
+                };
+            }
+            catch (Exception e)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + e.Message,
+                    IsSuccess = false
+                };
+            }
         }
 
         public async Task<Response> GetCategory(string categoryId)

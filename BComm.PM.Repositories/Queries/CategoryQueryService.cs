@@ -25,7 +25,8 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Slug, {1}.Name as TagName " +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.ImageId, {0}.Slug, " +
+                    "{1}.Name as TagName " +
                     "from {0} " +
                     "inner join {1} on {0}.TagHashId = {1}.HashId " +
                     "where {0}.ShopId=@shopid", 
