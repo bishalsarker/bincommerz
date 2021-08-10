@@ -16,6 +16,7 @@ using System.Linq;
 using System.IO;
 using BComm.PM.Dto.Images;
 using System.Text.RegularExpressions;
+using BComm.PM.Services.Common;
 
 namespace BComm.PM.Services.Products
 {
@@ -28,6 +29,7 @@ namespace BComm.PM.Services.Products
         private readonly IProductQueryRepository _productQueryRepository;
         private readonly ITagsQueryRepository _tagsQueryRepository;
         private readonly IImagesQueryRepository _imagesQueryRepository;
+        private readonly IImageUploadService _imageUploadService;
         private readonly ICategoryQueryService _categoryQueryService;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
@@ -40,6 +42,7 @@ namespace BComm.PM.Services.Products
             IProductQueryRepository productQueryRepository,
             ITagsQueryRepository tagsQueryRepository,
             IImagesQueryRepository imagesQueryRepository,
+            IImageUploadService imageUploadService,
             ICategoryQueryService categoryQueryService,
             IMapper mapper,
             IHostingEnvironment env)
@@ -51,6 +54,7 @@ namespace BComm.PM.Services.Products
             _productQueryRepository = productQueryRepository;
             _tagsQueryRepository = tagsQueryRepository;
             _imagesQueryRepository = imagesQueryRepository;
+            _imageUploadService = imageUploadService;
             _categoryQueryService = categoryQueryService;
             _mapper = mapper;
             _env = env;
@@ -129,22 +133,30 @@ namespace BComm.PM.Services.Products
                         productModel.Price = newProductRequest.Price;
                         productModel.Discount = newProductRequest.Discount;
 
-                        await _productCommandsRepository.Update(productModel);
-                        await UpdateTags(newProductRequest.Tags, productModel.HashId);
-
-                        if(!string.IsNullOrEmpty(newProductRequest.Image))
+                        if (!string.IsNullOrEmpty(newProductRequest.Image))
                         {
                             var productImage = new ImageInfo(newProductRequest.Image, productModel.HashId, _env);
                             imageModel.HashId = existingProductModel.ImageUrl;
                             await UpdateImages(productImage, imageModel);
-                        } 
 
-                        return new Response()
+                            await _productCommandsRepository.Update(productModel);
+                            await UpdateTags(newProductRequest.Tags, productModel.HashId);
+
+                            return new Response()
+                            {
+                                Data = new { id = productModel.HashId },
+                                Message = "Product Updated Successfully",
+                                IsSuccess = true
+                            };
+                        }
+                        else
                         {
-                            Data = new { id = productModel.HashId },
-                            Message = "Product Updated Successfully",
-                            IsSuccess = true
-                        };
+                            return new Response()
+                            {
+                                Message = "Couldn't resolve image",
+                                IsSuccess = false
+                            };
+                        }
                     }
                     else
                     {
@@ -337,18 +349,8 @@ namespace BComm.PM.Services.Products
                     {
                         foreach (var galimg in galleryImages)
                         {
-                            var directory = Path.Combine(_env.WebRootPath, "images");
-                            var existingOriginalImagePath = Path.Combine(directory, galimg.OriginalImage);
-                            var existingThumbnailImagePath = Path.Combine(directory, galimg.ThumbnailImage);
-
-                            if (File.Exists(existingOriginalImagePath) && File.Exists(existingThumbnailImagePath))
-                            {
-                                File.Delete(existingOriginalImagePath);
-                                File.Delete(existingThumbnailImagePath);
-
-                                await _imagesQueryRepository.DeleteByImageId(galimg.HashId, productId);
-                                await _imagesQueryRepository.DeleteImage(galimg.HashId);
-                            }
+                            await DeleteImage(galimg);
+                            await _imagesQueryRepository.DeleteGalleryImageByImageId(galimg.HashId, productId);
                         }
 
                         await _tagsQueryRepository.DeleteTagsByProductId(productId);
@@ -435,18 +437,8 @@ namespace BComm.PM.Services.Products
             var imageModel = await _imagesQueryRepository.GetImage(imageId);
             if (imageModel != null)
             {
-                var directory = Path.Combine(_env.WebRootPath, "images");
-                var existingOriginalImagePath = Path.Combine(directory, imageModel.OriginalImage);
-                var existingThumbnailImagePath = Path.Combine(directory, imageModel.ThumbnailImage);
-
-                if (File.Exists(existingOriginalImagePath) && File.Exists(existingThumbnailImagePath))
-                {
-                    File.Delete(existingOriginalImagePath);
-                    File.Delete(existingThumbnailImagePath);
-
-                    await _imagesQueryRepository.DeleteByImageId(imageId, productId);
-                    await _imagesCommandsRepository.Delete(imageModel);
-                }
+                await DeleteImage(imageModel);
+                await _imagesQueryRepository.DeleteGalleryImageByImageId(imageId, productId);
 
                 return new Response()
                 {
@@ -498,46 +490,36 @@ namespace BComm.PM.Services.Products
 
         private async Task<Image> AddImages(ImageInfo productImage)
         {
-            var imageUploader = new ImageUploader(productImage);
-            await imageUploader.UploadAsync();
+            var uploadedImageInfo = await _imageUploadService.UploadImage(productImage);
+            await _imagesCommandsRepository.Add(uploadedImageInfo);
 
-            var thumbnailGenerator = new ThumbnailGenerator(productImage);
-            thumbnailGenerator.Generate();
-
-            var imageModel = new Image()
-            {
-                Directory = "/images/",
-                OriginalImage = imageUploader.FileName,
-                ThumbnailImage = thumbnailGenerator.FileName,
-                HashId = Guid.NewGuid().ToString("N")
-            };
-
-            await _imagesCommandsRepository.Add(imageModel);
-
-            return imageModel;
+            return uploadedImageInfo;
         }
 
-        private async Task<Image> UpdateImages(ImageInfo newProductImage, Image oldImage)
+        private async Task<bool> DeleteImage(Image image)
         {
-            var directory = Path.Combine(_env.WebRootPath, "images");
-            var existingOriginalImagePath = Path.Combine(directory, oldImage.OriginalImage);
-            var existingThumbnailImagePath = Path.Combine(directory, oldImage.ThumbnailImage);
-
-            if (File.Exists(existingOriginalImagePath) && File.Exists(existingThumbnailImagePath))
+            try
             {
-                File.Delete(existingOriginalImagePath);
-                File.Delete(existingThumbnailImagePath);
+                await _imageUploadService.DeleteImages(image);
+                await _imagesQueryRepository.DeleteImage(image.HashId);
+
+                return true;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+        }
 
-            var imageUploader = new ImageUploader(newProductImage);
-            await imageUploader.UploadAsync();
-
-            var thumbnailGenerator = new ThumbnailGenerator(newProductImage);
-            thumbnailGenerator.Generate();
+        public async Task<Image> UpdateImages(ImageInfo newProductImage, Image oldImage)
+        {
+            await _imageUploadService.DeleteImages(oldImage);
+            var uploadedImageInfo = await _imageUploadService.UploadImage(newProductImage);
 
             var imageModel = oldImage;
-            imageModel.OriginalImage = imageUploader.FileName;
-            imageModel.ThumbnailImage = thumbnailGenerator.FileName;
+            imageModel.OriginalImage = uploadedImageInfo.OriginalImage;
+            imageModel.ThumbnailImage = uploadedImageInfo.ThumbnailImage;
 
             await _imagesCommandsRepository.Update(imageModel);
 
