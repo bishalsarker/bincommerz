@@ -63,7 +63,7 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
-        public async Task DeleteByImageId(string imageId, string productId)
+        public async Task DeleteGalleryImageByImageId(string imageId, string productId)
         {
             using (var conn = new SqlConnection(_connectionString))
             {

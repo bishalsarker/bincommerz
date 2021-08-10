@@ -6,7 +6,7 @@ namespace BComm.PM.Repositories.Queries
 {
     public interface IImagesQueryRepository
     {
-        Task DeleteByImageId(string imageId, string productId);
+        Task DeleteGalleryImageByImageId(string imageId, string productId);
         Task DeleteImage(string imageHashId);
         Task DeleteImagesByProductId(string productId);
         Task<Image> GetImage(string imageId);
