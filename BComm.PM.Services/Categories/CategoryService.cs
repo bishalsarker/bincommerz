@@ -6,13 +6,11 @@ using BComm.PM.Models.Categories;
 using BComm.PM.Models.Images;
 using BComm.PM.Repositories.Common;
 using BComm.PM.Repositories.Queries;
+using BComm.PM.Services.Common;
 using BComm.PM.Services.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Services.Categories
@@ -23,6 +21,7 @@ namespace BComm.PM.Services.Categories
         private readonly ICategoryQueryService _categoryQueryRepository;
         private readonly ICommandsRepository<Image> _imagesCommandsRepository;
         private readonly IImagesQueryRepository _imagesQueryRepository;
+        private readonly IImageUploadService _imageUploadService;
         private readonly IHostingEnvironment _env;
         private readonly IMapper _mapper;
 
@@ -31,6 +30,7 @@ namespace BComm.PM.Services.Categories
             ICategoryQueryService categoryQueryRepository,
             ICommandsRepository<Image> imagesCommandsRepository,
             IImagesQueryRepository imagesQueryRepository,
+            IImageUploadService imageUploadService,
             IHostingEnvironment env,
             IMapper mapper)
         {
@@ -38,6 +38,7 @@ namespace BComm.PM.Services.Categories
             _categoryQueryRepository = categoryQueryRepository;
             _imagesCommandsRepository = imagesCommandsRepository;
             _imagesQueryRepository = imagesQueryRepository;
+            _imageUploadService = imageUploadService;
             _env = env;
             _mapper = mapper;
         }
@@ -237,45 +238,24 @@ namespace BComm.PM.Services.Categories
 
         private async Task<Image> AddImages(ImageInfo productImage)
         {
-            var imageUploader = new ImageUploader(productImage);
-            await imageUploader.UploadAsync();
+            var uploadedImageInfo = await _imageUploadService.UploadImage(productImage);
+            await _imagesCommandsRepository.Add(uploadedImageInfo);
 
-            var thumbnailGenerator = new ThumbnailGenerator(productImage);
-            thumbnailGenerator.Generate();
-
-            var imageModel = new Image()
-            {
-                Directory = "/images/",
-                OriginalImage = imageUploader.FileName,
-                ThumbnailImage = thumbnailGenerator.FileName,
-                HashId = Guid.NewGuid().ToString("N")
-            };
-
-            await _imagesCommandsRepository.Add(imageModel);
-
-            return imageModel;
+            return uploadedImageInfo;
         }
 
         private async Task<bool> DeleteImage(Image image)
         {
             try
             {
-                var directory = Path.Combine(_env.WebRootPath, "images");
-                var existingOriginalImagePath = Path.Combine(directory, image.OriginalImage);
-                var existingThumbnailImagePath = Path.Combine(directory, image.ThumbnailImage);
-
-                if (File.Exists(existingOriginalImagePath) && File.Exists(existingThumbnailImagePath))
-                {
-                    File.Delete(existingOriginalImagePath);
-                    File.Delete(existingThumbnailImagePath);
-
-                    await _imagesQueryRepository.DeleteImage(image.HashId);
-                }
+                await _imageUploadService.DeleteImages(image);
+                await _imagesQueryRepository.DeleteImage(image.HashId);
 
                 return true;
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return false;
             }
         }
