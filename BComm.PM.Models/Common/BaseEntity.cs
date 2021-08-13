@@ -7,5 +7,8 @@ namespace BComm.PM.Models.Common
     {
         [Required]
         public int Id { get; set; }
+
+        //audit fields
+        public DateTime CreatedOn { get; set; }
     }
 }
