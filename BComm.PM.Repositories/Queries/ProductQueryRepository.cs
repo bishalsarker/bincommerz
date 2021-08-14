@@ -25,12 +25,26 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity " +
                     "from {0} where {0}.ShopId=@shopid",
                     TableNameConstants.ProductsTable)
                     .ToString();
 
                 return await conn.QueryAsync<Product>(query, new { @shopid = shopId });
+            }
+        }
+
+        public async Task<IEnumerable<Product>> GetOutOfStockProducts(string shopId, double reodrerLevel)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select HashId, Name, StockQuantity " +
+                    "from {0} where ShopId=@shopid and StockQuantity <= @reorderlevel",
+                    TableNameConstants.ProductsTable)
+                    .ToString();
+
+                return await conn.QueryAsync<Product>(query, new { @shopid = shopId, @reorderlevel = reodrerLevel });
             }
         }
 
@@ -140,7 +154,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select HashId, Name, Price, Discount from {0} where HashId in @productids and ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .AppendFormat("select HashId, Name, Price, Discount, StockQuantity from {0} where HashId in @productids and ShopId=@shopid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 return await conn.QueryAsync<Product>(query, new { @productids = productIds, @shopid = shopId });
@@ -152,12 +166,24 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select Id, ShopId, Name, Description from {0} where HashId=@tagid", TableNameConstants.ProductsTable)
+                    .AppendFormat("select Id, ShopId, Name, Description, StockQuantity from {0} where HashId=@tagid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 var model = await conn.QueryAsync<Product>(query, new { @tagid = tagId });
 
                 return model.FirstOrDefault();
+            }
+        }
+
+        public async Task UpdateProductStock(string productId, string shopId, double newStock)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("update {0} set StockQuantity=@newstock where HashId=@productids and ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .ToString();
+
+                await conn.ExecuteAsync(query, new { @productids = productId, @shopid = shopId, @newstock = newStock });
             }
         }
     }

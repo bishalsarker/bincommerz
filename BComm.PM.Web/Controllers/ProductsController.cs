@@ -45,6 +45,14 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _productService.GetProductById(productId));
         }
 
+        [HttpGet("stockhealth")]
+        public async Task<IActionResult> GetStockHealth()
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _productService.GetStockHealth(shopId));
+        }
+
         [HttpGet("get/all")]
         [Authorize]
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery)

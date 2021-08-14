@@ -14,16 +14,14 @@ namespace BComm.PM.Repositories.Queries
             {
                 UserName = "suchana.sarker",
                 Password = "@binCommerz_123_1#",
-                ShopId = "vbt_xyz",
-                OrderCode = "101"
+                ShopId = "vbt_xyz"
             },
 
             new Shop()
             {
                 UserName = "dipu.paul",
                 Password = "@binCommerz_123_1#",
-                ShopId = "potterybd",
-                OrderCode = "237"
+                ShopId = "potterybd"
             },
         };
 

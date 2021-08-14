@@ -17,6 +17,7 @@ namespace BComm.PM.Repositories.Configurations
             services.AddTransient<IProcessQueryRepository, ProcessQueryRepository>();
             services.AddTransient<IClientsQueryRepository, ClientsQueryRepository>();
             services.AddTransient<IShopQueryRepository, ShopQueryRepository>();
+            services.AddTransient<IShopConfigQueryRepository, ShopConfigQueryRepository>();
         }
     }
 }
