@@ -21,6 +21,8 @@ namespace BComm.PM.Services.Mappings
             CreateMap<Product, ProductResponse>()
                 .ForMember(dest => dest.Id,
                 opt => opt.MapFrom(src => src.HashId))
+                .ForMember(dest => dest.InStock,
+                opt => opt.MapFrom(src => src.StockQuantity > 0))
                 .ForMember(dest => dest.ImageUrl,
                 opt => opt.MapFrom(src => src.ImageDirectory + src.ImageUrl));
 

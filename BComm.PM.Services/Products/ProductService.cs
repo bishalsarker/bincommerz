@@ -31,6 +31,7 @@ namespace BComm.PM.Services.Products
         private readonly IImagesQueryRepository _imagesQueryRepository;
         private readonly IImageUploadService _imageUploadService;
         private readonly ICategoryQueryService _categoryQueryService;
+        private readonly IShopConfigQueryRepository _shopConfigQueryRepository;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
 
@@ -44,6 +45,7 @@ namespace BComm.PM.Services.Products
             IImagesQueryRepository imagesQueryRepository,
             IImageUploadService imageUploadService,
             ICategoryQueryService categoryQueryService,
+            IShopConfigQueryRepository shopConfigQueryRepository,
             IMapper mapper,
             IHostingEnvironment env)
         {
@@ -56,6 +58,7 @@ namespace BComm.PM.Services.Products
             _imagesQueryRepository = imagesQueryRepository;
             _imageUploadService = imageUploadService;
             _categoryQueryService = categoryQueryService;
+            _shopConfigQueryRepository = shopConfigQueryRepository;
             _mapper = mapper;
             _env = env;
         }
@@ -132,31 +135,24 @@ namespace BComm.PM.Services.Products
                         productModel.Description = newProductRequest.Description;
                         productModel.Price = newProductRequest.Price;
                         productModel.Discount = newProductRequest.Discount;
+                        productModel.StockQuantity = newProductRequest.StockQuantity;
 
                         if (!string.IsNullOrEmpty(newProductRequest.Image))
                         {
                             var productImage = new ImageInfo(newProductRequest.Image, productModel.HashId, _env);
                             imageModel.HashId = existingProductModel.ImageUrl;
                             await UpdateImages(productImage, imageModel);
-
-                            await _productCommandsRepository.Update(productModel);
-                            await UpdateTags(newProductRequest.Tags, productModel.HashId);
-
-                            return new Response()
-                            {
-                                Data = new { id = productModel.HashId },
-                                Message = "Product Updated Successfully",
-                                IsSuccess = true
-                            };
                         }
-                        else
+
+                        await _productCommandsRepository.Update(productModel);
+                        await UpdateTags(newProductRequest.Tags, productModel.HashId);
+
+                        return new Response()
                         {
-                            return new Response()
-                            {
-                                Message = "Couldn't resolve image",
-                                IsSuccess = false
-                            };
-                        }
+                            Data = new { id = productModel.HashId },
+                            Message = "Product Updated Successfully",
+                            IsSuccess = true
+                        };
                     }
                     else
                     {
@@ -228,6 +224,49 @@ namespace BComm.PM.Services.Products
                     return new Response()
                     {
                         Message = "Invalid slug",
+                        IsSuccess = false
+                    };
+                }
+                
+            }
+            catch (Exception e)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + e.Message,
+                    IsSuccess = false
+                };
+            }
+
+
+        }
+
+        public async Task<Response> GetStockHealth(string shopId)
+        {
+            try
+            {
+                var shopConfig = _shopConfigQueryRepository.GetShopConfigById(shopId);
+
+                if(shopConfig != null)
+                {
+                    var productModels = await _productQueryRepository.GetOutOfStockProducts(shopId, shopConfig.ReorderLevel);
+                    var productStockResponses = new ProductStockResponse()
+                    {
+                        OutOfStock = _mapper.Map<IEnumerable<ProductResponse>>(productModels.Where(x => x.StockQuantity == 0)),
+                        Warning = _mapper.Map<IEnumerable<ProductResponse>>(productModels.Where(x => x.StockQuantity > 0 && x.StockQuantity <= shopConfig.ReorderLevel))
+                    };
+
+                    return new Response()
+                    {
+                        Data = productStockResponses,
+                        IsSuccess = true
+                    };
+                }
+                else
+                {
+                    return new Response()
+                    {
+                        Message = "Shop config doesn't exist",
                         IsSuccess = false
                     };
                 }

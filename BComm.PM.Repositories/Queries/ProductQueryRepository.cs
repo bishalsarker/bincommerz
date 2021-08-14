@@ -25,7 +25,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount " +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity " +
                     "from {0} where {0}.ShopId=@shopid",
                     TableNameConstants.ProductsTable)
                     .ToString();
@@ -34,12 +34,26 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
+        public async Task<IEnumerable<Product>> GetOutOfStockProducts(string shopId, double reodrerLevel)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select HashId, Name, StockQuantity " +
+                    "from {0} where ShopId=@shopid and StockQuantity <= @reorderlevel",
+                    TableNameConstants.ProductsTable)
+                    .ToString();
+
+                return await conn.QueryAsync<Product>(query, new { @shopid = shopId, @reorderlevel = reodrerLevel });
+            }
+        }
+
         public async Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid ",
@@ -72,7 +86,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid " +
@@ -94,7 +108,7 @@ namespace BComm.PM.Repositories.Queries
                     .ToString();
 
                 var queryWithImageDirectory = new StringBuilder()
-                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "left join {1} on {0}.ImageUrl={1}.HashId " +
@@ -120,7 +134,7 @@ namespace BComm.PM.Repositories.Queries
                     .ToString();
 
                 var queryWithImageDirectory = new StringBuilder()
-                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "left join {1} on {0}.ImageUrl={1}.HashId " +
@@ -140,7 +154,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select HashId, Name, Price, Discount from {0} where HashId in @productids and ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .AppendFormat("select HashId, Name, Price, Discount, StockQuantity from {0} where HashId in @productids and ShopId=@shopid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 return await conn.QueryAsync<Product>(query, new { @productids = productIds, @shopid = shopId });
@@ -152,12 +166,24 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select Id, ShopId, Name, Description from {0} where HashId=@tagid", TableNameConstants.ProductsTable)
+                    .AppendFormat("select Id, ShopId, Name, Description, StockQuantity from {0} where HashId=@tagid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 var model = await conn.QueryAsync<Product>(query, new { @tagid = tagId });
 
                 return model.FirstOrDefault();
+            }
+        }
+
+        public async Task UpdateProductStock(string productId, string shopId, double newStock)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("update {0} set StockQuantity=@newstock where HashId=@productids and ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .ToString();
+
+                await conn.ExecuteAsync(query, new { @productids = productId, @shopid = shopId, @newstock = newStock });
             }
         }
     }

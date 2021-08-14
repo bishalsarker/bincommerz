@@ -47,7 +47,7 @@ namespace BComm.PM.Repositories.Common
             optionsBuilder.UseSqlServer(_connectionString, 
                 x => x.MigrationsHistoryTable(
                 HistoryRepository.DefaultTableName,
-                "dbo"));
+                "bcomm"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

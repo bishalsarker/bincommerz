@@ -24,6 +24,7 @@ namespace BComm.PM.Services.Orders
         private readonly IProductQueryRepository _productQueryRepository;
         private readonly IProcessQueryRepository _processQueryRepository;
         private readonly IShopQueryRepository _shopQueryRepository;
+        private readonly IShopConfigQueryRepository _shopConfigQueryRepository;
         private readonly IMapper _mapper;
         private readonly IDictionary<string, double> _deliveryChargeMap;
 
@@ -35,6 +36,7 @@ namespace BComm.PM.Services.Orders
             IOrderQueryRepository orderQueryRepository,
             IProcessQueryRepository processQueryRepository,
             IShopQueryRepository shopQueryRepository,
+            IShopConfigQueryRepository shopConfigQueryRepository,
             IMapper mapper)
         {
             _orderCommandsRepository = orderCommandsRepository;
@@ -44,6 +46,7 @@ namespace BComm.PM.Services.Orders
             _processQueryRepository = processQueryRepository;
             _orderProcessLogCommandsRepository = orderProcessLogCommandsRepository;
             _shopQueryRepository = shopQueryRepository;
+            _shopConfigQueryRepository = shopConfigQueryRepository;
             _mapper = mapper;
 
             _deliveryChargeMap = new Dictionary<string, double>();
@@ -57,49 +60,72 @@ namespace BComm.PM.Services.Orders
                 var shopModel = _shopQueryRepository.GetShopById(shopId);
                 if (shopModel != null)
                 {
+                    var shopConfig = _shopConfigQueryRepository.GetShopConfigById(shopId);
                     var newOrderModel = _mapper.Map<Order>(newOrderRequest);
-                    newOrderModel.HashId = GenerateOrderId(shopModel.OrderCode);
+                    newOrderModel.HashId = GenerateOrderId(shopConfig.OrderCode);
                     newOrderModel.ShopId = shopId;
                     newOrderModel.PlacedOn = DateTime.UtcNow;
                     newOrderModel.Status = "PENDING";
 
                     if (newOrderRequest.Items.Any())
                     {
-                        await _orderCommandsRepository.Add(newOrderModel);
-
                         var productModels = await _productQueryRepository.GetProductsById(
                             newOrderRequest.Items.Select(x => x.ProductId).ToList(), shopId);
 
-                        var totalPayable = 0.00;
+                        var hasOutOfStockItem = productModels.Any(x => x.StockQuantity == 0);
+                        var hasUnderStockItem = newOrderRequest.Items.Any(x => 
+                        productModels.FirstOrDefault(y => y.HashId == x.ProductId).StockQuantity < x.Quantity);
 
-                        foreach (var product in productModels)
+                        if (!hasOutOfStockItem && !hasUnderStockItem)
                         {
-                            var orderItemModel = _mapper.Map<OrderItemModel>(product);
-                            orderItemModel.OrderId = newOrderModel.HashId;
-                            var orderItemQuantity = newOrderRequest.Items
-                                .FirstOrDefault(x => x.ProductId == product.HashId).Quantity;
-                            orderItemModel.Quantity = orderItemQuantity;
-                            await _orderItemCommandsRepository.Add(orderItemModel);
-                            var discountAmount = product.Discount > 0 ? product.Price * (product.Discount / 100) : 0;
-                            var productPrice = product.Price - discountAmount;
-                            totalPayable = totalPayable + productPrice * orderItemQuantity;
+                            await _orderCommandsRepository.Add(newOrderModel);
+
+                            var totalPayable = 0.00;
+
+                            foreach (var product in productModels)
+                            {
+                                var orderItemModel = _mapper.Map<OrderItemModel>(product);
+                                orderItemModel.OrderId = newOrderModel.HashId;
+                                var orderItemQuantity = newOrderRequest.Items
+                                    .FirstOrDefault(x => x.ProductId == product.HashId).Quantity;
+                                orderItemModel.Quantity = orderItemQuantity;
+                                await _orderItemCommandsRepository.Add(orderItemModel);
+                                var discountAmount = product.Discount > 0 ? product.Price * (product.Discount / 100) : 0;
+                                var productPrice = product.Price - discountAmount;
+                                totalPayable = totalPayable + productPrice * orderItemQuantity;
+                            }
+
+                            var shippingCharge = GetShippingCharge(shopId);
+
+                            newOrderModel.ShippingCharge = shippingCharge;
+                            newOrderModel.TotalPayable = totalPayable + shippingCharge;
+                            newOrderModel.TotalDue = totalPayable + shippingCharge;
+
+                            await _orderCommandsRepository.Update(newOrderModel);
+
+                            foreach (var product in productModels)
+                            {
+                                var productQuantity = newOrderRequest.Items.FirstOrDefault(x => x.ProductId == product.HashId).Quantity;
+                                var newStock = product.StockQuantity - productQuantity;
+                                await _productQueryRepository.UpdateProductStock(product.HashId, shopId, newStock);
+                            }
+
+                            await _orderProcessLogCommandsRepository.Add(new OrderProcessLog()
+                            {
+                                OrderId = newOrderModel.HashId,
+                                Title = "Order Placed",
+                                Description = "Your have been placed and picked for processing",
+                                LogDateTime = DateTime.UtcNow
+                            });
                         }
-
-                        var shippingCharge = GetShippingCharge(shopId);
-
-                        newOrderModel.ShippingCharge = shippingCharge;
-                        newOrderModel.TotalPayable = totalPayable + shippingCharge;
-                        newOrderModel.TotalDue = totalPayable + shippingCharge;
-
-                        await _orderCommandsRepository.Update(newOrderModel);
-
-                        await _orderProcessLogCommandsRepository.Add(new OrderProcessLog()
+                        else
                         {
-                            OrderId = newOrderModel.HashId,
-                            Title = "Order Placed",
-                            Description = "Your have been placed and picked for processing",
-                            LogDateTime = DateTime.UtcNow
-                        });
+                            return new Response()
+                            {
+                                Message = "Out of stock items can not be ordered",
+                                IsSuccess = false
+                            };
+                        }
                     }
                     else
                     {
