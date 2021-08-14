@@ -21,6 +21,8 @@ namespace BComm.PM.Dto.Payloads
 
         public double Discount { get; set; }
 
+        public double StockQuantity { get; set; }
+
         public IEnumerable<string> Tags { get; set; }
     }
 }

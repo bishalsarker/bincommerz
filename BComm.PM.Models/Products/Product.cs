@@ -25,6 +25,9 @@ namespace BComm.PM.Models.Products
         public double Discount { get; set; }
 
         [Required]
+        public double StockQuantity { get; set; }
+
+        [Required]
         public string Slug { get; set; }
 
         [Required]

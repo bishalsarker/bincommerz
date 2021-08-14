@@ -132,31 +132,24 @@ namespace BComm.PM.Services.Products
                         productModel.Description = newProductRequest.Description;
                         productModel.Price = newProductRequest.Price;
                         productModel.Discount = newProductRequest.Discount;
+                        productModel.StockQuantity = newProductRequest.StockQuantity;
 
                         if (!string.IsNullOrEmpty(newProductRequest.Image))
                         {
                             var productImage = new ImageInfo(newProductRequest.Image, productModel.HashId, _env);
                             imageModel.HashId = existingProductModel.ImageUrl;
                             await UpdateImages(productImage, imageModel);
-
-                            await _productCommandsRepository.Update(productModel);
-                            await UpdateTags(newProductRequest.Tags, productModel.HashId);
-
-                            return new Response()
-                            {
-                                Data = new { id = productModel.HashId },
-                                Message = "Product Updated Successfully",
-                                IsSuccess = true
-                            };
                         }
-                        else
+
+                        await _productCommandsRepository.Update(productModel);
+                        await UpdateTags(newProductRequest.Tags, productModel.HashId);
+
+                        return new Response()
                         {
-                            return new Response()
-                            {
-                                Message = "Couldn't resolve image",
-                                IsSuccess = false
-                            };
-                        }
+                            Data = new { id = productModel.HashId },
+                            Message = "Product Updated Successfully",
+                            IsSuccess = true
+                        };
                     }
                     else
                     {

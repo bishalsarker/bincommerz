@@ -25,7 +25,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount " +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "from {0} where {0}.ShopId=@shopid",
                     TableNameConstants.ProductsTable)
                     .ToString();
@@ -39,7 +39,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid ",
@@ -72,7 +72,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid " +
@@ -94,7 +94,7 @@ namespace BComm.PM.Repositories.Queries
                     .ToString();
 
                 var queryWithImageDirectory = new StringBuilder()
-                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "left join {1} on {0}.ImageUrl={1}.HashId " +
@@ -120,7 +120,7 @@ namespace BComm.PM.Repositories.Queries
                     .ToString();
 
                 var queryWithImageDirectory = new StringBuilder()
-                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount," +
+                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "left join {1} on {0}.ImageUrl={1}.HashId " +
