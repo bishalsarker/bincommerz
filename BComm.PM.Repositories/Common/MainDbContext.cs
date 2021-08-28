@@ -1,6 +1,7 @@
 ﻿using BComm.PM.Models.Categories;
 using BComm.PM.Models.Images;
 using BComm.PM.Models.Orders;
+using BComm.PM.Models.Pages;
 using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
@@ -33,6 +34,8 @@ namespace BComm.PM.Repositories.Common
         public DbSet<OrderProcessLog> OrderProcessLogs { get; set; }
 
         public DbSet<OrderPaymentLog> OrderPaymentLogs { get; set; }
+
+        public DbSet<Page> Pages { get; set; }
 
 
         private readonly string _connectionString;
@@ -154,6 +157,26 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<OrderPaymentLog>()
                 .HasIndex(t => t.OrderId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Page>()
+               .HasIndex(t => t.HashId)
+               .IsUnique(true)
+               .IsClustered(false);
+
+            modelBuilder.Entity<Page>()
+               .HasIndex(t => t.Category)
+               .IsUnique(false)
+               .IsClustered(false);
+
+            modelBuilder.Entity<Page>()
+               .HasIndex(t => t.Slug)
+               .IsUnique(true)
+               .IsClustered(false);
+
+            modelBuilder.Entity<Page>()
+                .HasIndex(t => t.ShopId)
                 .IsUnique(false)
                 .IsClustered(false);
         }

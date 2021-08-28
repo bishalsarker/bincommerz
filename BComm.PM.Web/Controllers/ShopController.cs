@@ -2,6 +2,7 @@
 using BComm.PM.Models.Products;
 using BComm.PM.Services.Categories;
 using BComm.PM.Services.Orders;
+using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Tags;
 using Microsoft.AspNetCore.Cors;
@@ -20,20 +21,20 @@ namespace BComm.PM.Web.Controllers
     [EnableCors("_myAllowSpecificOrigins")]
     public class ShopController : ControllerBase
     {
-        private readonly ITagService _tagService;
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
+        private readonly IPageService _pageService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ShopController(
-            ITagService tagService, 
+            IPageService pageService, 
             ICategoryService categoryService,
             IProductService productService,
             IOrderService orderService,
             IHttpContextAccessor httpContextAccessor)
         {
-            _tagService = tagService;
+            _pageService = pageService;
             _categoryService = categoryService;
             _productService = productService;
             _orderService = orderService;
@@ -80,6 +81,18 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> TrackOrder(string order_id)
         {
             return Ok(await _orderService.TrackOrder(order_id));
+        }
+
+        [HttpGet("pages/getall")]
+        public async Task<IActionResult> AddPage([FromHeader] string shop_id)
+        {
+            return Ok(await _pageService.GetAllPages(shop_id));
+        }
+
+        [HttpGet("pages/get")]
+        public async Task<IActionResult> GetPage(string cat, string slug, [FromHeader] string shop_id)
+        {
+            return Ok(await _pageService.GetPageBySlug(cat, slug, shop_id));
         }
     }
 }
