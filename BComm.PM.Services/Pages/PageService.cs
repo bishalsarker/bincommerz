@@ -32,20 +32,124 @@ namespace BComm.PM.Services.Pages
         public async Task<Response> AddPage(PagePayload newPageRequest, string shopId)
         {
             var pageModel = _mapper.Map<Page>(newPageRequest);
-            pageModel.HashId = Guid.NewGuid().ToString("N");
-            pageModel.ShopId = shopId;
-            pageModel.CreatedOn = DateTime.UtcNow;
-            await _pagesCommandsRepository.Add(pageModel);
+            var existingPageModel = await _pagesQueryRepository.GetByCategoryAndSlug(pageModel.Category, pageModel.Slug, shopId);
 
-            return new Response()
+            if (existingPageModel == null)
             {
-                Data = pageModel.HashId,
-                Message = "Tag Created Successfully",
-                IsSuccess = true
-            };
+                pageModel.HashId = Guid.NewGuid().ToString("N");
+                pageModel.ShopId = shopId;
+                pageModel.CreatedOn = DateTime.UtcNow;
+
+                try
+                {
+                    await _pagesCommandsRepository.Add(pageModel);
+
+                    return new Response()
+                    {
+                        Data = pageModel.HashId,
+                        Message = "Page Created Successfully",
+                        IsSuccess = true
+                    };
+                }
+                catch (Exception e)
+                {
+                    return new Response()
+                    {
+                        Message = "Error: " + e.Message,
+                        IsSuccess = false
+                    };
+                }
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Page Slug Already Exists",
+                    IsSuccess = false
+                };
+            }
         }
 
-        public async Task<Response> GetAllPages(string shopId)
+        public async Task<Response> UpdatePage(PagePayload newPageRequest)
+        {
+            var existingPageModel = await _pagesQueryRepository.GetById(newPageRequest.Id);
+
+            if (existingPageModel != null)
+            {
+                existingPageModel.PageTitle = newPageRequest.PageTitle;
+                existingPageModel.Category = PageMappings.ResolvePageCategory(newPageRequest.Category);
+                existingPageModel.Content = newPageRequest.Content;
+                existingPageModel.LinkTitle = newPageRequest.LinkTitle;
+                existingPageModel.IsPublished = newPageRequest.IsPublished;
+
+                try
+                {
+                    await _pagesCommandsRepository.Update(existingPageModel);
+
+                    return new Response()
+                    {
+                        Data = existingPageModel.HashId,
+                        Message = "Page Updated Successfully",
+                        IsSuccess = true
+                    };
+                } 
+                catch (Exception e)
+                {
+                    return new Response()
+                    {
+                        Message = "Error: " + e.Message,
+                        IsSuccess = false
+                    };
+                }
+                
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Page Doesn't Exists",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> DeletePage(string pageId)
+        {
+            var existingPageModel = await _pagesQueryRepository.GetById(pageId);
+
+            if (existingPageModel != null)
+            {
+                try
+                {
+                    await _pagesCommandsRepository.Delete(existingPageModel);
+
+                    return new Response()
+                    {
+                        Message = "Page Deleted Successfully",
+                        IsSuccess = true
+                    };
+                }
+                catch (Exception e)
+                {
+                    return new Response()
+                    {
+                        Message = "Error: " + e.Message,
+                        IsSuccess = false
+                    };
+                }
+
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Page Doesn't Exists",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> GetAllPagesSorted(string shopId)
         {
             var navLink = await _pagesQueryRepository.GetByCategory(PageMappings.ResolvePageCategory("navbarlink"), shopId);
             var support = await _pagesQueryRepository.GetByCategory(PageMappings.ResolvePageCategory("support"), shopId);
@@ -63,6 +167,17 @@ namespace BComm.PM.Services.Pages
             return new Response()
             {
                 Data = pageModels,
+                IsSuccess = true
+            };
+        }
+
+        public async Task<Response> GetAllPages(string shopId)
+        {
+            var pageModels = await _pagesQueryRepository.GetAllPages(shopId);
+
+            return new Response()
+            {
+                Data = _mapper.Map<IEnumerable<PageResponse>>(pageModels),
                 IsSuccess = true
             };
         }
@@ -100,6 +215,17 @@ namespace BComm.PM.Services.Pages
             }
 
             
+        }
+
+        public async Task<Response> GetPage(string pageId)
+        {
+            var pageModels = await _pagesQueryRepository.GetById(pageId);
+
+            return new Response()
+            {
+                Data = _mapper.Map<PageResponse>(pageModels),
+                IsSuccess = true
+            };
         }
     }
 }

@@ -86,7 +86,7 @@ namespace BComm.PM.Web.Controllers
         [HttpGet("pages/getall")]
         public async Task<IActionResult> AddPage([FromHeader] string shop_id)
         {
-            return Ok(await _pageService.GetAllPages(shop_id));
+            return Ok(await _pageService.GetAllPagesSorted(shop_id));
         }
 
         [HttpGet("pages/get")]

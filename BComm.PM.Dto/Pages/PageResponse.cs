@@ -17,5 +17,7 @@ namespace BComm.PM.Dto.Pages
         public string LinkTitle { get; set; }
 
         public string Content { get; set; }
+
+        public bool IsPublished { get; set; }
     }
 }

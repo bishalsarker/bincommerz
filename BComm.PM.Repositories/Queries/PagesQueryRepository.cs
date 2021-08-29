@@ -20,6 +20,39 @@ namespace BComm.PM.Repositories.Queries
             _connectionString = configuration.GetSection("DbConfig:connStr").Value;
         }
 
+        public async Task<Page> GetById(string pageId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select * " +
+                    "from {0} " +
+                    "where {0}.HashId=@hashid",
+                    TableNameConstants.PagesTable)
+                    .ToString();
+
+                var results = await conn.QueryAsync<Page>(query, new { @hashid = pageId });
+
+                return results.FirstOrDefault();
+            }
+        }
+
+        public async Task<IEnumerable<Page>> GetAllPages(string shopId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select * " +
+                    "from {0} " +
+                    "where {0}.ShopId=@shopid",
+                    TableNameConstants.PagesTable)
+                    .ToString();
+
+                return await conn.QueryAsync<Page>(query, new { @shopid = shopId });
+            }
+        }
+
+
         public async Task<IEnumerable<Page>> GetByCategory(PageCategories category, string shopId)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -27,7 +60,7 @@ namespace BComm.PM.Repositories.Queries
                 var query = new StringBuilder()
                     .AppendFormat("select * " +
                     "from {0} " +
-                    "where {0}.Category=@cat and {0}.ShopId=@shopid",
+                    "where {0}.IsPublished='true' and {0}.Category=@cat and {0}.ShopId=@shopid",
                     TableNameConstants.PagesTable)
                     .ToString();
 
@@ -42,7 +75,7 @@ namespace BComm.PM.Repositories.Queries
                 var query = new StringBuilder()
                     .AppendFormat("select * " +
                     "from {0} " +
-                    "where {0}.Category=@cat and {0}.Slug=@slug and {0}.ShopId=@shopid",
+                    "where {0}.IsPublished='true' and {0}.Category=@cat and {0}.Slug=@slug and {0}.ShopId=@shopid",
                     TableNameConstants.PagesTable)
                     .ToString();
 

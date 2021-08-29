@@ -7,6 +7,8 @@ namespace BComm.PM.Dto.Payloads
 {
     public class PagePayload
     {
+        public string Id { get; set; }
+
         [Required]
         public string PageTitle { get; set; }
 
@@ -20,5 +22,8 @@ namespace BComm.PM.Dto.Payloads
 
         [Required]
         public string Content { get; set; }
+
+        [Required]
+        public bool IsPublished { get; set; }
     }
 }

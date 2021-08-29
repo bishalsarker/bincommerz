@@ -32,5 +32,35 @@ namespace BComm.PM.Web.Controllers
             var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
             return Ok(await _pageService.AddPage(newPageRequest, shopId));
         }
+
+        [HttpPut("update")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePage(PagePayload newPageRequest)
+        {
+            return Ok(await _pageService.UpdatePage(newPageRequest));
+        }
+
+        [HttpDelete("delete/{pageId}")]
+        [Authorize]
+        public async Task<IActionResult> DeletePage(string pageId)
+        {
+            return Ok(await _pageService.DeletePage(pageId));
+        }
+
+        [HttpGet("get/all")]
+        [Authorize]
+        public async Task<IActionResult> GetAllPages()
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _pageService.GetAllPages(shopId));
+        }
+
+        [HttpGet("get/{pageId}")]
+        [Authorize]
+        public async Task<IActionResult> GetCategory(string pageId)
+        {
+            return Ok(await _pageService.GetPage(pageId));
+        }
     }
 }

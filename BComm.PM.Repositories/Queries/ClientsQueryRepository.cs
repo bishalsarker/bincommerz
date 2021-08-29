@@ -39,6 +39,12 @@ namespace BComm.PM.Repositories.Queries
                 },
                 new Client()
                 {
+                    Id = "bcomm_cm",
+                    Url = _hostURL + "retail-admin/content-management/",
+                    AuthCallback = "#/auth-callback"
+                },
+                new Client()
+                {
                     Id = "bcomm_portal",
                     Url = _hostURL + "retail-admin/portal/",
                     AuthCallback = "#/auth-callback"
