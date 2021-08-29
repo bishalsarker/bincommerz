@@ -4,6 +4,7 @@ using BComm.PM.Services.Categories;
 using BComm.PM.Services.Common;
 using BComm.PM.Services.Mappings;
 using BComm.PM.Services.Orders;
+using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Reports;
 using BComm.PM.Services.Tags;
@@ -33,6 +34,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
             services.AddScoped<IImageUploadService, ImageUploadService>();
+            services.AddScoped<IPageService, PageService>();
         }
     }
 }
