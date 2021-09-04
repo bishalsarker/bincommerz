@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Dto.Payloads;
 using BComm.PM.Models.Products;
+using BComm.PM.Services.Auth;
 using BComm.PM.Services.Categories;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Pages;
@@ -25,6 +26,7 @@ namespace BComm.PM.Web.Controllers
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly IPageService _pageService;
+        private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ShopController(
@@ -32,13 +34,21 @@ namespace BComm.PM.Web.Controllers
             ICategoryService categoryService,
             IProductService productService,
             IOrderService orderService,
+            IAuthService authService,
             IHttpContextAccessor httpContextAccessor)
         {
             _pageService = pageService;
             _categoryService = categoryService;
             _productService = productService;
             _orderService = orderService;
+            _authService = authService;
             _httpContextAccessor = httpContextAccessor;
+        }
+
+        [HttpGet("info")]
+        public async Task<IActionResult> GetShopInfo([FromHeader] string shop_id)
+        {
+            return Ok(await _authService.GetShopInfo(shop_id));
         }
 
         [HttpGet("categories")]

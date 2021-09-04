@@ -42,13 +42,13 @@ namespace BComm.PM.Web.Controllers
 
         [Route("login")]
         [HttpPost]
-        public IActionResult Login(string username, string password, string client_id, string return_uri)
+        public async Task<IActionResult> Login(string username, string password, string client_id, string return_uri)
         {
-            var shop = _authService.GetShop(username, password);
+            var shop = await _authService.GetShop(username, password);
 
             if (shop != null)
             {
-                var authCallbackUrl = _authService.GetLoginRedirectUri(client_id, return_uri, shop);
+                var authCallbackUrl = _authService.GetLoginRedirectUri(client_id, return_uri, shop, username);
                 Console.WriteLine(authCallbackUrl);
                 return Redirect(authCallbackUrl);
             }

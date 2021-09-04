@@ -24,7 +24,6 @@ namespace BComm.PM.Services.Orders
         private readonly IProductQueryRepository _productQueryRepository;
         private readonly IProcessQueryRepository _processQueryRepository;
         private readonly IShopQueryRepository _shopQueryRepository;
-        private readonly IShopConfigQueryRepository _shopConfigQueryRepository;
         private readonly IMapper _mapper;
         private readonly IDictionary<string, double> _deliveryChargeMap;
 
@@ -36,7 +35,6 @@ namespace BComm.PM.Services.Orders
             IOrderQueryRepository orderQueryRepository,
             IProcessQueryRepository processQueryRepository,
             IShopQueryRepository shopQueryRepository,
-            IShopConfigQueryRepository shopConfigQueryRepository,
             IMapper mapper)
         {
             _orderCommandsRepository = orderCommandsRepository;
@@ -46,7 +44,6 @@ namespace BComm.PM.Services.Orders
             _processQueryRepository = processQueryRepository;
             _orderProcessLogCommandsRepository = orderProcessLogCommandsRepository;
             _shopQueryRepository = shopQueryRepository;
-            _shopConfigQueryRepository = shopConfigQueryRepository;
             _mapper = mapper;
 
             _deliveryChargeMap = new Dictionary<string, double>();
@@ -57,12 +54,11 @@ namespace BComm.PM.Services.Orders
         {
             try
             {
-                var shopModel = _shopQueryRepository.GetShopById(shopId);
+                var shopModel = await _shopQueryRepository.GetShopById(shopId);
                 if (shopModel != null)
                 {
-                    var shopConfig = _shopConfigQueryRepository.GetShopConfigById(shopId);
                     var newOrderModel = _mapper.Map<Order>(newOrderRequest);
-                    newOrderModel.HashId = GenerateOrderId(shopConfig.OrderCode);
+                    newOrderModel.HashId = GenerateOrderId(shopModel.OrderCode);
                     newOrderModel.ShopId = shopId;
                     newOrderModel.PlacedOn = DateTime.UtcNow;
                     newOrderModel.Status = "PENDING";

@@ -1,4 +1,5 @@
-﻿using BComm.PM.Models.Categories;
+﻿using BComm.PM.Models.Auth;
+using BComm.PM.Models.Categories;
 using BComm.PM.Models.Images;
 using BComm.PM.Models.Orders;
 using BComm.PM.Models.Pages;
@@ -36,6 +37,8 @@ namespace BComm.PM.Repositories.Common
         public DbSet<OrderPaymentLog> OrderPaymentLogs { get; set; }
 
         public DbSet<Page> Pages { get; set; }
+
+        public DbSet<Shop> Shops { get; set; }
 
 
         private readonly string _connectionString;
@@ -179,6 +182,16 @@ namespace BComm.PM.Repositories.Common
                 .HasIndex(t => t.ShopId)
                 .IsUnique(false)
                 .IsClustered(false);
+
+            modelBuilder.Entity<Shop>()
+               .HasIndex(t => t.HashId)
+               .IsUnique(true)
+               .IsClustered(false);
+
+            modelBuilder.Entity<Shop>()
+               .HasIndex(t => t.UserHashId)
+               .IsUnique(true)
+               .IsClustered(false);
         }
     }
 }

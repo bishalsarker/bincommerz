@@ -1,14 +1,11 @@
-﻿using BComm.PM.Models.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace BComm.PM.Models.Auth
+namespace BComm.PM.Dto.Payloads
 {
-    [Table("shops", Schema = "bcomm_user")]
-    public class Shop : WithHashId
+    public class ShopUpdatePayload
     {
         [Required]
         public string Name { get; set; }
@@ -16,7 +13,6 @@ namespace BComm.PM.Models.Auth
         [Required]
         public string Description { get; set; }
 
-        [Required]
         public string Logo { get; set; }
 
         [Required]
@@ -26,12 +22,6 @@ namespace BComm.PM.Models.Auth
         public string IPAddress { get; set; }
 
         [Required]
-        public string OrderCode { get; set; }
-
-        [Required]
         public double ReorderLevel { get; set; }
-
-        [Required]
-        public string UserHashId { get; set; }
     }
 }
