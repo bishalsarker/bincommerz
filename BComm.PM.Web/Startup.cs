@@ -65,7 +65,6 @@ namespace BComm.PM.Web
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseCors(MyAllowSpecificOrigins);
             }
 
             app.UseHttpsRedirection();
@@ -76,7 +75,7 @@ namespace BComm.PM.Web
 
             app.UseRouting();
 
-            app.UseCors();
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthentication();
 
