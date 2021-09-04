@@ -9,16 +9,16 @@ namespace BComm.PM.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly string _hostURL;
+        private readonly string _portalURL;
 
         public HomeController(IConfiguration configuration)
         {
-            _hostURL = configuration.GetSection("HostURL").Value;
+            _portalURL = configuration.GetSection("PortalURL").Value;
         }
 
         public IActionResult Index()
         {
-            return Redirect(_hostURL + "retail-admin/portal");
+            return Redirect(_portalURL);
         }
     }
 }

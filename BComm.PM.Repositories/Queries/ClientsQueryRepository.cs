@@ -9,11 +9,11 @@ namespace BComm.PM.Repositories.Queries
 {
     public class ClientsQueryRepository : IClientsQueryRepository
     {
-        private readonly string _hostURL;
+        private readonly string _portalURL;
 
         public ClientsQueryRepository(IConfiguration configuration)
         {
-            _hostURL = configuration.GetSection("HostURL").Value;
+            _portalURL = configuration.GetSection("PortalURL").Value;
         }
 
         public Client GetClientById(string clientId)
@@ -28,25 +28,25 @@ namespace BComm.PM.Repositories.Queries
                 new Client()
                 {
                     Id = "bcomm_om",
-                    Url = _hostURL + "retail-admin/order-management/",
+                    Url = _portalURL + "order-management/",
                     AuthCallback = "#/auth-callback"
                 },
                 new Client()
                 {
                     Id = "bcomm_pm",
-                    Url = _hostURL + "retail-admin/product-management/",
+                    Url = _portalURL + "product-management/",
                     AuthCallback = "#/auth-callback"
                 },
                 new Client()
                 {
                     Id = "bcomm_cm",
-                    Url = _hostURL + "retail-admin/content-management/",
+                    Url = _portalURL + "content-management/",
                     AuthCallback = "#/auth-callback"
                 },
                 new Client()
                 {
                     Id = "bcomm_portal",
-                    Url = _hostURL + "retail-admin/portal/",
+                    Url = _portalURL + "",
                     AuthCallback = "#/auth-callback"
                 }
             };
