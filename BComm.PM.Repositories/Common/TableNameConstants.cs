@@ -9,6 +9,7 @@ namespace BComm.PM.Repositories.Common
         public static readonly string PmSchemaName = "bcomm_pm";
         public static readonly string OmSchemaName = "bcomm_om";
         public static readonly string CmSchemaName = "bcomm_cm";
+        public static readonly string UserSchemaName = "bcomm_user";
 
         public static readonly string TagsTable = PmSchemaName + "." + "tags";
         public static readonly string CategoriesTable = PmSchemaName + "." + "categories";
@@ -24,5 +25,7 @@ namespace BComm.PM.Repositories.Common
         public static readonly string OrderPaymentLogsTable = OmSchemaName + "." + "order_payment_logs";
 
         public static readonly string PagesTable = CmSchemaName + "." + "pages";
+
+        public static readonly string ShopsTable = UserSchemaName + "." + "shops";
     }
 }

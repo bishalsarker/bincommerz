@@ -31,7 +31,7 @@ namespace BComm.PM.Services.Products
         private readonly IImagesQueryRepository _imagesQueryRepository;
         private readonly IImageUploadService _imageUploadService;
         private readonly ICategoryQueryService _categoryQueryService;
-        private readonly IShopConfigQueryRepository _shopConfigQueryRepository;
+        private readonly IShopQueryRepository _shopQueryRepository;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
 
@@ -45,7 +45,7 @@ namespace BComm.PM.Services.Products
             IImagesQueryRepository imagesQueryRepository,
             IImageUploadService imageUploadService,
             ICategoryQueryService categoryQueryService,
-            IShopConfigQueryRepository shopConfigQueryRepository,
+            IShopQueryRepository shopQueryRepository,
             IMapper mapper,
             IHostingEnvironment env)
         {
@@ -58,7 +58,7 @@ namespace BComm.PM.Services.Products
             _imagesQueryRepository = imagesQueryRepository;
             _imageUploadService = imageUploadService;
             _categoryQueryService = categoryQueryService;
-            _shopConfigQueryRepository = shopConfigQueryRepository;
+            _shopQueryRepository = shopQueryRepository;
             _mapper = mapper;
             _env = env;
         }
@@ -245,15 +245,16 @@ namespace BComm.PM.Services.Products
         {
             try
             {
-                var shopConfig = _shopConfigQueryRepository.GetShopConfigById(shopId);
+                var shopModel = await _shopQueryRepository.GetShopById(shopId);
 
-                if(shopConfig != null)
+                if(shopModel != null)
                 {
-                    var productModels = await _productQueryRepository.GetOutOfStockProducts(shopId, shopConfig.ReorderLevel);
+                    var productModels = await _productQueryRepository.GetOutOfStockProducts(shopId, shopModel.ReorderLevel);
                     var productStockResponses = new ProductStockResponse()
                     {
                         OutOfStock = _mapper.Map<IEnumerable<ProductResponse>>(productModels.Where(x => x.StockQuantity == 0)),
-                        Warning = _mapper.Map<IEnumerable<ProductResponse>>(productModels.Where(x => x.StockQuantity > 0 && x.StockQuantity <= shopConfig.ReorderLevel))
+                        Warning = _mapper.Map<IEnumerable<ProductResponse>>(productModels.Where(
+                            x => x.StockQuantity > 0 && x.StockQuantity <= shopModel.ReorderLevel))
                     };
 
                     return new Response()
