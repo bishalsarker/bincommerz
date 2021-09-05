@@ -253,7 +253,8 @@ namespace BComm.PM.Services.Products
                     var productStockResponses = new ProductStockResponse()
                     {
                         OutOfStock = _mapper.Map<IEnumerable<ProductResponse>>(productModels.Where(x => x.StockQuantity == 0)),
-                        Warning = _mapper.Map<IEnumerable<ProductResponse>>(productModels.Where(x => x.StockQuantity > 0 && x.StockQuantity <= shopModel.ReorderLevel))
+                        Warning = _mapper.Map<IEnumerable<ProductResponse>>(productModels.Where(
+                            x => x.StockQuantity > 0 && x.StockQuantity <= shopModel.ReorderLevel))
                     };
 
                     return new Response()
