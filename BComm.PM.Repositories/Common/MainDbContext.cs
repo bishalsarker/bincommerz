@@ -75,7 +75,7 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<Category>()
                .HasIndex(t => t.Slug)
-               .IsUnique(true)
+               .IsUnique(false)
                .IsClustered(false);
 
             modelBuilder.Entity<Category>()
@@ -175,7 +175,7 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<Page>()
                .HasIndex(t => t.Slug)
-               .IsUnique(true)
+               .IsUnique(false)
                .IsClustered(false);
 
             modelBuilder.Entity<Page>()
