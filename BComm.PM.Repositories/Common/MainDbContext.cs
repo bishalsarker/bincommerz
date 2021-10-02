@@ -6,6 +6,7 @@ using BComm.PM.Models.Pages;
 using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
+using BComm.PM.Models.Widgets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +38,10 @@ namespace BComm.PM.Repositories.Common
         public DbSet<OrderPaymentLog> OrderPaymentLogs { get; set; }
 
         public DbSet<Page> Pages { get; set; }
+
+        public DbSet<Slider> Sliders { get; set; }
+
+        public DbSet<SliderImage> SliderImages { get; set; }
 
         public DbSet<Shop> Shops { get; set; }
 
@@ -180,6 +185,21 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<Page>()
                 .HasIndex(t => t.ShopId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Slider>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<SliderImage>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<SliderImage>()
+                .HasIndex(t => t.SliderId)
                 .IsUnique(false)
                 .IsClustered(false);
 
