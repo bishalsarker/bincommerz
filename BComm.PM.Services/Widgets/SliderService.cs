@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace BComm.PM.Services.Widgets
 {
-    public class SliderService
+    public class SliderService : ISliderService
     {
         private readonly IImageService _imageService;
         private readonly ICommandsRepository<Slider> _sliderCommandsRepository;

@@ -20,6 +20,32 @@ namespace BComm.PM.Repositories.Queries
             _connectionString = configuration.GetSection("DbConfig:connStr").Value;
         }
 
+        public async Task<IEnumerable<Slider>> GetSliders(string shopId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select * from {0} where HashId=@shopid", TableNameConstants.SlidersTable)
+                    .ToString();
+
+                return await conn.QueryAsync<Slider>(query, new { @shopid = shopId });
+            }
+        }
+
+        public async Task<Slider> GetSlider(string sliderId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select * from {0} where HashId=@sliderid", TableNameConstants.SlidersTable)
+                    .ToString();
+
+                var result = await conn.QueryAsync<Slider>(query, new { @hashid = sliderId });
+
+                return result.FirstOrDefault();
+            }
+        }
+
         public async Task<SliderImage> GetSliderImage(string sliderImageId)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -31,6 +57,18 @@ namespace BComm.PM.Repositories.Queries
                 var result = await conn.QueryAsync<SliderImage>(query, new { @hashid = sliderImageId });
 
                 return result.FirstOrDefault();
+            }
+        }
+
+        public async Task<IEnumerable<SliderImage>> GetSliderImages(string sliderId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select * from {0} where SliderId=@sliderid", TableNameConstants.SliderImagesTable)
+                    .ToString();
+
+                return await conn.QueryAsync<SliderImage>(query, new { @sliderid = sliderId });
             }
         }
     }

@@ -8,6 +8,7 @@ using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Reports;
 using BComm.PM.Services.Tags;
+using BComm.PM.Services.Widgets;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BComm.PM.Services.Configurations
@@ -36,6 +37,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IImageUploadService, ImageUploadService>();
             services.AddScoped<IPageService, PageService>();
+            services.AddScoped<ISliderService, SliderService>();
         }
     }
 }
