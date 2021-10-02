@@ -17,9 +17,7 @@ namespace BComm.PM.Services.Widgets
 {
     public class SliderService
     {
-        private readonly ICommandsRepository<Image> _imagesCommandsRepository;
-        private readonly IImageUploadService _imageUploadService;
-        private readonly IImagesQueryRepository _imagesQueryRepository;
+        private readonly IImageService _imageService;
         private readonly ICommandsRepository<Slider> _sliderCommandsRepository;
         private readonly ICommandsRepository<SliderImage> _sliderImageCommandsRepository;
         private readonly ISliderQueryRepository _sliderQueryRepository;
@@ -27,18 +25,14 @@ namespace BComm.PM.Services.Widgets
         private readonly IMapper _mapper;
 
         public SliderService(
-            ICommandsRepository<Image> imagesCommandsRepository,
-            IImageUploadService imageUploadService,
-            IImagesQueryRepository imagesQueryRepository,
+            IImageService imageService,
             ICommandsRepository<Slider> sliderCommandsRepository,
             ICommandsRepository<SliderImage> sliderImageCommandsRepository,
             ISliderQueryRepository sliderQueryRepository,
             IMapper mapper,
             IHostingEnvironment env)
         {
-            _imagesCommandsRepository = imagesCommandsRepository;
-            _imageUploadService = imageUploadService;
-            _imagesQueryRepository = imagesQueryRepository;
+            _imageService = imageService;
             _sliderCommandsRepository = sliderCommandsRepository;
             _sliderImageCommandsRepository = sliderImageCommandsRepository;
             _sliderQueryRepository = sliderQueryRepository;
@@ -80,7 +74,7 @@ namespace BComm.PM.Services.Widgets
                 sliderImageModel.HashId = Guid.NewGuid().ToString("N");
 
                 var sliderImage = new ImageInfo(newSliderImageRequest.Image, sliderImageModel.HashId, _env);
-                var imageModel = await AddImages(sliderImage);
+                var imageModel = await _imageService.AddImage(sliderImage);
 
                 sliderImageModel.ImageId = imageModel.HashId;
                 await _sliderImageCommandsRepository.Add(sliderImageModel);
@@ -116,11 +110,8 @@ namespace BComm.PM.Services.Widgets
                     existingSliderImageModel.ButtonText = sliderImageModel.ButtonText;
                     existingSliderImageModel.ButtonUrl = sliderImageModel.ButtonUrl;
 
-                    var existingImageModel = await _imagesQueryRepository.GetImage(existingSliderImageModel.ImageId);
-                    await DeleteImage(existingImageModel);
-
-                    var sliderImage = new ImageInfo(newSliderImageRequest.SliderImage.Image, Guid.NewGuid().ToString("N"), _env);
-                    var imageModel = await AddImages(sliderImage);
+                    var newSliderImage = new ImageInfo(newSliderImageRequest.SliderImage.Image, Guid.NewGuid().ToString("N"), _env);
+                    var imageModel = await _imageService.UpdateImage(existingSliderImageModel.ImageId, newSliderImage);
                     existingSliderImageModel.ImageId = imageModel.HashId;
 
                     await _sliderImageCommandsRepository.Update(existingSliderImageModel);
@@ -149,30 +140,6 @@ namespace BComm.PM.Services.Widgets
                     Message = "Error: " + ex.Message,
                     IsSuccess = false
                 };
-            }
-        }
-
-        private async Task<Image> AddImages(ImageInfo sliderImage)
-        {
-            var uploadedImageInfo = await _imageUploadService.UploadImage(sliderImage);
-            await _imagesCommandsRepository.Add(uploadedImageInfo);
-
-            return uploadedImageInfo;
-        }
-
-        private async Task<bool> DeleteImage(Image image)
-        {
-            try
-            {
-                await _imageUploadService.DeleteImages(image);
-                await _imagesQueryRepository.DeleteImage(image.HashId);
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
             }
         }
     }

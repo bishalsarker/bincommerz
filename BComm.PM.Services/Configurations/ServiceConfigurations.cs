@@ -33,6 +33,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<IAuthService, Auth.AuthService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
+            services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IImageUploadService, ImageUploadService>();
             services.AddScoped<IPageService, PageService>();
         }
