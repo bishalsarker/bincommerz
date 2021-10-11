@@ -14,6 +14,15 @@ namespace BComm.PM.Models.Widgets
         public string Name { get; set; }
 
         [Required]
+        public SliderTypes Type { get; set; }
+
+        [Required]
         public string ShopId { get; set; }
+    }
+
+    public enum SliderTypes
+    {
+        Image,
+        Card
     }
 }

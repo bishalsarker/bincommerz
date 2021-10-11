@@ -11,6 +11,9 @@ namespace BComm.PM.Models.Widgets
     public class SliderImage : WithHashId
     {
         [Required]
+        public string ImageId { get; set; }
+
+        [Required]
         public string SliderId { get; set; }
 
         public string Title { get; set; }
@@ -20,8 +23,5 @@ namespace BComm.PM.Models.Widgets
         public string ButtonText { get; set; }
 
         public string ButtonUrl { get; set; }
-
-        [Required]
-        public string ImageId { get; set; }
     }
 }
