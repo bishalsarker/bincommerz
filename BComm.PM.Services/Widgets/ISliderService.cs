@@ -8,6 +8,8 @@ namespace BComm.PM.Services.Widgets
     {
         Task<Response> AddSlider(SliderPayload newSliderRequest, string shopId);
         Task<Response> AddSliderImage(SliderImagePayload newSliderImageRequest);
+        Task<Response> GetAllSliders(string shopId);
+        Task<Response> GetSlides(string slideId);
         Task<Response> UpdateSliderImage(SliderImageUpdatePayload newSliderImageRequest);
     }
 }

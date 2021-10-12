@@ -34,6 +34,22 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _sliderService.AddSlider(newSliderRequest, shopId));
         }
 
+        [HttpGet("get/all")]
+        [Authorize]
+        public async Task<IActionResult> GetAllSliders()
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _sliderService.GetAllSliders(shopId));
+        }
 
+        [HttpGet("get/slides/{sliderId}")]
+        [Authorize]
+        public async Task<IActionResult> GetSlider(string sliderId)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _sliderService.GetSlides(sliderId));
+        }
     }
 }

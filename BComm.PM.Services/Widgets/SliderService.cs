@@ -142,5 +142,40 @@ namespace BComm.PM.Services.Widgets
                 };
             }
         }
+
+        public async Task<Response> GetAllSliders(string shopId)
+        {
+            return new Response()
+            {
+                Data = new List<SliderResponse>() { 
+                    new SliderResponse()
+                    {
+                        Id = new Guid().ToString(),
+                        Name = "Default",
+                        Type = "image"
+                    } 
+                },
+                IsSuccess = true
+            };
+        }
+
+        public async Task<Response> GetSlides(string slideId)
+        {
+            return new Response()
+            {
+                Data = new List<SlideResponse>() {
+                    new SlideResponse()
+                    {
+                        Id = new Guid().ToString(),
+                        ImageURL = "/imagesdev/15e75762181b41e6828c844f7016efd0_main.jpeg",
+                        Title = "Test",
+                        Description = "Test",
+                        ButtonText = "Test",
+                        ButtonUrl = "Test"
+                    }
+                },
+                IsSuccess = true
+            };
+        }
     }
 }
