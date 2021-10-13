@@ -13,6 +13,12 @@ namespace BComm.PM.Models.Widgets
         [Required]
         public string ImageId { get; set; }
 
+        [NotMapped]
+        public string ImageName { get; set; }
+
+        [NotMapped]
+        public string ImageDirectory { get; set; }
+
         [Required]
         public string SliderId { get; set; }
 

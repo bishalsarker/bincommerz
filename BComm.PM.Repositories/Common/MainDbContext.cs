@@ -193,6 +193,11 @@ namespace BComm.PM.Repositories.Common
                 .IsUnique(true)
                 .IsClustered(false);
 
+            modelBuilder.Entity<Slider>()
+                .HasIndex(t => t.ShopId)
+                .IsUnique(false)
+                .IsClustered(false);
+
             modelBuilder.Entity<SliderImage>()
                 .HasIndex(t => t.HashId)
                 .IsUnique(true)

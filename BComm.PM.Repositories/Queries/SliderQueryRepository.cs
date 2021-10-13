@@ -25,7 +25,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where HashId=@shopid", TableNameConstants.SlidersTable)
+                    .AppendFormat("select * from {0} where ShopId=@shopid", TableNameConstants.SlidersTable)
                     .ToString();
 
                 return await conn.QueryAsync<Slider>(query, new { @shopid = shopId });
@@ -40,7 +40,7 @@ namespace BComm.PM.Repositories.Queries
                     .AppendFormat("select * from {0} where HashId=@sliderid", TableNameConstants.SlidersTable)
                     .ToString();
 
-                var result = await conn.QueryAsync<Slider>(query, new { @hashid = sliderId });
+                var result = await conn.QueryAsync<Slider>(query, new { @sliderid = sliderId });
 
                 return result.FirstOrDefault();
             }
@@ -51,12 +51,30 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where HashId=@hashid", TableNameConstants.SliderImagesTable)
+                    .AppendFormat("select {0}.*, " +
+                    "{1}.OriginalImage as ImageName, {1}.Directory as ImageDirectory " +
+                    "from {0} " +
+                    "left join {1} on {1}.HashId = {0}.ImageId " +
+                    "where {0}.HashId=@slideid",
+                    TableNameConstants.SliderImagesTable,
+                    TableNameConstants.ImagesTable)
                     .ToString();
 
-                var result = await conn.QueryAsync<SliderImage>(query, new { @hashid = sliderImageId });
+                var result = await conn.QueryAsync<SliderImage>(query, new { @slideid = sliderImageId });
 
                 return result.FirstOrDefault();
+            }
+        }
+
+        public async Task DeleteSliderImage(string sliderImageId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("delete from {0} where HashId=@slideid", TableNameConstants.SliderImagesTable)
+                    .ToString();
+
+                await conn.ExecuteAsync(query, new { @slideid = sliderImageId });
             }
         }
 
@@ -65,7 +83,13 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where SliderId=@sliderid", TableNameConstants.SliderImagesTable)
+                    .AppendFormat("select {0}.HashId, {0}.Title, {0}.Description, {0}.ButtonText, {0}.ButtonUrl, {0}.ImageId, " +
+                    "{1}.OriginalImage as ImageName, {1}.Directory as ImageDirectory " +
+                    "from {0} " +
+                    "left join {1} on {1}.HashId = {0}.ImageId " +
+                    "where {0}.SliderId=@sliderid",
+                    TableNameConstants.SliderImagesTable,
+                    TableNameConstants.ImagesTable)
                     .ToString();
 
                 return await conn.QueryAsync<SliderImage>(query, new { @sliderid = sliderId });

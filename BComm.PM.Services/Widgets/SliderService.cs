@@ -72,6 +72,7 @@ namespace BComm.PM.Services.Widgets
             {
                 var sliderImageModel = _mapper.Map<SliderImage>(newSliderImageRequest);
                 sliderImageModel.HashId = Guid.NewGuid().ToString("N");
+                sliderImageModel.CreatedOn = DateTime.UtcNow;
 
                 var sliderImage = new ImageInfo(newSliderImageRequest.Image, sliderImageModel.HashId, _env);
                 var imageModel = await _imageService.AddImage(sliderImage);
@@ -110,9 +111,12 @@ namespace BComm.PM.Services.Widgets
                     existingSliderImageModel.ButtonText = sliderImageModel.ButtonText;
                     existingSliderImageModel.ButtonUrl = sliderImageModel.ButtonUrl;
 
-                    var newSliderImage = new ImageInfo(newSliderImageRequest.SliderImage.Image, Guid.NewGuid().ToString("N"), _env);
-                    var imageModel = await _imageService.UpdateImage(existingSliderImageModel.ImageId, newSliderImage);
-                    existingSliderImageModel.ImageId = imageModel.HashId;
+                    if(!string.IsNullOrEmpty(newSliderImageRequest.SliderImage.Image))
+                    {
+                        var newSliderImage = new ImageInfo(newSliderImageRequest.SliderImage.Image, Guid.NewGuid().ToString("N"), _env);
+                        var imageModel = await _imageService.UpdateImage(existingSliderImageModel.ImageId, newSliderImage);
+                        existingSliderImageModel.ImageId = imageModel.HashId;
+                    }
 
                     await _sliderImageCommandsRepository.Update(existingSliderImageModel);
 
@@ -143,39 +147,163 @@ namespace BComm.PM.Services.Widgets
             }
         }
 
+        public async Task<Response> UpdateSlider(SliderUpdatePayload newSliderRequest)
+        {
+            try
+            {
+                var existingSliderModel = await _sliderQueryRepository.GetSlider(newSliderRequest.Id);
+
+                if (existingSliderModel != null)
+                {
+                    var sliderModel = _mapper.Map<Slider>(newSliderRequest.Slider);
+                    existingSliderModel.Name = sliderModel.Name;
+                    existingSliderModel.Type = sliderModel.Type;
+
+                    await _sliderCommandsRepository.Update(existingSliderModel);
+
+                    return new Response()
+                    {
+                        Data = new { Id = sliderModel.HashId },
+                        Message = "Slider Image Updated Successfully",
+                        IsSuccess = true
+                    };
+                }
+                else
+                {
+                    return new Response()
+                    {
+                        Message = "Error: No slider image exists!",
+                        IsSuccess = false
+                    };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + ex.Message,
+                    IsSuccess = false
+                };
+            }
+        }
+
         public async Task<Response> GetAllSliders(string shopId)
         {
+            var sliderModels = await _sliderQueryRepository.GetSliders(shopId);
+            var sliderResponses = new List<SliderResponse>();
+
+            foreach(var sliderModel in sliderModels)
+            {
+                var sliderResponse = _mapper.Map<SliderResponse>(sliderModel);
+                sliderResponses.Add(sliderResponse);
+            }
+
             return new Response()
             {
-                Data = new List<SliderResponse>() { 
-                    new SliderResponse()
-                    {
-                        Id = new Guid().ToString(),
-                        Name = "Default",
-                        Type = "image"
-                    } 
-                },
+                Data = sliderResponses,
                 IsSuccess = true
             };
         }
 
-        public async Task<Response> GetSlides(string slideId)
+        public async Task<Response> GetSlider(string sliderId)
         {
+            var sliderModel = await _sliderQueryRepository.GetSlider(sliderId);
+
+            if (sliderModel != null)
+            {
+                var sliderResponse = _mapper.Map<SliderResponse>(sliderModel);
+
+                return new Response()
+                {
+                    Data = sliderResponse,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Slider doesn't exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> GetSlides(string sliderId)
+        {
+            var sliderImageModels = await _sliderQueryRepository.GetSliderImages(sliderId);
+            var sliderImageResponses = new List<SliderImageResponse>();
+
+            foreach (var sliderModel in sliderImageModels)
+            {
+                var sliderImageResponse = _mapper.Map<SliderImageResponse>(sliderModel);
+                sliderImageResponses.Add(sliderImageResponse);
+            }
+
             return new Response()
             {
-                Data = new List<SlideResponse>() {
-                    new SlideResponse()
-                    {
-                        Id = new Guid().ToString(),
-                        ImageURL = "/imagesdev/15e75762181b41e6828c844f7016efd0_main.jpeg",
-                        Title = "Test",
-                        Description = "Test",
-                        ButtonText = "Test",
-                        ButtonUrl = "Test"
-                    }
-                },
+                Data = sliderImageResponses,
                 IsSuccess = true
             };
+        }
+
+        public async Task<Response> GetSlide(string slideId)
+        {
+            var sliderImageModel = await _sliderQueryRepository.GetSliderImage(slideId);
+            var sliderImageResponse = _mapper.Map<SliderImageResponse>(sliderImageModel);
+
+            if (sliderImageModel != null)
+            {
+                return new Response()
+                {
+                    Data = sliderImageResponse,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Slide doesn't exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> DeleteSlide(string slideId)
+        {
+            var slideModel = await _sliderQueryRepository.GetSliderImage(slideId);
+
+            try
+            {
+                if (slideModel != null)
+                {
+                    await _sliderQueryRepository.DeleteSliderImage(slideId);
+
+                    return new Response()
+                    {
+                        IsSuccess = true,
+                        Message = "Slide deleted"
+                    };
+                }
+                else
+                {
+                    return new Response()
+                    {
+                        IsSuccess = false,
+                        Message = "Slide doesn't exist"
+                    };
+                }
+            }
+            catch(Exception ex)
+            {
+                return new Response()
+                {
+                    IsSuccess = false,
+                    Message = "Error: " + ex.Message
+                };
+            }
         }
     }
 }

@@ -4,9 +4,11 @@ using System.Text;
 
 namespace BComm.PM.Dto.Widgets
 {
-    public class SlideResponse
+    public class SliderImageResponse
     {
         public string Id { get; set; }
+
+        public string SliderId { get; set; }
 
         public string ImageURL { get; set; }
 

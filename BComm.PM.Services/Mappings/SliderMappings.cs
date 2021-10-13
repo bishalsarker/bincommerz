@@ -13,23 +13,49 @@ namespace BComm.PM.Services.Mappings
         {
             CreateMap<SliderImagePayload, SliderImage>();
 
+            CreateMap<SliderPayload, Slider>()
+                .ForMember(dest => dest.Type,
+                opt => opt.MapFrom(src => ResolveSliderType(src.Type)));
+
+            CreateMap<Slider, SliderResponse>()
+                .ForMember(dest => dest.Id,
+                opt => opt.MapFrom(src => src.HashId))
+                .ForMember(dest => dest.Type,
+                opt => opt.MapFrom(src => ResolveSliderType(src.Type)));
+
             //CreateMap<ProductUpdatePayload, Product>();
 
-            //CreateMap<Product, ProductResponse>()
-            //    .ForMember(dest => dest.Id,
-            //    opt => opt.MapFrom(src => src.HashId))
-            //    .ForMember(dest => dest.InStock,
-            //    opt => opt.MapFrom(src => src.StockQuantity > 0))
-            //    .ForMember(dest => dest.ImageUrl,
-            //    opt => opt.MapFrom(src => src.ImageDirectory + src.ImageUrl));
+            CreateMap<SliderImage, SliderImageResponse>()
+                .ForMember(dest => dest.Id,
+                opt => opt.MapFrom(src => src.HashId))
+                .ForMember(dest => dest.ImageURL,
+                opt => opt.MapFrom(src => src.ImageDirectory + src.ImageName));
+        }
 
-            //CreateMap<Image, ImageResponse>()
-            //    .ForMember(dest => dest.Id,
-            //    opt => opt.MapFrom(src => src.HashId))
-            //    .ForMember(dest => dest.OriginalImage,
-            //    opt => opt.MapFrom(src => src.Directory + src.OriginalImage))
-            //    .ForMember(dest => dest.ThumbnailImage,
-            //    opt => opt.MapFrom(src => src.Directory + src.ThumbnailImage));
+        public static SliderTypes ResolveSliderType(string type)
+        {
+            switch (type)
+            {
+                case "image":
+                    return SliderTypes.Image;
+                case "card":
+                    return SliderTypes.Card;
+                default:
+                    return SliderTypes.Image;
+            }
+        }
+
+        public static string ResolveSliderType(SliderTypes type)
+        {
+            switch (type)
+            {
+                case SliderTypes.Image:
+                    return "image";
+                case SliderTypes.Card:
+                    return "card";
+                default:
+                    return "image";
+            }
         }
     }
 }

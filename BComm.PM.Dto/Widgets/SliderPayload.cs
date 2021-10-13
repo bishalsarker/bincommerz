@@ -7,5 +7,7 @@ namespace BComm.PM.Dto.Widgets
     public class SliderPayload
     {
         public string Name { get; set; }
+
+        public string Type { get; set; }
     }
 }

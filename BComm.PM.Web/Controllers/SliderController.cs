@@ -34,6 +34,24 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _sliderService.AddSlider(newSliderRequest, shopId));
         }
 
+        [HttpPost("slide/addnew")]
+        [Authorize]
+        public async Task<IActionResult> AddSlide(SliderImagePayload newSlideRequest)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _sliderService.AddSliderImage(newSlideRequest));
+        }
+
+        [HttpPut("slide/update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateSlide(SliderImageUpdatePayload newSlideRequest)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _sliderService.UpdateSliderImage(newSlideRequest));
+        }
+
         [HttpGet("get/all")]
         [Authorize]
         public async Task<IActionResult> GetAllSliders()
@@ -43,13 +61,40 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _sliderService.GetAllSliders(shopId));
         }
 
-        [HttpGet("get/slides/{sliderId}")]
+        [HttpGet("get/slider/{sliderId}")]
         [Authorize]
         public async Task<IActionResult> GetSlider(string sliderId)
         {
             var claims = _httpContextAccessor.HttpContext.User.Claims;
             var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _sliderService.GetSlider(sliderId));
+        }
+
+        [HttpGet("get/slides/{sliderId}")]
+        [Authorize]
+        public async Task<IActionResult> GetSlides(string sliderId)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
             return Ok(await _sliderService.GetSlides(sliderId));
+        }
+
+        [HttpGet("get/slide/{slideId}")]
+        [Authorize]
+        public async Task<IActionResult> GetSlide(string slideId)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _sliderService.GetSlide(slideId));
+        }
+
+        [HttpDelete("slide/delete/{slideId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteSlide(string slideId)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _sliderService.DeleteSlide(slideId));
         }
     }
 }
