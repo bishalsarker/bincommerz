@@ -230,6 +230,39 @@ namespace BComm.PM.Services.Widgets
             }
         }
 
+        public async Task<Response> GetSliderWithSlides(string sliderId)
+        {
+            var sliderModel = await _sliderQueryRepository.GetSlider(sliderId);
+
+            if (sliderModel != null)
+            {
+                var sliderResponse = _mapper.Map<SliderResponse>(sliderModel);
+                var slidesModel = await _sliderQueryRepository.GetSliderImages(sliderModel.HashId);
+                var slideResponses = new List<SliderImageResponse>();
+
+                foreach (var slide in slidesModel)
+                {
+                    slideResponses.Add(_mapper.Map<SliderImageResponse>(slide));
+                }
+
+                sliderResponse.Slides = slideResponses;
+
+                return new Response()
+                {
+                    Data = sliderResponse,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Slider doesn't exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
         public async Task<Response> GetSlides(string sliderId)
         {
             var sliderImageModels = await _sliderQueryRepository.GetSliderImages(sliderId);
@@ -297,6 +330,42 @@ namespace BComm.PM.Services.Widgets
                 }
             }
             catch(Exception ex)
+            {
+                return new Response()
+                {
+                    IsSuccess = false,
+                    Message = "Error: " + ex.Message
+                };
+            }
+        }
+
+        public async Task<Response> DeleteSlider(string sliderId)
+        {
+            var slideModel = await _sliderQueryRepository.GetSlider(sliderId);
+
+            try
+            {
+                if (slideModel != null)
+                {
+                    await _sliderQueryRepository.DeleteSliderImages(sliderId);
+                    await _sliderQueryRepository.DeleteSlider(sliderId);
+
+                    return new Response()
+                    {
+                        IsSuccess = true,
+                        Message = "Slider deleted"
+                    };
+                }
+                else
+                {
+                    return new Response()
+                    {
+                        IsSuccess = false,
+                        Message = "Slider doesn't exist"
+                    };
+                }
+            }
+            catch (Exception ex)
             {
                 return new Response()
                 {

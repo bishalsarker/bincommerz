@@ -96,5 +96,14 @@ namespace BComm.PM.Web.Controllers
             var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
             return Ok(await _sliderService.DeleteSlide(slideId));
         }
+
+        [HttpDelete("delete/{sliderId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteSlider(string sliderId)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            return Ok(await _sliderService.DeleteSlider(sliderId));
+        }
     }
 }

@@ -66,6 +66,18 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
+        public async Task DeleteSlider(string sliderId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("delete from {0} where HashId=@sliderid", TableNameConstants.SlidersTable)
+                    .ToString();
+
+                await conn.ExecuteAsync(query, new { @sliderid = sliderId });
+            }
+        }
+
         public async Task DeleteSliderImage(string sliderImageId)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -75,6 +87,18 @@ namespace BComm.PM.Repositories.Queries
                     .ToString();
 
                 await conn.ExecuteAsync(query, new { @slideid = sliderImageId });
+            }
+        }
+
+        public async Task DeleteSliderImages(string sliderId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("delete from {0} where SliderId=@sliderid", TableNameConstants.SliderImagesTable)
+                    .ToString();
+
+                await conn.ExecuteAsync(query, new { @sliderid = sliderId });
             }
         }
 
