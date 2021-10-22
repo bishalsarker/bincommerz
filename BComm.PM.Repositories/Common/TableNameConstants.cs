@@ -29,5 +29,6 @@ namespace BComm.PM.Repositories.Common
         public static readonly string SliderImagesTable = CmSchemaName + "." + "slider_images";
 
         public static readonly string ShopsTable = UserSchemaName + "." + "shops";
+        public static readonly string UsersTable = UserSchemaName + "." + "users";
     }
 }

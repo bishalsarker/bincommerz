@@ -13,14 +13,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using BC = BCrypt.Net.BCrypt;
 
 namespace BComm.PM.Services.Auth
 {
     public class AuthService : IAuthService
     {
+        private readonly ICommandsRepository<User> _userCommandsRepository;
         private readonly ICommandsRepository<Shop> _shopcommandsRepository;
         private readonly IClientsQueryRepository _clientsQueryRepository;
         private readonly IUserQueryRepository _userQueryRepository;
@@ -36,6 +39,7 @@ namespace BComm.PM.Services.Auth
         private readonly string _hostURL;
 
         public AuthService(
+            ICommandsRepository<User> userCommandsRepository,
             ICommandsRepository<Shop> shopcommandsRepository,
             IClientsQueryRepository clientsQueryRepository,
             IShopQueryRepository shopsQueryRepository,
@@ -47,6 +51,7 @@ namespace BComm.PM.Services.Auth
             IHostingEnvironment env,
             IMapper mapper)
         {
+            _userCommandsRepository = userCommandsRepository;
             _shopcommandsRepository = shopcommandsRepository;
             _clientsQueryRepository = clientsQueryRepository;
             _userQueryRepository = userQueryRepository;
@@ -60,19 +65,52 @@ namespace BComm.PM.Services.Auth
             _blobContainer = configuration.GetSection("AzureSettings:ImagesContainer").Value;
         }
 
-        public async Task<Shop> GetShop(string userName, string password)
+        public async Task<Response> AuthenticateUser(UserAccountPayload userCredentials)
         {
-            var userModel = _userQueryRepository.ValidateUser(userName, password);
+            var matchedUser = (await _userQueryRepository.GetByUsername(userCredentials.UserName)).FirstOrDefault();
 
-            if (userModel != null)
+            if (matchedUser != null)
             {
-                return await _shopsQueryRepository.GetShopByUserId(userModel.HashId);
+                if (!BC.Verify(userCredentials.Password, matchedUser.Password))
+                {
+                    return new Response() { IsSuccess = false, Message = "Incorrect password" };
+                }
+                else
+                {
+                    var shop = await _shopsQueryRepository.GetShopByUserId(matchedUser.HashId);
+                    return new Response() { Data = shop, IsSuccess = true };
+                }
             }
             else
             {
-                return null;
+                return new Response() { IsSuccess = false, Message = "User doesn't exist" };
             }
-            
+        }
+
+        public async Task<Response> CreateAccount(UserAccountPayload newUserAccountDetails)
+        {
+            var availableUsers = await _userQueryRepository.GetByUsername(newUserAccountDetails.UserName);
+
+            if (availableUsers.Count() > 0)
+            {
+                return new Response() { IsSuccess = false, Message = "Username already exists" };
+            }
+            else
+            {
+                var newAccountModel = _mapper.Map<User>(newUserAccountDetails);
+
+                var hashedPassword = BC.HashPassword(newAccountModel.Password);
+                newAccountModel.Password = hashedPassword;
+
+                newAccountModel.HashId = Guid.NewGuid().ToString("N").ToUpper();
+                newAccountModel.IsEmailVerified = false;
+                newAccountModel.IsActive = true;
+                newAccountModel.CreatedOn = DateTime.UtcNow;
+
+                await _userCommandsRepository.Add(newAccountModel);
+
+                return new Response() { IsSuccess = true, Message = "User created successfully" };
+            }
         }
 
         public async Task<Response> UpdateShop(ShopUpdatePayload shopUpdateRequest, string shopId)

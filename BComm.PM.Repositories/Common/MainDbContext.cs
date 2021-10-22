@@ -45,6 +45,8 @@ namespace BComm.PM.Repositories.Common
 
         public DbSet<Shop> Shops { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
 
         private readonly string _connectionString;
 
@@ -215,6 +217,11 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<Shop>()
                .HasIndex(t => t.UserHashId)
+               .IsUnique(true)
+               .IsClustered(false);
+
+            modelBuilder.Entity<User>()
+               .HasIndex(t => t.HashId)
                .IsUnique(true)
                .IsClustered(false);
         }
