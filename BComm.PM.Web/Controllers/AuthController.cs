@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using BComm.PM.Dto.Auth;
 using BComm.PM.Dto.Payloads;
 using BComm.PM.Services.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -59,6 +60,16 @@ namespace BComm.PM.Web.Controllers
             var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
 
             return Ok(await _authService.UpdateShop(shopUpdatePayload, shopId));
+        }
+
+        [HttpPatch("updatepassword")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePassword(PasswordUpdatePayload passwordUpdatePayload)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var userName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value.ToString();
+
+            return Ok(await _authService.UpdatePassword(passwordUpdatePayload, userName));
         }
     }
 }

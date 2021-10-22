@@ -113,6 +113,30 @@ namespace BComm.PM.Services.Auth
             }
         }
 
+        public async Task<Response> UpdatePassword(PasswordUpdatePayload passwordUpdatePayload, string userName)
+        {
+            var matchedUser = (await _userQueryRepository.GetByUsername(userName)).FirstOrDefault();
+
+            if (matchedUser != null)
+            {
+                if (!BC.Verify(passwordUpdatePayload.OldPassword, matchedUser.Password))
+                {
+                    return new Response() { IsSuccess = false, Message = "Incorrect password" };
+                }
+                else
+                {
+                    matchedUser.Password = BC.HashPassword(passwordUpdatePayload.NewPassword);
+                    await _userCommandsRepository.Update(matchedUser);
+
+                    return new Response() { IsSuccess = true };
+                }
+            }
+            else
+            {
+                return new Response() { IsSuccess = false, Message = "User doesn't exist" };
+            }
+        }
+
         public async Task<Response> UpdateShop(ShopUpdatePayload shopUpdateRequest, string shopId)
         {
             var existingShopModel = await _shopsQueryRepository.GetShopById(shopId);
