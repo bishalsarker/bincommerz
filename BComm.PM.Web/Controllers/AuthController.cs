@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BComm.PM.Dto.Auth;
+using BComm.PM.Dto.Common;
 using BComm.PM.Dto.Payloads;
 using BComm.PM.Services.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,13 @@ namespace BComm.PM.Web.Controllers
         {
             _httpContextAccessor = httpContextAccessor;
             _authService = authService;
+        }
+
+        [HttpPost]
+        [Route("createaccount")]
+        public async Task<IActionResult> CreateAccount(UserAccountPayload newUserAccountDetails)
+        {
+            return Ok(await _authService.CreateAccount(newUserAccountDetails));
         }
 
         [HttpGet("verify")]

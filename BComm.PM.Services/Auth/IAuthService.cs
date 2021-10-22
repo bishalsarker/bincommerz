@@ -9,6 +9,7 @@ namespace BComm.PM.Services.Auth
     public interface IAuthService
     {
         Task<Response> AuthenticateUser(UserAccountPayload userCredentials);
+        Task<Response> CreateAccount(UserAccountPayload newUserAccountDetails);
         string GetLoginRedirectUri(string client_id, string redirect_uri, Shop shop, string userName);
         Task<Response> GetShopInfo(string shopId);
         Task<Response> UpdatePassword(PasswordUpdatePayload passwordUpdatePayload, string userName);

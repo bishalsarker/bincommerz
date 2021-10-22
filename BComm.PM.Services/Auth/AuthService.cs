@@ -102,12 +102,31 @@ namespace BComm.PM.Services.Auth
                 var hashedPassword = BC.HashPassword(newAccountModel.Password);
                 newAccountModel.Password = hashedPassword;
 
-                newAccountModel.HashId = Guid.NewGuid().ToString("N").ToUpper();
+                newAccountModel.HashId = Guid.NewGuid().ToString("N");
                 newAccountModel.IsEmailVerified = false;
                 newAccountModel.IsActive = true;
                 newAccountModel.CreatedOn = DateTime.UtcNow;
 
+                newAccountModel.SubscriptionPlan = SubscriptionPlans.Free;
+
                 await _userCommandsRepository.Add(newAccountModel);
+
+                var newShopModel = new Shop();
+                newShopModel.HashId = Guid.NewGuid().ToString("N");
+                newShopModel.Name = "Bincommerz";
+                newShopModel.Description = "This is a demo shop";
+                newShopModel.Logo = "default";
+
+                var rnd = new Random();
+                newShopModel.OrderCode = rnd.Next(100, 1000).ToString();
+
+                newShopModel.ReorderLevel = 10;
+                newShopModel.Url = "https://www.bincommerz.com";
+                newShopModel.IPAddress = "0.0.0.0";
+                newShopModel.UserHashId = newAccountModel.HashId;
+                newShopModel.CreatedOn = DateTime.UtcNow;
+
+                await _shopcommandsRepository.Add(newShopModel);
 
                 return new Response() { IsSuccess = true, Message = "User created successfully" };
             }
