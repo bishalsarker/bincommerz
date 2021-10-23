@@ -252,6 +252,29 @@ namespace BComm.PM.Services.Auth
 
         }
 
+        public async Task<Response> GetUserInfo(string userName)
+        {
+            var userModel = (await _userQueryRepository.GetByUsername(userName)).FirstOrDefault();
+
+            if (userModel != null)
+            {
+                return new Response()
+                {
+                    Data = userModel,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "User doesn't exist",
+                    IsSuccess = false
+                };
+            }
+
+        }
+
         public string GetLoginRedirectUri(string client_id, string redirect_uri, Shop shop, string userName)
         {
             var client = _clientsQueryRepository.GetClientById(client_id);
