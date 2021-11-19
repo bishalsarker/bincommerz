@@ -101,7 +101,11 @@ namespace BComm.PM.Services.Categories
                 existingCategoryModel.TagHashId = newCategoryRequest.TagHashId;
 
                 var existingImageModel = await _imagesQueryRepository.GetImage(existingCategoryModel.ImageId);
-                await DeleteImage(existingImageModel);
+
+                if (existingImageModel != null)
+                {
+                    await DeleteImage(existingImageModel);
+                }
 
                 var catImage = new ImageInfo(newCategoryRequest.Image, Guid.NewGuid().ToString("N"), _env);
                 var imageModel = await AddImages(catImage);
@@ -164,7 +168,16 @@ namespace BComm.PM.Services.Categories
                 {
                     var imageModel = await _imagesQueryRepository.GetImage(categoryModel.ImageId);
                     var response = _mapper.Map<CategoryResponse>(categoryModel);
-                    response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+
+                    if (imageModel != null)
+                    {
+                        response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+                    }
+                    else
+                    {
+                        response.ImageUrl = "";
+                    }
+                    
                     categoryResponseModels.Add(response);
                 }
 
@@ -192,7 +205,15 @@ namespace BComm.PM.Services.Categories
             {
                 var response = _mapper.Map<CategoryResponse>(existingCategoryModel);
                 var imageModel = await _imagesQueryRepository.GetImage(existingCategoryModel.ImageId);
-                response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+
+                if (imageModel != null)
+                {
+                    response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+                }
+                else
+                {
+                    response.ImageUrl = "";
+                }
 
                 return new Response()
                 {
@@ -218,7 +239,14 @@ namespace BComm.PM.Services.Categories
             {
                 var response = _mapper.Map<CategoryResponse>(existingCategoryModel);
                 var imageModel = await _imagesQueryRepository.GetImage(existingCategoryModel.ImageId);
-                response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+                if (imageModel != null)
+                {
+                    response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+                }
+                else
+                {
+                    response.ImageUrl = "";
+                }
 
                 return new Response()
                 {
