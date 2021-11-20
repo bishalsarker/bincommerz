@@ -20,6 +20,8 @@ namespace BComm.PM.Repositories.Common
         {
             using (var context = new MainDbContext(_configuration))
             {
+                entity.CreatedOn = DateTime.UtcNow;
+
                 await context.AddAsync<T>(entity);
                 await context.SaveChangesAsync();
             }

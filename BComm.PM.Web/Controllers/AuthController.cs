@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using BComm.PM.Dto.Auth;
+using BComm.PM.Dto.Common;
 using BComm.PM.Dto.Payloads;
+using BComm.PM.Models.Auth;
 using BComm.PM.Services.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +25,13 @@ namespace BComm.PM.Web.Controllers
         {
             _httpContextAccessor = httpContextAccessor;
             _authService = authService;
+        }
+
+        [HttpPost]
+        [Route("createaccount")]
+        public async Task<IActionResult> CreateAccount(UserAccountPayload newUserAccountDetails)
+        {
+            return Ok(await _authService.CreateAccount(newUserAccountDetails));
         }
 
         [HttpGet("verify")]
@@ -43,12 +53,13 @@ namespace BComm.PM.Web.Controllers
 
         [HttpGet("userinfo")]
         [Authorize]
-        public IActionResult GetUserInfo()
+        public async Task<IActionResult> GetUserInfo()
         {
             var claims = _httpContextAccessor.HttpContext.User.Claims;
             var userName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value.ToString();
+            var userInfo = (await _authService.GetUserInfo(userName)).Data as User;
 
-            return Ok(new { userName = userName });
+            return Ok(new { userName = userName, subscriptionPlan = GetSubscriptionPlan(userInfo.SubscriptionPlan) });
         }
 
         [HttpPatch("updateshop")]
@@ -59,6 +70,31 @@ namespace BComm.PM.Web.Controllers
             var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
 
             return Ok(await _authService.UpdateShop(shopUpdatePayload, shopId));
+        }
+
+        [HttpPatch("updatepassword")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePassword(PasswordUpdatePayload passwordUpdatePayload)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var userName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value.ToString();
+
+            return Ok(await _authService.UpdatePassword(passwordUpdatePayload, userName));
+        }
+
+        private string GetSubscriptionPlan(SubscriptionPlans subscriptionPlan)
+        {
+            switch(subscriptionPlan)
+            {
+                case SubscriptionPlans.Free:
+                    return "free";
+                case SubscriptionPlans.Basic:
+                    return "basic";
+                case SubscriptionPlans.Enterprise:
+                    return "enterprise";
+                default:
+                    return "invalid";
+            }
         }
     }
 }

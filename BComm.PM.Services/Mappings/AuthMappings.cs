@@ -12,6 +12,8 @@ namespace BComm.PM.Services.Mappings
     {
         public AuthMappings()
         {
+            CreateMap<UserAccountPayload, User>();
+
             CreateMap<Shop, ShopResponse>()
                 .ForMember(dest => dest.Id,
                 opt => opt.MapFrom(src => src.HashId));

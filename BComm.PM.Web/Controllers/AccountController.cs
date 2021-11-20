@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BComm.PM.Dto.Auth;
 using BComm.PM.Services.Auth;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,11 +45,11 @@ namespace BComm.PM.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password, string client_id, string return_uri)
         {
-            var shop = await _authService.GetShop(username, password);
+            var userAuth = await _authService.AuthenticateUser(new UserAccountPayload() { UserName = username, Password = password });
 
-            if (shop != null)
+            if (userAuth.IsSuccess)
             {
-                var authCallbackUrl = _authService.GetLoginRedirectUri(client_id, return_uri, shop, username);
+                var authCallbackUrl = _authService.GetLoginRedirectUri(client_id, return_uri, userAuth.Data, username);
                 Console.WriteLine(authCallbackUrl);
                 return Redirect(authCallbackUrl);
             }

@@ -6,6 +6,7 @@ using BComm.PM.Services.Orders;
 using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Tags;
+using BComm.PM.Services.Widgets;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +27,13 @@ namespace BComm.PM.Web.Controllers
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly IPageService _pageService;
+        private readonly ISliderService _sliderService;
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ShopController(
-            IPageService pageService, 
+            IPageService pageService,
+            ISliderService sliderService,
             ICategoryService categoryService,
             IProductService productService,
             IOrderService orderService,
@@ -38,6 +41,7 @@ namespace BComm.PM.Web.Controllers
             IHttpContextAccessor httpContextAccessor)
         {
             _pageService = pageService;
+            _sliderService = sliderService;
             _categoryService = categoryService;
             _productService = productService;
             _orderService = orderService;
@@ -103,6 +107,12 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> GetPage(string cat, string slug, [FromHeader] string shop_id)
         {
             return Ok(await _pageService.GetPageBySlug(cat, slug, shop_id));
+        }
+
+        [HttpGet("widgets/slider/get/{sliderId}")]
+        public async Task<IActionResult> GetSlider(string sliderId)
+        {
+            return Ok(await _sliderService.GetSliderWithSlides(sliderId));
         }
     }
 }
