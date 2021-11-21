@@ -43,6 +43,13 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _categoryService.GetCategory(categoryId));
         }
 
+        [HttpGet("get/subcategories/{categoryId}")]
+        [Authorize]
+        public async Task<IActionResult> GetSubCategory(string categoryId)
+        {
+            return Ok(await _categoryService.GetSubCategories(categoryId));
+        }
+
         [HttpGet("get/all")]
         [Authorize]
         public async Task<IActionResult> GetCategories()

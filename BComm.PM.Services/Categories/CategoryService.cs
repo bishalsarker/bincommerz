@@ -56,11 +56,25 @@ namespace BComm.PM.Services.Categories
 
                 if (existingCategoryModel == null)
                 {
-                    var productImage = new ImageInfo(newCategoryRequest.Image, Guid.NewGuid().ToString("N"), _env);
-                    var imageModel = await AddImages(productImage);
-                    catModel.ImageId = imageModel.HashId;
-
-                    await _commandsRepository.Add(catModel);
+                    if (catModel.ParentCategoryId != null)
+                    {
+                        catModel.ImageId = "";
+                        await _commandsRepository.Add(catModel);
+                    }
+                    else
+                    {
+                        if (newCategoryRequest.Image != null)
+                        {
+                            var productImage = new ImageInfo(newCategoryRequest.Image, Guid.NewGuid().ToString("N"), _env);
+                            var imageModel = await AddImages(productImage);
+                            catModel.ImageId = imageModel.HashId;
+                            await _commandsRepository.Add(catModel);
+                        }
+                        else
+                        {
+                            throw new Exception("Image is required");
+                        }
+                    }
 
                     return new Response()
                     {
@@ -105,11 +119,11 @@ namespace BComm.PM.Services.Categories
                 if (existingImageModel != null)
                 {
                     await DeleteImage(existingImageModel);
-                }
 
-                var catImage = new ImageInfo(newCategoryRequest.Image, Guid.NewGuid().ToString("N"), _env);
-                var imageModel = await AddImages(catImage);
-                existingCategoryModel.ImageId = imageModel.HashId;
+                    var catImage = new ImageInfo(newCategoryRequest.Image, Guid.NewGuid().ToString("N"), _env);
+                    var imageModel = await AddImages(catImage);
+                    existingCategoryModel.ImageId = imageModel.HashId;
+                }
 
                 await _commandsRepository.Update(existingCategoryModel);
 
@@ -137,8 +151,13 @@ namespace BComm.PM.Services.Categories
             if (existingCategoryModel != null)
             {
                 var existingImageModel = await _imagesQueryRepository.GetImage(existingCategoryModel.ImageId);
-                await DeleteImage(existingImageModel);
 
+                if (existingImageModel != null)
+                {
+                    await DeleteImage(existingImageModel);
+                }
+
+                await _categoryQueryRepository.DeleteChildCategories(categoryId);
                 await _commandsRepository.Delete(existingCategoryModel);
 
                 return new Response()
@@ -161,7 +180,7 @@ namespace BComm.PM.Services.Categories
         {
             try
             {
-                var categoryModels = await _categoryQueryRepository.GetCategories(shopId);
+                var categoryModels = await _categoryQueryRepository.GetParentCategories(shopId);
                 var categoryResponseModels = new List<CategoryResponse>();
 
                 foreach (var categoryModel in categoryModels)
@@ -285,6 +304,40 @@ namespace BComm.PM.Services.Categories
             {
                 Console.WriteLine(e.Message);
                 return false;
+            }
+        }
+
+        public async Task<Response> GetSubCategories(string categoryId)
+        {
+            var existingCategoryModel = await _categoryQueryRepository.GetCategory(categoryId);
+
+            if (existingCategoryModel != null)
+            {
+                var response = _mapper.Map<CategoryResponse>(existingCategoryModel);
+                var subcats = new List<CategoryResponse>();
+
+                var childCategories = await _categoryQueryRepository.GetChildCategories(categoryId);
+
+                foreach (var subcat in childCategories)
+                {
+                    subcats.Add(_mapper.Map<CategoryResponse>(subcat));
+                }
+
+                response.Subcategories = subcats;
+
+                return new Response()
+                {
+                    Data = response,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Category Doesn't Exist",
+                    IsSuccess = false
+                };
             }
         }
     }

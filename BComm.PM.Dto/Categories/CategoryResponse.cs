@@ -20,5 +20,7 @@ namespace BComm.PM.Dto.Categories
         public string ImageUrl { get; set; }
 
         public string Description { get; set; }
+
+        public IEnumerable<CategoryResponse> Subcategories { get; set; }
     }
 }

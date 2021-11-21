@@ -11,6 +11,7 @@ namespace BComm.PM.Services.Categories
         Task<Response> GetCategories(string shopId);
         Task<Response> GetCategory(string categoryId);
         Task<Response> GetCategoryBySlug(string slug, string shopId);
+        Task<Response> GetSubCategories(string categoryId);
         Task<Response> UpdateCategory(CategoryPayload newCategoryRequest);
     }
 }
