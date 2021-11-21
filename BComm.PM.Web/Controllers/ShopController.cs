@@ -58,7 +58,7 @@ namespace BComm.PM.Web.Controllers
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories([FromHeader] string shop_id)
         {
-            return Ok(await _categoryService.GetCategories(shop_id));
+            return Ok(await _categoryService.GetCategoriesWithSubCategories(shop_id));
         }
 
         [HttpGet("category/{slug}")]

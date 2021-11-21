@@ -216,6 +216,48 @@ namespace BComm.PM.Services.Categories
             }
         }
 
+        public async Task<Response> GetCategoriesWithSubCategories(string shopId)
+        {
+            try
+            {
+                var categoryModels = await _categoryQueryRepository.GetParentCategories(shopId);
+                var categoryResponseModels = new List<CategoryResponse>();
+
+                foreach (var categoryModel in categoryModels)
+                {
+                    var response = _mapper.Map<CategoryResponse>(categoryModel);
+                    var subcategories = await GetSubCategories(categoryModel.HashId);
+                    response.Subcategories = (subcategories.Data as CategoryResponse).Subcategories;
+                    var imageModel = await _imagesQueryRepository.GetImage(categoryModel.ImageId);
+
+                    if (imageModel != null)
+                    {
+                        response.ImageUrl = imageModel.Directory + imageModel.ThumbnailImage;
+                    }
+                    else
+                    {
+                        response.ImageUrl = "";
+                    }
+
+                    categoryResponseModels.Add(response);
+                }
+
+                return new Response()
+                {
+                    Data = categoryResponseModels,
+                    IsSuccess = true
+                };
+            }
+            catch (Exception e)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + e.Message,
+                    IsSuccess = false
+                };
+            }
+        }
+
         public async Task<Response> GetCategory(string categoryId)
         {
             var existingCategoryModel = await _categoryQueryRepository.GetCategory(categoryId);

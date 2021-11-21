@@ -9,6 +9,7 @@ namespace BComm.PM.Services.Categories
         Task<Response> AddNewCategory(CategoryPayload newCategoryRequest, string shopId);
         Task<Response> DeleteCategory(string categoryId);
         Task<Response> GetCategories(string shopId);
+        Task<Response> GetCategoriesWithSubCategories(string shopId);
         Task<Response> GetCategory(string categoryId);
         Task<Response> GetCategoryBySlug(string slug, string shopId);
         Task<Response> GetSubCategories(string categoryId);
