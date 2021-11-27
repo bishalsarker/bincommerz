@@ -11,5 +11,6 @@ namespace BComm.PM.Repositories.Queries
         Task<Category> GetCategoryBySlug(string slug, string shopId);
         Task<IEnumerable<Category>> GetChildCategories(string categoryId);
         Task DeleteChildCategories(string categoryId);
+        Task<Category> GetLastAddedCategory(string shopId);
     }
 }

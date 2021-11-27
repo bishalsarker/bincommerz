@@ -1,5 +1,7 @@
 ﻿using BComm.PM.Dto;
+using BComm.PM.Dto.Categories;
 using BComm.PM.Dto.Common;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Services.Categories
@@ -14,5 +16,6 @@ namespace BComm.PM.Services.Categories
         Task<Response> GetCategoryBySlug(string slug, string shopId);
         Task<Response> GetSubCategories(string categoryId);
         Task<Response> UpdateCategory(CategoryPayload newCategoryRequest);
+        Task<Response> UpdateCategoryOrder(List<CategoryOrderPayload> categoryOrderUpdateRequest);
     }
 }

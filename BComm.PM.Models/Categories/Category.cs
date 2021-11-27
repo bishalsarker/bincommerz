@@ -29,6 +29,8 @@ namespace BComm.PM.Models.Categories
 
         public string ParentCategoryId { get; set; }
 
+        public int OrderNumber { get; set; }
+
         [Required]
         public string ShopId { get; set; }
     }

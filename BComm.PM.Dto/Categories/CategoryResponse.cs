@@ -21,6 +21,8 @@ namespace BComm.PM.Dto.Categories
 
         public string Description { get; set; }
 
+        public int Order { get; set; }
+
         public IEnumerable<CategoryResponse> Subcategories { get; set; }
     }
 }

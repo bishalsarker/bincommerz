@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Dto;
+using BComm.PM.Dto.Categories;
 using BComm.PM.Services.Categories;
 using BComm.PM.Services.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -62,6 +63,13 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> UpdateCategory(CategoryPayload newCategoryRequest)
         {
             return Ok(await _categoryService.UpdateCategory(newCategoryRequest));
+        }
+
+        [HttpPut("updateorder")]
+        [Authorize]
+        public async Task<IActionResult> UpdateCategoryOrder(List<CategoryOrderPayload> categoryOrderUpdateRequest)
+        {
+            return Ok(await _categoryService.UpdateCategoryOrder(categoryOrderUpdateRequest));
         }
 
         [HttpDelete("delete/{categoryId}")]

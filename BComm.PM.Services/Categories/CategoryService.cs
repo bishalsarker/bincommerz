@@ -11,6 +11,7 @@ using BComm.PM.Services.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Services.Categories
@@ -51,6 +52,9 @@ namespace BComm.PM.Services.Categories
                 catModel.HashId = Guid.NewGuid().ToString("N");
                 catModel.ShopId = shopId;
                 catModel.ParentCategoryId = newCategoryRequest.ParentCategoryId;
+
+                var lastAddedCategory = await _categoryQueryRepository.GetLastAddedCategory(shopId);
+                catModel.OrderNumber = lastAddedCategory.OrderNumber + 1;
 
                 var existingCategoryModel = await _categoryQueryRepository.GetCategoryBySlug(catModel.Slug, shopId);
 
@@ -144,12 +148,57 @@ namespace BComm.PM.Services.Categories
             }
         }
 
+        public async Task<Response> UpdateCategoryOrder(List<CategoryOrderPayload> categoryOrderUpdateRequest)
+        {
+            try
+            {
+                foreach (var category in categoryOrderUpdateRequest)
+                {
+                    var existingCategoryModel = await _categoryQueryRepository.GetCategory(category.Id);
+                    if (existingCategoryModel != null)
+                    {
+                        existingCategoryModel.OrderNumber = category.Order;
+                        await _commandsRepository.Update(existingCategoryModel);
+                    }
+                }
+
+                return new Response()
+                {
+                    Message = "Category Orders Updated Successfully",
+                    IsSuccess = true
+                };
+            }
+            catch(Exception ex)
+            {
+                return new Response()
+                {
+                    Message = "Category Orders Couldn't Be Updated",
+                    IsSuccess = false
+                };
+            }
+        }
+
         public async Task<Response> DeleteCategory(string categoryId)
         {
             var existingCategoryModel = await _categoryQueryRepository.GetCategory(categoryId);
 
             if (existingCategoryModel != null)
             {
+                var categories = await _categoryQueryRepository.GetParentCategories(existingCategoryModel.ShopId);
+                var sortedCategories = categories
+                    .OrderBy(x => x.OrderNumber)
+                    .Where(x => x.OrderNumber > existingCategoryModel.OrderNumber)
+                    .ToList();
+
+                var order = existingCategoryModel.OrderNumber;
+                foreach (var category in sortedCategories)
+                {
+                    var newCategoryModel = await _categoryQueryRepository.GetCategory(category.HashId);
+                    newCategoryModel.OrderNumber = order;
+                    await _commandsRepository.Update(newCategoryModel);
+                    order++;
+                }
+
                 var existingImageModel = await _imagesQueryRepository.GetImage(existingCategoryModel.ImageId);
 
                 if (existingImageModel != null)
@@ -181,6 +230,12 @@ namespace BComm.PM.Services.Categories
             try
             {
                 var categoryModels = await _categoryQueryRepository.GetParentCategories(shopId);
+
+                if (categoryModels.Any(x => x.OrderNumber == 0))
+                {
+                    categoryModels = await ReorderCategories(categoryModels);
+                }
+ 
                 var categoryResponseModels = new List<CategoryResponse>();
 
                 foreach (var categoryModel in categoryModels)
@@ -221,6 +276,12 @@ namespace BComm.PM.Services.Categories
             try
             {
                 var categoryModels = await _categoryQueryRepository.GetParentCategories(shopId);
+
+                if (categoryModels.Any(x => x.OrderNumber == 0))
+                {
+                    categoryModels = await ReorderCategories(categoryModels);
+                }
+
                 var categoryResponseModels = new List<CategoryResponse>();
 
                 foreach (var categoryModel in categoryModels)
@@ -381,6 +442,23 @@ namespace BComm.PM.Services.Categories
                     IsSuccess = false
                 };
             }
+        }
+
+        private async Task<IEnumerable<Category>> ReorderCategories(IEnumerable<Category> parentCategories)
+        {
+            var sortedCategories = parentCategories.OrderBy(x => x.CreatedOn);
+            var updatedCategories = new List<Category>();
+            var i = 1;
+            foreach (var category in sortedCategories)
+            {
+                var newCategoryModel =  await _categoryQueryRepository.GetCategory(category.HashId);
+                newCategoryModel.OrderNumber = i;
+                await _commandsRepository.Update(newCategoryModel);
+                updatedCategories.Add(category);
+                i++;
+            }
+
+            return updatedCategories;
         }
     }
 }
