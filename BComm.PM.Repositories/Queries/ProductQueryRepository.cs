@@ -90,7 +90,8 @@ namespace BComm.PM.Repositories.Queries
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid " +
-                    "where {0}.Name like N'%" + keyword + "%' or {0}.Description like N'%" + keyword + "%'",
+                    "where {0}.Name like N'% " + keyword + " %'" +
+                    "or {0}.Description like N'% " + keyword + " %'",
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();
