@@ -58,8 +58,15 @@ namespace BComm.PM.Services.Common
 
         public async Task DeleteImages(Image image)
         {
-            await _azureBlobStorageService.DeleteFileAsync(_blobContainer, image.OriginalImage);
-            await _azureBlobStorageService.DeleteFileAsync(_blobContainer, image.ThumbnailImage);
+            try
+            {
+                await _azureBlobStorageService.DeleteFileAsync(_blobContainer, image.OriginalImage);
+                await _azureBlobStorageService.DeleteFileAsync(_blobContainer, image.ThumbnailImage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

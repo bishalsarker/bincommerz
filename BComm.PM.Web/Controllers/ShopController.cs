@@ -100,6 +100,7 @@ namespace BComm.PM.Web.Controllers
         [HttpGet("pages/getall")]
         public async Task<IActionResult> AddPage([FromHeader] string shop_id)
         {
+            Console.WriteLine("Shop ID:" + shop_id);
             return Ok(await _pageService.GetAllPagesSorted(shop_id));
         }
 
