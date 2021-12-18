@@ -5,6 +5,6 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <_PublishTargetUrl>D:\Work\Projects\Open\bincommerz\product-management\bincommerz-pm-service\BComm.PM.Web\bin\Release\netcoreapp3.1\publish\</_PublishTargetUrl>
-    <History>True|2021-12-16T07:15:14.5158659Z;True|2021-12-16T12:55:28.4693985+06:00;True|2021-12-11T12:00:41.5428396+06:00;True|2021-12-11T11:48:47.2636021+06:00;True|2021-12-11T11:39:28.7739674+06:00;True|2021-12-10T14:26:08.6443208+06:00;True|2021-12-10T12:37:41.8681071+06:00;True|2021-12-10T12:37:06.9088422+06:00;</History>
+    <History>True|2021-12-16T09:21:28.3940787Z;True|2021-12-16T13:15:14.5158659+06:00;True|2021-12-16T12:55:28.4693985+06:00;True|2021-12-11T12:00:41.5428396+06:00;True|2021-12-11T11:48:47.2636021+06:00;True|2021-12-11T11:39:28.7739674+06:00;True|2021-12-10T14:26:08.6443208+06:00;True|2021-12-10T12:37:41.8681071+06:00;True|2021-12-10T12:37:06.9088422+06:00;</History>
   </PropertyGroup>
 </Project>

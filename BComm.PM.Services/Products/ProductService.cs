@@ -303,7 +303,7 @@ namespace BComm.PM.Services.Products
 
             if (pageSize == 0)
             {
-                pageSize = 10;
+                pageSize = 5;
             }
 
             if (pageNumber == 0)
