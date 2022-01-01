@@ -11,7 +11,7 @@ namespace BComm.PM.Services.Products
     {
         Task<Response> AddNewProduct(ProductPayload newProductRequest, string shopId);
         Task<Response> DeleteProduct(string productId);
-        Task<Response> GetAllProducts(string shopId, string tagId, string sortBy);
+        Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber);
         Task<Response> SearchProducts(string q, string shopId);
         Task<Response> GetProductById(string productId);
         Task<Response> UpdateProduct(ProductUpdatePayload newProductRequest);

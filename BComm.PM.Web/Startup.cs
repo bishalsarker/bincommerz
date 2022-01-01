@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System;
 
 namespace BComm.PM.Web
 {
@@ -19,6 +20,7 @@ namespace BComm.PM.Web
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Console.WriteLine(configuration.GetSection("DbConfig:connStr").Value);
         }
 
         public IConfiguration Configuration { get; }

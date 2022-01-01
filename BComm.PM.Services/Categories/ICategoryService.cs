@@ -1,5 +1,7 @@
 ﻿using BComm.PM.Dto;
+using BComm.PM.Dto.Categories;
 using BComm.PM.Dto.Common;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Services.Categories
@@ -9,8 +11,11 @@ namespace BComm.PM.Services.Categories
         Task<Response> AddNewCategory(CategoryPayload newCategoryRequest, string shopId);
         Task<Response> DeleteCategory(string categoryId);
         Task<Response> GetCategories(string shopId);
+        Task<Response> GetCategoriesWithSubCategories(string shopId);
         Task<Response> GetCategory(string categoryId);
         Task<Response> GetCategoryBySlug(string slug, string shopId);
+        Task<Response> GetSubCategories(string categoryId);
         Task<Response> UpdateCategory(CategoryPayload newCategoryRequest);
+        Task<Response> UpdateCategoryOrder(List<CategoryOrderPayload> categoryOrderUpdateRequest);
     }
 }

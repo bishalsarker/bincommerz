@@ -15,5 +15,11 @@ namespace BComm.PM.Models.Products
 
         [FromQuery(Name = "sort_by")]
         public string SortBy { get; set; }
+
+        [FromQuery(Name = "page_number")]
+        public int PageNumber { get; set; }
+
+        [FromQuery(Name = "page_size")]
+        public int PageSize { get; set; }
     }
 }

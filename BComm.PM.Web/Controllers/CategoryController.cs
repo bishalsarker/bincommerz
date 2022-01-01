@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Dto;
+using BComm.PM.Dto.Categories;
 using BComm.PM.Services.Categories;
 using BComm.PM.Services.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -43,6 +44,13 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _categoryService.GetCategory(categoryId));
         }
 
+        [HttpGet("get/subcategories/{categoryId}")]
+        [Authorize]
+        public async Task<IActionResult> GetSubCategory(string categoryId)
+        {
+            return Ok(await _categoryService.GetSubCategories(categoryId));
+        }
+
         [HttpGet("get/all")]
         [Authorize]
         public async Task<IActionResult> GetCategories()
@@ -55,6 +63,13 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> UpdateCategory(CategoryPayload newCategoryRequest)
         {
             return Ok(await _categoryService.UpdateCategory(newCategoryRequest));
+        }
+
+        [HttpPut("updateorder")]
+        [Authorize]
+        public async Task<IActionResult> UpdateCategoryOrder(List<CategoryOrderPayload> categoryOrderUpdateRequest)
+        {
+            return Ok(await _categoryService.UpdateCategoryOrder(categoryOrderUpdateRequest));
         }
 
         [HttpDelete("delete/{categoryId}")]

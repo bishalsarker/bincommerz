@@ -16,7 +16,9 @@ namespace BComm.PM.Services.Mappings
 
             CreateMap<Category, CategoryResponse>()
                 .ForMember(dest => dest.Id,
-                opt => opt.MapFrom(src => src.HashId));
+                opt => opt.MapFrom(src => src.HashId))
+                .ForMember(dest => dest.Order,
+                opt => opt.MapFrom(src => src.OrderNumber));
         }
     }
 }

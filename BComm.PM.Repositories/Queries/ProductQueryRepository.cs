@@ -20,6 +20,18 @@ namespace BComm.PM.Repositories.Queries
             _connectionString = configuration.GetSection("DbConfig:connStr").Value;
         }
 
+        public async Task<int> GetProductCount(string shopId)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select count(Id) from {0} where ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .ToString();
+
+                return await conn.ExecuteScalarAsync<int>(query, new { @shopid = shopId });
+            }
+        }
+
         public async Task<IEnumerable<Product>> GetAllProducts(string shopId)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -48,12 +60,12 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
-        public async Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder)
+        public async Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder, int offset, int rows)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
+                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid ",
@@ -71,10 +83,16 @@ namespace BComm.PM.Repositories.Queries
                 }
 
                 query = query + new StringBuilder()
-                    .AppendFormat("order by {0}.{1} {2}",
+                    .AppendFormat("order by {0}.{1} {2} ",
                     TableNameConstants.ProductsTable,
                     sortCol,
                     sortOrder)
+                    .ToString();
+
+                query = query + new StringBuilder()
+                    .AppendFormat("OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY",
+                    offset,
+                    rows)
                     .ToString();
 
                 return await conn.QueryAsync<Product>(query, new { @shopid = shopId, @tagid = tagId });
@@ -90,7 +108,8 @@ namespace BComm.PM.Repositories.Queries
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid " +
-                    "where {0}.Name like N'%" + keyword + "%' or {0}.Description like N'%" + keyword + "%'",
+                    "where {0}.Name like N'% " + keyword + " %'" +
+                    "or {0}.Description like N'% " + keyword + " %'",
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();

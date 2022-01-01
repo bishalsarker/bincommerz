@@ -204,7 +204,7 @@ namespace BComm.PM.Services.Products
 
                 if (catModel != null)
                 {
-                    var productModels = await _productQueryRepository.GetProducts(shopId, catModel.TagHashId, sortCol, sortDirection);
+                    var productModels = await _productQueryRepository.GetProducts(shopId, catModel.TagHashId, sortCol, sortDirection, 0, 1000);
                     var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                     foreach (var productResponse in productResponses)
@@ -285,7 +285,7 @@ namespace BComm.PM.Services.Products
 
         }
 
-        public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy)
+        public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber)
         {
             var sortCol = "Price";
             var sortDirection = "asc";
@@ -298,12 +298,24 @@ namespace BComm.PM.Services.Products
             if (sortBy.Equals("newest"))
             {
                 sortCol = "AddedOn";
-                sortDirection = "asc";
+                sortDirection = "desc";
             }
+
+            if (pageSize == 0)
+            {
+                pageSize = 5;
+            }
+
+            if (pageNumber == 0)
+            {
+                pageNumber = 1;
+            }
+
+            var offset = (pageNumber - 1) * pageSize;
 
             try
             {
-                var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection);
+                var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection, offset, pageSize);
                 var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                 foreach (var productResponse in productResponses)
@@ -312,9 +324,17 @@ namespace BComm.PM.Services.Products
                     productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
                 }
 
+                var totalProducts = await _productQueryRepository.GetProductCount(shopId);
+                var totalPages = (int) Math.Ceiling((double)totalProducts / pageSize);
+
                 return new Response()
                 {
-                    Data = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                    Data = new { 
+                        Products = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                        PageSize = pageSize,
+                        PageNumber = pageNumber,
+                        TotalPages = totalPages
+                    },
                     IsSuccess = true
                 };
             }

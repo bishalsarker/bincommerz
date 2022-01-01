@@ -48,6 +48,7 @@ namespace BComm.PM.Services.Orders
 
             _deliveryChargeMap = new Dictionary<string, double>();
             _deliveryChargeMap.Add("potterybd", 150.00);
+            _deliveryChargeMap.Add("c186a01b40e849d9987d03753b444cfd", 110.00);
         }
 
         public async Task<Response> AddNewOrder(OrderPayload newOrderRequest, string shopId)
