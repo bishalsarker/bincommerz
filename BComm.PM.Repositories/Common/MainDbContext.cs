@@ -6,6 +6,7 @@ using BComm.PM.Models.Pages;
 using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
+using BComm.PM.Models.Templates;
 using BComm.PM.Models.Widgets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -196,6 +197,16 @@ namespace BComm.PM.Repositories.Common
                 .IsClustered(false);
 
             modelBuilder.Entity<Slider>()
+                .HasIndex(t => t.ShopId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Template>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Template>()
                 .HasIndex(t => t.ShopId)
                 .IsUnique(false)
                 .IsClustered(false);

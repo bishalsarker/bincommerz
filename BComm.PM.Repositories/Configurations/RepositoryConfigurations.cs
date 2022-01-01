@@ -20,6 +20,7 @@ namespace BComm.PM.Repositories.Configurations
             services.AddTransient<IPagesQueryRepository, PagesQueryRepository>();
             services.AddTransient<IUserQueryRepository, UserQueryRepository>();
             services.AddTransient<ISliderQueryRepository, SliderQueryRepository>();
+            services.AddTransient<ITemplateQueryRepository, TemplateQueryRepository>();
         }
     }
 }
