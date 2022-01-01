@@ -8,6 +8,7 @@ namespace BComm.PM.Services.Templates
     {
         Task<Response> AddTemplate(TemplatePayload templateUpdateRequest, string shopId);
         Task<Response> GetAllTemplates(string shopId);
+        Task<Response> GetDefaultTemplate(string shopId);
         Task<Response> GetTemplate(string templateId);
         Task<Response> UpdateTemplate(TemplateUpdatePayload templateUpdateRequest);
     }

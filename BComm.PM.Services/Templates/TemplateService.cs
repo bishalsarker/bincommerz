@@ -38,6 +38,18 @@ namespace BComm.PM.Services.Templates
             };
         }
 
+        public async Task<Response> GetDefaultTemplate(string shopId)
+        {
+            var templateModel = await _templateQueryRepository.GetDefaultTemplate(shopId);
+            var templateResponse = _mapper.Map<TemplateResponse>(templateModel);
+
+            return new Response()
+            {
+                Data = templateResponse,
+                IsSuccess = true
+            };
+        }
+
         public async Task<Response> GetAllTemplates(string shopId)
         {
             var templateModels = await _templateQueryRepository.GetTemplates(shopId);

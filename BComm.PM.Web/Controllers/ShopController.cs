@@ -6,6 +6,7 @@ using BComm.PM.Services.Orders;
 using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Tags;
+using BComm.PM.Services.Templates;
 using BComm.PM.Services.Widgets;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -30,6 +31,7 @@ namespace BComm.PM.Web.Controllers
         private readonly ISliderService _sliderService;
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITemplateService _templateService;
 
         public ShopController(
             IPageService pageService,
@@ -38,6 +40,7 @@ namespace BComm.PM.Web.Controllers
             IProductService productService,
             IOrderService orderService,
             IAuthService authService,
+            ITemplateService templateService,
             IHttpContextAccessor httpContextAccessor)
         {
             _pageService = pageService;
@@ -47,6 +50,7 @@ namespace BComm.PM.Web.Controllers
             _orderService = orderService;
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
+            _templateService = templateService;
         }
 
         [HttpGet("info")]
@@ -114,6 +118,12 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> GetSlider(string sliderId)
         {
             return Ok(await _sliderService.GetSliderWithSlides(sliderId));
+        }
+
+        [HttpGet("templates/get")]
+        public async Task<IActionResult> GetTemplate([FromHeader] string shop_id)
+        {
+            return Ok(await _templateService.GetDefaultTemplate(shop_id));
         }
     }
 }
