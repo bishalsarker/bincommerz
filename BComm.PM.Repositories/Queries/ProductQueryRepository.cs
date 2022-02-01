@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Models.Products;
+using BComm.PM.Models.Tags;
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
@@ -63,32 +64,41 @@ namespace BComm.PM.Repositories.Queries
         public async Task<IEnumerable<Product>> GetProducts(
             string shopId, string tagId, string sortCol, string sortOrder, int offset, int rows, string searchQuery)
         {
+            var tagList = new List<string>();
+            if (!string.IsNullOrEmpty(tagId)) {
+                tagList.Add(tagId);
+            }
+            
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select {0}.HashId, {0}.Name, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
-                    "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid ",
+                    "left join {1} on {0}.ImageUrl={1}.HashId " +
+                    "where {0}.ShopId=@shopid ",
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();
 
-                if (!string.IsNullOrEmpty(tagId))
-                {
-                    query = query + new StringBuilder()
-                    .AppendFormat("inner join {0} on {1}.HashId={0}.ProductHashId and {0}.TagHashId=@tagid ",
-                    TableNameConstants.ProductTagsTable,
+                var taggedProducts = new List<ProductTags>();
+
+                taggedProducts = (await conn.QueryAsync<ProductTags>(
+                        "select distinct ProductHashId from " + TableNameConstants.ProductTagsTable + " where TagHashId in @tagids",
+                        new { @tagids = tagList }))
+                        .ToList();
+
+                query = query + new StringBuilder()
+                    .AppendFormat("and {0}.HashId in @productids ",
                     TableNameConstants.ProductsTable)
                     .ToString();
-                }
 
                 if (!string.IsNullOrEmpty(searchQuery))
                 {
                     query = query + new StringBuilder()
-                    .AppendFormat("where {0}.Name like N'%" + searchQuery + " %' or " +
+                    .AppendFormat("and ({0}.Name like N'%" + searchQuery + " %' or " +
                     "{0}.Name like N'% " + searchQuery + " %' or " +
-                    "{0}.Name like N'% " + searchQuery + "%' ",
+                    "{0}.Name like N'% " + searchQuery + "%') ",
                     TableNameConstants.ProductsTable)
                     .ToString();
                 }
@@ -108,7 +118,9 @@ namespace BComm.PM.Repositories.Queries
 
                 Console.WriteLine(query);
 
-                return await conn.QueryAsync<Product>(query, new { @shopid = shopId, @tagid = tagId });
+                return await conn.QueryAsync<Product>(query, new { 
+                    @shopid = shopId, @productids = taggedProducts.Select(x => x.ProductHashId).ToList() 
+                });
             }
         }
 

@@ -214,42 +214,36 @@ namespace BComm.PM.Services.Products
             {
                 var catModel = await _categoryQueryService.GetCategoryBySlug(catSlug, shopId);
 
-                if (catModel != null)
+                if (catModel == null)
                 {
-                    var productModels = await _productQueryRepository.GetProducts(
+                    catModel = new Models.Categories.Category();
+                }
+
+                var productModels = await _productQueryRepository.GetProducts(
                         shopId, catModel.TagHashId, sortCol, sortDirection, offset, pageSize, searchQuery);
-                    var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
+                var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
-                    foreach (var productResponse in productResponses)
-                    {
-                        var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
-                        productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
-                    }
-
-                    var totalProducts = await _productQueryRepository.GetProductCount(shopId);
-                    var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
-
-                    return new Response()
-                    {
-                        Data = new
-                        {
-                            Products = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
-                            PageSize = pageSize,
-                            PageNumber = pageNumber,
-                            TotalPages = totalPages
-                        },
-                        IsSuccess = true
-                    };
-                }
-                else
+                foreach (var productResponse in productResponses)
                 {
-                    return new Response()
-                    {
-                        Message = "Invalid slug",
-                        IsSuccess = false
-                    };
+                    var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
+                    productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
                 }
-                
+
+                var totalProducts = await _productQueryRepository.GetProductCount(shopId);
+                var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+
+                return new Response()
+                {
+                    Data = new
+                    {
+                        Products = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                        PageSize = pageSize,
+                        PageNumber = pageNumber,
+                        TotalPages = totalPages
+                    },
+                    IsSuccess = true
+                };
+
             }
             catch (Exception e)
             {
