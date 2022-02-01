@@ -74,7 +74,8 @@ namespace BComm.PM.Web.Controllers
         [HttpGet("products/get")]
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery, [FromHeader] string shop_id)
         {
-            return Ok(await _productService.GetProductsByCategory(shop_id, filterQuery.CatSlug, filterQuery.SortBy));
+            return Ok(await _productService.GetProductsByCategory(
+                shop_id, filterQuery.CatSlug, filterQuery.SortBy, filterQuery.Keyword, filterQuery.PageSize, filterQuery.PageNumber));
         }
 
         [HttpGet("products/search")]

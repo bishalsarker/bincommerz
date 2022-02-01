@@ -58,7 +58,7 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery)
         { 
             return Ok(await _productService.GetAllProducts(
-                _authService.GetShopId(), filterQuery.TagId, filterQuery.SortBy, filterQuery.PageSize, filterQuery.PageNumber));
+                _authService.GetShopId(), filterQuery.TagId, filterQuery.SortBy, filterQuery.PageSize, filterQuery.PageNumber, filterQuery.Keyword));
         }
 
         [HttpPut("update")]

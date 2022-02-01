@@ -60,7 +60,8 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
-        public async Task<IEnumerable<Product>> GetProducts(string shopId, string tagId, string sortCol, string sortOrder, int offset, int rows)
+        public async Task<IEnumerable<Product>> GetProducts(
+            string shopId, string tagId, string sortCol, string sortOrder, int offset, int rows, string searchQuery)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -82,6 +83,16 @@ namespace BComm.PM.Repositories.Queries
                     .ToString();
                 }
 
+                if (!string.IsNullOrEmpty(searchQuery))
+                {
+                    query = query + new StringBuilder()
+                    .AppendFormat("where {0}.Name like N'%" + searchQuery + " %' or " +
+                    "{0}.Name like N'% " + searchQuery + " %' or " +
+                    "{0}.Name like N'% " + searchQuery + "%' ",
+                    TableNameConstants.ProductsTable)
+                    .ToString();
+                }
+
                 query = query + new StringBuilder()
                     .AppendFormat("order by {0}.{1} {2} ",
                     TableNameConstants.ProductsTable,
@@ -94,6 +105,8 @@ namespace BComm.PM.Repositories.Queries
                     offset,
                     rows)
                     .ToString();
+
+                Console.WriteLine(query);
 
                 return await conn.QueryAsync<Product>(query, new { @shopid = shopId, @tagid = tagId });
             }

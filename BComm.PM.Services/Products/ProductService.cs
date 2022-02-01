@@ -182,7 +182,7 @@ namespace BComm.PM.Services.Products
             }
         }
 
-        public async Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy)
+        public async Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy, string searchQuery, int pageSize, int pageNumber)
         {
             var sortCol = "Price";
             var sortDirection = "asc";
@@ -198,13 +198,26 @@ namespace BComm.PM.Services.Products
                 sortDirection = "asc";
             }
 
+            if (pageSize == 0)
+            {
+                pageSize = 5;
+            }
+
+            if (pageNumber == 0)
+            {
+                pageNumber = 1;
+            }
+
+            var offset = (pageNumber - 1) * pageSize;
+
             try
             {
                 var catModel = await _categoryQueryService.GetCategoryBySlug(catSlug, shopId);
 
                 if (catModel != null)
                 {
-                    var productModels = await _productQueryRepository.GetProducts(shopId, catModel.TagHashId, sortCol, sortDirection, 0, 1000);
+                    var productModels = await _productQueryRepository.GetProducts(
+                        shopId, catModel.TagHashId, sortCol, sortDirection, offset, pageSize, searchQuery);
                     var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                     foreach (var productResponse in productResponses)
@@ -213,9 +226,18 @@ namespace BComm.PM.Services.Products
                         productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
                     }
 
+                    var totalProducts = await _productQueryRepository.GetProductCount(shopId);
+                    var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+
                     return new Response()
                     {
-                        Data = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                        Data = new
+                        {
+                            Products = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                            PageSize = pageSize,
+                            PageNumber = pageNumber,
+                            TotalPages = totalPages
+                        },
                         IsSuccess = true
                     };
                 }
@@ -285,7 +307,7 @@ namespace BComm.PM.Services.Products
 
         }
 
-        public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber)
+        public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber, string searchQuery)
         {
             var sortCol = "Price";
             var sortDirection = "asc";
@@ -315,7 +337,7 @@ namespace BComm.PM.Services.Products
 
             try
             {
-                var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection, offset, pageSize);
+                var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection, offset, pageSize, searchQuery);
                 var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                 foreach (var productResponse in productResponses)
