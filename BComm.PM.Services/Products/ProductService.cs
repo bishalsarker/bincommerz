@@ -212,15 +212,29 @@ namespace BComm.PM.Services.Products
 
             try
             {
-                var catModel = await _categoryQueryService.GetCategoryBySlug(catSlug, shopId);
+                var tagsList = new List<string>();
+                var slugs = new List<string>();
 
-                if (catModel == null)
+                if (!string.IsNullOrEmpty(catSlug))
                 {
-                    catModel = new Models.Categories.Category();
+                    slugs = catSlug.Split(',').ToList();
+                }
+
+                if (slugs.Any())
+                {
+                    foreach (var slug in slugs)
+                    {
+                        var catModel = await _categoryQueryService.GetCategoryBySlug(catSlug, shopId);
+                        tagsList.Add(catModel.TagHashId);
+                    }
+                }
+                else
+                {
+                    tagsList = (await _tagsQueryRepository.GetTags(shopId)).Select(x => x.HashId).ToList();
                 }
 
                 var productModels = await _productQueryRepository.GetProducts(
-                        shopId, catModel.TagHashId, sortCol, sortDirection, offset, pageSize, searchQuery);
+                        shopId, tagsList, sortCol, sortDirection, offset, pageSize, searchQuery);
                 var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                 foreach (var productResponse in productResponses)
@@ -331,7 +345,10 @@ namespace BComm.PM.Services.Products
 
             try
             {
-                var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection, offset, pageSize, searchQuery);
+                var tagList = new List<string>();
+                tagList.Add(tagId);
+
+                var productModels = await _productQueryRepository.GetProducts(shopId, tagList, sortCol, sortDirection, offset, pageSize, searchQuery);
                 var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                 foreach (var productResponse in productResponses)

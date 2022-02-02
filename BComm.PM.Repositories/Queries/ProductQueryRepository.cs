@@ -62,13 +62,8 @@ namespace BComm.PM.Repositories.Queries
         }
 
         public async Task<IEnumerable<Product>> GetProducts(
-            string shopId, string tagId, string sortCol, string sortOrder, int offset, int rows, string searchQuery)
+            string shopId, IEnumerable<string> tagList, string sortCol, string sortOrder, int offset, int rows, string searchQuery)
         {
-            var tagList = new List<string>();
-            if (!string.IsNullOrEmpty(tagId)) {
-                tagList.Add(tagId);
-            }
-            
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
