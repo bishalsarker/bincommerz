@@ -311,8 +311,6 @@ namespace BComm.PM.Services.Products
                     IsSuccess = false
                 };
             }
-
-
         }
 
         public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber, string searchQuery)
@@ -345,8 +343,7 @@ namespace BComm.PM.Services.Products
 
             try
             {
-                var tagList = new List<string>();
-                tagList.Add(tagId);
+                var tagList = (await _tagsQueryRepository.GetTags(shopId)).Select(x => x.HashId).ToList();
 
                 var productModels = await _productQueryRepository.GetProducts(shopId, tagList, sortCol, sortDirection, offset, pageSize, searchQuery);
                 var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
