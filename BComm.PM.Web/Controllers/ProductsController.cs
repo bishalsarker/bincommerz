@@ -96,12 +96,12 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _productService.DeleteGalleryImage(imageId, productId));
         }
 
-        [HttpPut("migrate/discount")]
-        [Authorize]
-        public async Task<IActionResult> MigrateDiscountPrice()
-        {
-            await _productService.MigrateDiscountPrice(_authService.GetShopId());
-            return Ok();
-        }
+        //[HttpPut("migrate/discount")]
+        //[Authorize]
+        //public async Task<IActionResult> MigrateDiscountPrice()
+        //{
+        //    await _productService.MigrateDiscountPrice(_authService.GetShopId());
+        //    return Ok();
+        //}
     }
 }

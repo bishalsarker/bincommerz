@@ -638,7 +638,7 @@ namespace BComm.PM.Services.Products
             {
                 if (product.Discount > 0)
                 {
-                    var discountPrice = product.Price - product.Discount;
+                    var discountPrice = Math.Round(product.Discount, MidpointRounding.AwayFromZero);
                     product.Discount = discountPrice;
                     await _productCommandsRepository.Update(product);
                 }
