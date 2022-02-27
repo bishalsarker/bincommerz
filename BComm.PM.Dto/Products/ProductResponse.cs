@@ -21,6 +21,8 @@ namespace BComm.PM.Dto.Products
 
         public double Discount { get; set; }
 
+        public double DiscountInPercentage { get; set; }
+
         public bool InStock { get; set; }
 
         public double StockQuantity { get; set; }

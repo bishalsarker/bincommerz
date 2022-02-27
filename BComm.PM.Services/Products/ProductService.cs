@@ -629,5 +629,20 @@ namespace BComm.PM.Services.Products
             
             return str;
         }
+
+        public async Task MigrateDiscountPrice(string shopId)
+        {
+            var allProducts = await _productQueryRepository.GetAllProducts(shopId);
+
+            foreach (var product in allProducts)
+            {
+                if (product.Discount > 0)
+                {
+                    var discountPrice = product.Price - product.Discount;
+                    product.Discount = discountPrice;
+                    await _productCommandsRepository.Update(product);
+                }
+            }
+        }
     }
 }

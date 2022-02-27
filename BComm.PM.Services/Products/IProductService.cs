@@ -20,5 +20,6 @@ namespace BComm.PM.Services.Products
         Task<Response> DeleteGalleryImage(string imageId, string productId);
         Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy, string searchQuery, int pageSize, int pageNumber);
         Task<Response> GetStockHealth(string shopId);
+        Task MigrateDiscountPrice(string shopId);
     }
 }

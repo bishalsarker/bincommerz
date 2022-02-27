@@ -87,8 +87,14 @@ namespace BComm.PM.Services.Orders
                                     .FirstOrDefault(x => x.ProductId == product.HashId).Quantity;
                                 orderItemModel.Quantity = orderItemQuantity;
                                 await _orderItemCommandsRepository.Add(orderItemModel);
-                                var discountAmount = product.Discount > 0 ? product.Price * (product.Discount / 100) : 0;
-                                var productPrice = product.Price - discountAmount;
+
+                                var productPrice = product.Price;
+
+                                if (product.Discount > 0)
+                                {
+                                    productPrice = product.Discount;
+                                }
+ 
                                 totalPayable = totalPayable + productPrice * orderItemQuantity;
                             }
 
@@ -181,7 +187,6 @@ namespace BComm.PM.Services.Orders
                 IsSuccess = true
             };
         }
-
 
         public async Task<Response> GetOrder(string orderId)
         {

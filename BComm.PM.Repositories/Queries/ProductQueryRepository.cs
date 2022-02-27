@@ -38,7 +38,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity " +
+                    .AppendFormat("select {0}.* " +
                     "from {0} where {0}.ShopId=@shopid",
                     TableNameConstants.ProductsTable)
                     .ToString();
