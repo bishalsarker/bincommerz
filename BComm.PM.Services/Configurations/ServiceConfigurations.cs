@@ -40,6 +40,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<IPageService, PageService>();
             services.AddScoped<ISliderService, SliderService>();
             services.AddScoped<ITemplateService, TemplateService>();
+            services.AddScoped<IDeliveryChargeService, DeliveryChargeService>();
         }
     }
 }
