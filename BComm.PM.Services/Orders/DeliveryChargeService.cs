@@ -79,13 +79,15 @@ namespace BComm.PM.Services.Orders
                 var existingDeliveryChargeModel = await _deliveryChargeQueryRepository.GetDeliveryChargeById(deliveryChargeUpdateRequest.Id);
                 if (existingDeliveryChargeModel != null)
                 {
-                    var newDeliveryChargeModel = _mapper.Map<DeliveryCharge>(deliveryChargeUpdateRequest.Payload);
+                    var newDeliveryChargeModel = deliveryChargeUpdateRequest.Payload;
+                    existingDeliveryChargeModel.Title = newDeliveryChargeModel.Title;
+                    existingDeliveryChargeModel.Amount = newDeliveryChargeModel.Amount;
 
-                    await _deliveryChargeCommandsRepository.Update(newDeliveryChargeModel);
+                    await _deliveryChargeCommandsRepository.Update(existingDeliveryChargeModel);
 
                     return new Response()
                     {
-                        Data = new { id = newDeliveryChargeModel.HashId },
+                        Data = new { id = existingDeliveryChargeModel.HashId },
                         Message = "Delivery Charge Updated",
                         IsSuccess = true
                     };
@@ -160,7 +162,7 @@ namespace BComm.PM.Services.Orders
         public async Task<Response> GetDeliveryCharge(string deliveryChargeId)
         {
             var deliveryChargeModels = await _deliveryChargeQueryRepository.GetDeliveryChargeById(deliveryChargeId);
-            var deliveryChargeResponses = _mapper.Map<IEnumerable<DeliveryChargeResponse>>(deliveryChargeModels);
+            var deliveryChargeResponses = _mapper.Map<DeliveryChargeResponse>(deliveryChargeModels);
 
             return new Response()
             {

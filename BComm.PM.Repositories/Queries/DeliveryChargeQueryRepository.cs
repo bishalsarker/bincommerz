@@ -25,7 +25,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.Title, {0}.Amount " +
+                    .AppendFormat("select * " +
                     "from {0} " +
                     "where {0}.HashId=@deliverychargeid",
                     TableNameConstants.DeliveryChargesTable)
