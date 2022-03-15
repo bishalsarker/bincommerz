@@ -40,21 +40,21 @@ namespace BComm.PM.Web.Controllers
 
         [HttpGet("get/all")]
         [Authorize]
-        public async Task<IActionResult> GetAllSliders()
+        public async Task<IActionResult> GetAllDeliveryCharges()
         {
             return Ok(await _deliveryChargeService.GetAllDeliveryCharges(_authService.GetShopId()));
         }
 
         [HttpGet("get/{deliveryChargeId}")]
         [Authorize]
-        public async Task<IActionResult> GetSlider(string deliveryChargeId)
+        public async Task<IActionResult> GetDeliveryCharge(string deliveryChargeId)
         {
             return Ok(await _deliveryChargeService.GetDeliveryCharge(deliveryChargeId));
         }
 
         [HttpDelete("delete/{deliveryChargeId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteSlider(string deliveryChargeId)
+        public async Task<IActionResult> DeleteDeliveryCharge(string deliveryChargeId)
         {
             return Ok(await _deliveryChargeService.DeleteDeliveryCharge(deliveryChargeId));
         }

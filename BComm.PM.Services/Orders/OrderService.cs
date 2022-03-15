@@ -24,6 +24,7 @@ namespace BComm.PM.Services.Orders
         private readonly IProductQueryRepository _productQueryRepository;
         private readonly IProcessQueryRepository _processQueryRepository;
         private readonly IShopQueryRepository _shopQueryRepository;
+        private readonly IDeliveryChargeQueryRepository _deliveryChargeQueryRepository;
         private readonly IMapper _mapper;
         private readonly IDictionary<string, double> _deliveryChargeMap;
 
@@ -35,6 +36,7 @@ namespace BComm.PM.Services.Orders
             IOrderQueryRepository orderQueryRepository,
             IProcessQueryRepository processQueryRepository,
             IShopQueryRepository shopQueryRepository,
+            IDeliveryChargeQueryRepository deliveryChargeQueryRepository,
             IMapper mapper)
         {
             _orderCommandsRepository = orderCommandsRepository;
@@ -44,6 +46,7 @@ namespace BComm.PM.Services.Orders
             _processQueryRepository = processQueryRepository;
             _orderProcessLogCommandsRepository = orderProcessLogCommandsRepository;
             _shopQueryRepository = shopQueryRepository;
+            _deliveryChargeQueryRepository = deliveryChargeQueryRepository;
             _mapper = mapper;
 
             _deliveryChargeMap = new Dictionary<string, double>();
@@ -98,7 +101,9 @@ namespace BComm.PM.Services.Orders
                                 totalPayable = totalPayable + productPrice * orderItemQuantity;
                             }
 
-                            var shippingCharge = GetShippingCharge(shopId);
+                            var deliveryChargeModel = await _deliveryChargeQueryRepository.GetDeliveryChargeById(newOrderRequest.DeliveryChargeId);
+
+                            var shippingCharge = deliveryChargeModel.Amount;
 
                             newOrderModel.ShippingCharge = shippingCharge;
                             newOrderModel.TotalPayable = totalPayable + shippingCharge;

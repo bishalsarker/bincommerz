@@ -32,6 +32,7 @@ namespace BComm.PM.Web.Controllers
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITemplateService _templateService;
+        private readonly IDeliveryChargeService _deliveryChargeService;
 
         public ShopController(
             IPageService pageService,
@@ -41,7 +42,8 @@ namespace BComm.PM.Web.Controllers
             IOrderService orderService,
             IAuthService authService,
             ITemplateService templateService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IDeliveryChargeService deliveryChargeService)
         {
             _pageService = pageService;
             _sliderService = sliderService;
@@ -51,6 +53,7 @@ namespace BComm.PM.Web.Controllers
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
             _templateService = templateService;
+            _deliveryChargeService = deliveryChargeService;
         }
 
         [HttpGet("info")]
@@ -100,6 +103,12 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> TrackOrder(string order_id)
         {
             return Ok(await _orderService.TrackOrder(order_id));
+        }
+
+        [HttpGet("orders/delivery-charges")]
+        public async Task<IActionResult> GetAllDeliveryCharges([FromHeader] string shop_id)
+        {
+            return Ok(await _deliveryChargeService.GetAllDeliveryCharges(shop_id));
         }
 
         [HttpGet("pages/getall")]
