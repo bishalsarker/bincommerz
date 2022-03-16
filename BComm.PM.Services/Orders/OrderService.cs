@@ -101,7 +101,21 @@ namespace BComm.PM.Services.Orders
                                 totalPayable = totalPayable + productPrice * orderItemQuantity;
                             }
 
-                            var deliveryChargeModel = await _deliveryChargeQueryRepository.GetDeliveryChargeById(newOrderRequest.DeliveryChargeId);
+                            DeliveryCharge deliveryChargeModel = null;
+
+                            if (newOrderRequest.DeliveryChargeId == "0000000000000000")
+                            {
+                                deliveryChargeModel = new DeliveryCharge() { Amount = 0.00 };
+                            }
+                            else
+                            {
+                                deliveryChargeModel = await _deliveryChargeQueryRepository.GetDeliveryChargeById(newOrderRequest.DeliveryChargeId);
+                            }
+
+                            if (deliveryChargeModel == null)
+                            {
+                                throw new Exception("Invalid delivery charge");
+                            }
 
                             var shippingCharge = deliveryChargeModel.Amount;
 
