@@ -234,7 +234,7 @@ namespace BComm.PM.Services.Products
                 }
 
                 var productModels = await _productQueryRepository.GetProducts(
-                        shopId, tagsList, sortCol, sortDirection, offset, pageSize, searchQuery);
+                        shopId, tagsList, new List<string>(), sortCol, sortDirection, offset, pageSize, searchQuery);
                 var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                 foreach (var productResponse in productResponses)
@@ -345,7 +345,7 @@ namespace BComm.PM.Services.Products
             {
                 var tagList = (await _tagsQueryRepository.GetTags(shopId)).Select(x => x.HashId).ToList();
 
-                var productModels = await _productQueryRepository.GetProducts(shopId, tagList, sortCol, sortDirection, offset, pageSize, searchQuery);
+                var productModels = await _productQueryRepository.GetProducts(shopId, tagList, new List<string>(), sortCol, sortDirection, offset, pageSize, searchQuery);
                 var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                 foreach (var productResponse in productResponses)
@@ -412,6 +412,35 @@ namespace BComm.PM.Services.Products
                 return new Response()
                 {
                     Data = productResponse,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Product Doesn't Exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> GetSimilarProducts(string productId)
+        {
+            var productModel = await _productQueryRepository.GetProductById(productId, true);
+
+            if (productModel != null)
+            {
+                var tags = await _tagsQueryRepository.GetTagsByProductId(productId);
+                var tagIdList = tags.Select(x => x.TagHashId).ToList();
+                var ignoredProducts = new List<string>();
+                ignoredProducts.Add(productId);
+                var similarProducts = await _productQueryRepository.GetProducts(productModel.ShopId, tagIdList, ignoredProducts, "AddedOn", "desc", 0, 15, "");
+                var similarProductResponse = _mapper.Map<IEnumerable<ProductResponse>>(similarProducts);
+
+                return new Response()
+                {
+                    Data = similarProductResponse,
                     IsSuccess = true
                 };
             }

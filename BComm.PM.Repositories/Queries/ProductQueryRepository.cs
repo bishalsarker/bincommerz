@@ -62,7 +62,8 @@ namespace BComm.PM.Repositories.Queries
         }
 
         public async Task<IEnumerable<Product>> GetProducts(
-            string shopId, IEnumerable<string> tagList, string sortCol, string sortOrder, int offset, int rows, string searchQuery)
+            string shopId, IEnumerable<string> tagList, IEnumerable<string> ignoredProducts, 
+            string sortCol, string sortOrder, int offset, int rows, string searchQuery)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -79,8 +80,8 @@ namespace BComm.PM.Repositories.Queries
                 var taggedProducts = new List<ProductTags>();
 
                 taggedProducts = (await conn.QueryAsync<ProductTags>(
-                        "select distinct ProductHashId from " + TableNameConstants.ProductTagsTable + " where TagHashId in @tagids",
-                        new { @tagids = tagList }))
+                        "select distinct ProductHashId from " + TableNameConstants.ProductTagsTable + " where TagHashId in @tagids and ProductHashId not in @ignoredproducts",
+                        new { @tagids = tagList, @ignoredproducts = ignoredProducts }))
                         .ToList();
 
                 query = query + new StringBuilder()
@@ -147,7 +148,7 @@ namespace BComm.PM.Repositories.Queries
                     .ToString();
 
                 var queryWithImageDirectory = new StringBuilder()
-                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
+                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, {0}.ShopId, " +
                     "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
                     "from {0} " +
                     "left join {1} on {0}.ImageUrl={1}.HashId " +

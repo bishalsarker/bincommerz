@@ -93,6 +93,12 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _productService.GetProductById(productId)); 
         }
 
+        [HttpGet("products/similar/{productId}")]
+        public async Task<IActionResult> GetSimilarProducts(string productId)
+        {
+            return Ok(await _productService.GetSimilarProducts(productId));
+        }
+
         [HttpPost("order/addnew")]
         public async Task<IActionResult> AddNewOrder(OrderPayload newOrderRequest, [FromHeader] string shop_id)
         {

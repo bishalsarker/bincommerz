@@ -21,5 +21,6 @@ namespace BComm.PM.Services.Products
         Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy, string searchQuery, int pageSize, int pageNumber);
         Task<Response> GetStockHealth(string shopId);
         Task MigrateDiscountPrice(string shopId);
+        Task<Response> GetSimilarProducts(string productId);
     }
 }
