@@ -23,6 +23,7 @@ namespace BComm.PM.Models.Widgets
     public enum SliderTypes
     {
         Image,
-        Card
+        Card,
+        Banner
     }
 }
