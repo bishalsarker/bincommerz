@@ -58,7 +58,7 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery)
         { 
             return Ok(await _productService.GetAllProducts(
-                _authService.GetShopId(), filterQuery.TagId, filterQuery.SortBy, filterQuery.PageSize, filterQuery.PageNumber));
+                _authService.GetShopId(), filterQuery.TagId, filterQuery.SortBy, filterQuery.PageSize, filterQuery.PageNumber, filterQuery.Keyword));
         }
 
         [HttpPut("update")]
@@ -95,5 +95,13 @@ namespace BComm.PM.Web.Controllers
         {
             return Ok(await _productService.DeleteGalleryImage(imageId, productId));
         }
+
+        //[HttpPut("migrate/discount")]
+        //[Authorize]
+        //public async Task<IActionResult> MigrateDiscountPrice()
+        //{
+        //    await _productService.MigrateDiscountPrice(_authService.GetShopId());
+        //    return Ok();
+        //}
     }
 }

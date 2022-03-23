@@ -40,6 +40,8 @@ namespace BComm.PM.Services.Mappings
                     return SliderTypes.Image;
                 case "card":
                     return SliderTypes.Card;
+                case "banner":
+                    return SliderTypes.Banner;
                 default:
                     return SliderTypes.Image;
             }
@@ -53,6 +55,8 @@ namespace BComm.PM.Services.Mappings
                     return "image";
                 case SliderTypes.Card:
                     return "card";
+                case SliderTypes.Banner:
+                    return "banner";
                 default:
                     return "image";
             }

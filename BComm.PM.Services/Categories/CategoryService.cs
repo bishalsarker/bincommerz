@@ -360,6 +360,8 @@ namespace BComm.PM.Services.Categories
             if (existingCategoryModel != null)
             {
                 var response = _mapper.Map<CategoryResponse>(existingCategoryModel);
+                var subcategories = await GetSubCategories(existingCategoryModel.HashId);
+                response.Subcategories = (subcategories.Data as CategoryResponse).Subcategories;
                 var imageModel = await _imagesQueryRepository.GetImage(existingCategoryModel.ImageId);
                 if (imageModel != null)
                 {

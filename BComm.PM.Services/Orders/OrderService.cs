@@ -24,6 +24,7 @@ namespace BComm.PM.Services.Orders
         private readonly IProductQueryRepository _productQueryRepository;
         private readonly IProcessQueryRepository _processQueryRepository;
         private readonly IShopQueryRepository _shopQueryRepository;
+        private readonly IDeliveryChargeQueryRepository _deliveryChargeQueryRepository;
         private readonly IMapper _mapper;
         private readonly IDictionary<string, double> _deliveryChargeMap;
 
@@ -35,6 +36,7 @@ namespace BComm.PM.Services.Orders
             IOrderQueryRepository orderQueryRepository,
             IProcessQueryRepository processQueryRepository,
             IShopQueryRepository shopQueryRepository,
+            IDeliveryChargeQueryRepository deliveryChargeQueryRepository,
             IMapper mapper)
         {
             _orderCommandsRepository = orderCommandsRepository;
@@ -44,6 +46,7 @@ namespace BComm.PM.Services.Orders
             _processQueryRepository = processQueryRepository;
             _orderProcessLogCommandsRepository = orderProcessLogCommandsRepository;
             _shopQueryRepository = shopQueryRepository;
+            _deliveryChargeQueryRepository = deliveryChargeQueryRepository;
             _mapper = mapper;
 
             _deliveryChargeMap = new Dictionary<string, double>();
@@ -87,12 +90,34 @@ namespace BComm.PM.Services.Orders
                                     .FirstOrDefault(x => x.ProductId == product.HashId).Quantity;
                                 orderItemModel.Quantity = orderItemQuantity;
                                 await _orderItemCommandsRepository.Add(orderItemModel);
-                                var discountAmount = product.Discount > 0 ? product.Price * (product.Discount / 100) : 0;
-                                var productPrice = product.Price - discountAmount;
+
+                                var productPrice = product.Price;
+
+                                if (product.Discount > 0)
+                                {
+                                    productPrice = product.Discount;
+                                }
+ 
                                 totalPayable = totalPayable + productPrice * orderItemQuantity;
                             }
 
-                            var shippingCharge = GetShippingCharge(shopId);
+                            DeliveryCharge deliveryChargeModel = null;
+
+                            if (newOrderRequest.DeliveryChargeId == "0000000000000000")
+                            {
+                                deliveryChargeModel = new DeliveryCharge() { Amount = 0.00 };
+                            }
+                            else
+                            {
+                                deliveryChargeModel = await _deliveryChargeQueryRepository.GetDeliveryChargeById(newOrderRequest.DeliveryChargeId);
+                            }
+
+                            if (deliveryChargeModel == null)
+                            {
+                                throw new Exception("Invalid delivery charge");
+                            }
+
+                            var shippingCharge = deliveryChargeModel.Amount;
 
                             newOrderModel.ShippingCharge = shippingCharge;
                             newOrderModel.TotalPayable = totalPayable + shippingCharge;
@@ -181,7 +206,6 @@ namespace BComm.PM.Services.Orders
                 IsSuccess = true
             };
         }
-
 
         public async Task<Response> GetOrder(string orderId)
         {

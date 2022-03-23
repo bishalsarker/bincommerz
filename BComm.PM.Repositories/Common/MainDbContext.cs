@@ -32,6 +32,8 @@ namespace BComm.PM.Repositories.Common
 
         public DbSet<Order> Orders { get; set; }
 
+        public DbSet<DeliveryCharge> DeliveryCharges { get; set; }
+
         public DbSet<OrderItemModel> OrderItems { get; set; }
 
         public DbSet<OrderProcessLog> OrderProcessLogs { get; set; }
@@ -148,6 +150,16 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<Order>()
                 .HasIndex(t => t.CurrentProcessId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<DeliveryCharge>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<DeliveryCharge>()
+                .HasIndex(t => t.ShopId)
                 .IsUnique(false)
                 .IsClustered(false);
 

@@ -13,6 +13,9 @@ namespace BComm.PM.Models.Products
         [FromQuery(Name = "cat_slug")]
         public string CatSlug { get; set; }
 
+        [FromQuery(Name = "keyword")]
+        public string Keyword { get; set; }
+
         [FromQuery(Name = "sort_by")]
         public string SortBy { get; set; }
 

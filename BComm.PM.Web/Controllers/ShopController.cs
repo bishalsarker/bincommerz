@@ -32,6 +32,7 @@ namespace BComm.PM.Web.Controllers
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITemplateService _templateService;
+        private readonly IDeliveryChargeService _deliveryChargeService;
 
         public ShopController(
             IPageService pageService,
@@ -41,7 +42,8 @@ namespace BComm.PM.Web.Controllers
             IOrderService orderService,
             IAuthService authService,
             ITemplateService templateService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IDeliveryChargeService deliveryChargeService)
         {
             _pageService = pageService;
             _sliderService = sliderService;
@@ -51,6 +53,7 @@ namespace BComm.PM.Web.Controllers
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
             _templateService = templateService;
+            _deliveryChargeService = deliveryChargeService;
         }
 
         [HttpGet("info")]
@@ -74,7 +77,8 @@ namespace BComm.PM.Web.Controllers
         [HttpGet("products/get")]
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterQuery filterQuery, [FromHeader] string shop_id)
         {
-            return Ok(await _productService.GetProductsByCategory(shop_id, filterQuery.CatSlug, filterQuery.SortBy));
+            return Ok(await _productService.GetProductsByCategory(
+                shop_id, filterQuery.CatSlug, filterQuery.SortBy, filterQuery.Keyword, filterQuery.PageSize, filterQuery.PageNumber));
         }
 
         [HttpGet("products/search")]
@@ -89,6 +93,12 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _productService.GetProductById(productId)); 
         }
 
+        [HttpGet("products/similar/{productId}")]
+        public async Task<IActionResult> GetSimilarProducts(string productId)
+        {
+            return Ok(await _productService.GetSimilarProducts(productId));
+        }
+
         [HttpPost("order/addnew")]
         public async Task<IActionResult> AddNewOrder(OrderPayload newOrderRequest, [FromHeader] string shop_id)
         {
@@ -99,6 +109,12 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> TrackOrder(string order_id)
         {
             return Ok(await _orderService.TrackOrder(order_id));
+        }
+
+        [HttpGet("orders/delivery-charges")]
+        public async Task<IActionResult> GetAllDeliveryCharges([FromHeader] string shop_id)
+        {
+            return Ok(await _deliveryChargeService.GetAllDeliveryCharges(shop_id));
         }
 
         [HttpGet("pages/getall")]

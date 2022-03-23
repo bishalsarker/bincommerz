@@ -182,7 +182,7 @@ namespace BComm.PM.Services.Products
             }
         }
 
-        public async Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy)
+        public async Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy, string searchQuery, int pageSize, int pageNumber)
         {
             var sortCol = "Price";
             var sortDirection = "asc";
@@ -198,36 +198,66 @@ namespace BComm.PM.Services.Products
                 sortDirection = "asc";
             }
 
+            if (pageSize == 0)
+            {
+                pageSize = 5;
+            }
+
+            if (pageNumber == 0)
+            {
+                pageNumber = 1;
+            }
+
+            var offset = (pageNumber - 1) * pageSize;
+
             try
             {
-                var catModel = await _categoryQueryService.GetCategoryBySlug(catSlug, shopId);
+                var tagsList = new List<string>();
+                var slugs = new List<string>();
 
-                if (catModel != null)
+                if (!string.IsNullOrEmpty(catSlug))
                 {
-                    var productModels = await _productQueryRepository.GetProducts(shopId, catModel.TagHashId, sortCol, sortDirection, 0, 1000);
-                    var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
+                    slugs = catSlug.Split(',').ToList();
+                }
 
-                    foreach (var productResponse in productResponses)
+                if (slugs.Any())
+                {
+                    foreach (var slug in slugs)
                     {
-                        var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
-                        productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+                        var catModel = await _categoryQueryService.GetCategoryBySlug(catSlug, shopId);
+                        tagsList.Add(catModel.TagHashId);
                     }
-
-                    return new Response()
-                    {
-                        Data = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
-                        IsSuccess = true
-                    };
                 }
                 else
                 {
-                    return new Response()
-                    {
-                        Message = "Invalid slug",
-                        IsSuccess = false
-                    };
+                    tagsList = (await _tagsQueryRepository.GetTags(shopId)).Select(x => x.HashId).ToList();
                 }
-                
+
+                var productModels = await _productQueryRepository.GetProducts(
+                        shopId, tagsList, new List<string>(), sortCol, sortDirection, offset, pageSize, searchQuery);
+                var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
+
+                foreach (var productResponse in productResponses)
+                {
+                    var tags = await _tagsQueryRepository.GetTagsByProductId(productResponse.Id);
+                    productResponse.Tags = tags.Select(x => x.TagHashId).ToList();
+                }
+
+                var totalProducts = await _productQueryRepository.GetProductCount(shopId);
+                var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+
+                return new Response()
+                {
+                    Data = new
+                    {
+                        Products = _mapper.Map<IEnumerable<ProductResponse>>(productResponses),
+                        PageSize = pageSize,
+                        PageNumber = pageNumber,
+                        TotalPages = totalPages
+                    },
+                    IsSuccess = true
+                };
+
             }
             catch (Exception e)
             {
@@ -281,11 +311,9 @@ namespace BComm.PM.Services.Products
                     IsSuccess = false
                 };
             }
-
-
         }
 
-        public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber)
+        public async Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber, string searchQuery)
         {
             var sortCol = "Price";
             var sortDirection = "asc";
@@ -315,7 +343,9 @@ namespace BComm.PM.Services.Products
 
             try
             {
-                var productModels = await _productQueryRepository.GetProducts(shopId, tagId, sortCol, sortDirection, offset, pageSize);
+                var tagList = (await _tagsQueryRepository.GetTags(shopId)).Select(x => x.HashId).ToList();
+
+                var productModels = await _productQueryRepository.GetProducts(shopId, tagList, new List<string>(), sortCol, sortDirection, offset, pageSize, searchQuery);
                 var productResponses = _mapper.Map<IEnumerable<ProductResponse>>(productModels).ToList();
 
                 foreach (var productResponse in productResponses)
@@ -382,6 +412,35 @@ namespace BComm.PM.Services.Products
                 return new Response()
                 {
                     Data = productResponse,
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new Response()
+                {
+                    Message = "Product Doesn't Exist",
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> GetSimilarProducts(string productId)
+        {
+            var productModel = await _productQueryRepository.GetProductById(productId, true);
+
+            if (productModel != null)
+            {
+                var tags = await _tagsQueryRepository.GetTagsByProductId(productId);
+                var tagIdList = tags.Select(x => x.TagHashId).ToList();
+                var ignoredProducts = new List<string>();
+                ignoredProducts.Add(productId);
+                var similarProducts = await _productQueryRepository.GetProducts(productModel.ShopId, tagIdList, ignoredProducts, "AddedOn", "desc", 0, 15, "");
+                var similarProductResponse = _mapper.Map<IEnumerable<ProductResponse>>(similarProducts);
+
+                return new Response()
+                {
+                    Data = similarProductResponse,
                     IsSuccess = true
                 };
             }
@@ -598,6 +657,21 @@ namespace BComm.PM.Services.Products
             str = Regex.Replace(str, @"\s", "-"); // hyphens
             
             return str;
+        }
+
+        public async Task MigrateDiscountPrice(string shopId)
+        {
+            var allProducts = await _productQueryRepository.GetAllProducts(shopId);
+
+            foreach (var product in allProducts)
+            {
+                if (product.Discount > 0)
+                {
+                    var discountPrice = Math.Round(product.Discount, MidpointRounding.AwayFromZero);
+                    product.Discount = discountPrice;
+                    await _productCommandsRepository.Update(product);
+                }
+            }
         }
     }
 }

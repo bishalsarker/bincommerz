@@ -18,6 +18,11 @@ namespace BComm.PM.Services.Mappings
                 .ForMember(dest => dest.Id,
                 opt => opt.MapFrom(src => src.HashId));
 
+            CreateMap<DeliveryChargePayload, DeliveryCharge>();
+            CreateMap<DeliveryCharge, DeliveryChargeResponse>()
+                .ForMember(dest => dest.Id,
+                opt => opt.MapFrom(src => src.HashId));
+
             CreateMap<Product, OrderItemModel>()
                 .ForMember(dest => dest.ProductId,
                 opt => opt.MapFrom(src => src.HashId));

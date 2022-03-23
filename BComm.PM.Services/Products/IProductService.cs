@@ -11,14 +11,16 @@ namespace BComm.PM.Services.Products
     {
         Task<Response> AddNewProduct(ProductPayload newProductRequest, string shopId);
         Task<Response> DeleteProduct(string productId);
-        Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber);
+        Task<Response> GetAllProducts(string shopId, string tagId, string sortBy, int pageSize, int pageNumber, string searchQuery);
         Task<Response> SearchProducts(string q, string shopId);
         Task<Response> GetProductById(string productId);
         Task<Response> UpdateProduct(ProductUpdatePayload newProductRequest);
         Task<Response> GetImageGallery(string productId);
         Task<Response> AddGalleryImage(GalleryImageRequest imageUploadRequest);
         Task<Response> DeleteGalleryImage(string imageId, string productId);
-        Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy);
+        Task<Response> GetProductsByCategory(string shopId, string catSlug, string sortBy, string searchQuery, int pageSize, int pageNumber);
         Task<Response> GetStockHealth(string shopId);
+        Task MigrateDiscountPrice(string shopId);
+        Task<Response> GetSimilarProducts(string productId);
     }
 }

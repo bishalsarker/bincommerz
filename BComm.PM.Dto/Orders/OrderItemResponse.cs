@@ -12,6 +12,25 @@ namespace BComm.PM.Dto.Orders
 
         public double Discount { get; set; }
 
+        public double DiscountAmount { 
+            get {
+                return Price - Discount;
+            } 
+        }
+
         public double Quantity { get; set; }
+
+        public double Subtotal { 
+            get { 
+                if (Discount > 0)
+                {
+                    return Discount * Quantity;
+                }
+                else
+                {
+                    return Price * Quantity;
+                }
+            } 
+        }
     }
 }
