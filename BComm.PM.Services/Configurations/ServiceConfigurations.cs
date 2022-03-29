@@ -2,6 +2,7 @@
 using BComm.PM.Services.Auth;
 using BComm.PM.Services.Categories;
 using BComm.PM.Services.Common;
+using BComm.PM.Services.Coupons;
 using BComm.PM.Services.Mappings;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Pages;
@@ -41,6 +42,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<ISliderService, SliderService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IDeliveryChargeService, DeliveryChargeService>();
+            services.AddScoped<ICouponService, CouponService>();
         }
     }
 }

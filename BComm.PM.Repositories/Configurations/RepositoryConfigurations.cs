@@ -22,6 +22,7 @@ namespace BComm.PM.Repositories.Configurations
             services.AddTransient<ISliderQueryRepository, SliderQueryRepository>();
             services.AddTransient<ITemplateQueryRepository, TemplateQueryRepository>();
             services.AddTransient<IDeliveryChargeQueryRepository, DeliveryChargeQueryRepository>();
+            services.AddTransient<ICouponQueryRepository, CouponQueryRepository>();
         }
     }
 }
