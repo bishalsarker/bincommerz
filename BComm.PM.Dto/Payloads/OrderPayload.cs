@@ -27,6 +27,8 @@ namespace BComm.PM.Dto.Payloads
 
         public string DeliveryChargeId { get; set; }
 
+        public string CouponCode { get; set; }
+
         [Required]
         public IEnumerable<OrderItem> Items { get; set; }
     }

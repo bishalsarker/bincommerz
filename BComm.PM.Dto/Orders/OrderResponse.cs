@@ -17,6 +17,10 @@ namespace BComm.PM.Dto.Orders
 
         public string Address { get; set; }
 
+        public double TotalAmount { get; set; }
+
+        public double Discount { get; set; }
+
         public double TotalPayable { get; set; }
 
         public double TotalDue { get; set; }

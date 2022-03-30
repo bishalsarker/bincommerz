@@ -31,6 +31,10 @@ namespace BComm.PM.Models.Orders
 
         public double ShippingCharge { get; set; }
 
+        public string CouponCode { get; set; }
+
+        public double CouponDiscount{ get; set; }
+
         [Required]
         public string PaymentMethod { get; set; }
 
