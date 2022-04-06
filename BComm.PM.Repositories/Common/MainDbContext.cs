@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Models.Auth;
 using BComm.PM.Models.Categories;
+using BComm.PM.Models.Coupons;
 using BComm.PM.Models.Images;
 using BComm.PM.Models.Orders;
 using BComm.PM.Models.Pages;
@@ -39,6 +40,8 @@ namespace BComm.PM.Repositories.Common
         public DbSet<OrderProcessLog> OrderProcessLogs { get; set; }
 
         public DbSet<OrderPaymentLog> OrderPaymentLogs { get; set; }
+
+        public DbSet<Coupon> Coupons { get; set; }
 
         public DbSet<Page> Pages { get; set; }
 
@@ -180,6 +183,21 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<OrderPaymentLog>()
                 .HasIndex(t => t.OrderId)
+                .IsUnique(false)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Coupon>()
+                .HasIndex(t => t.Code)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Coupon>()
+                .HasIndex(t => t.HashId)
+                .IsUnique(true)
+                .IsClustered(false);
+
+            modelBuilder.Entity<Coupon>()
+                .HasIndex(t => t.ShopId)
                 .IsUnique(false)
                 .IsClustered(false);
 

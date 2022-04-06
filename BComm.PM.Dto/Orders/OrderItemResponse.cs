@@ -14,7 +14,14 @@ namespace BComm.PM.Dto.Orders
 
         public double DiscountAmount { 
             get {
-                return Price - Discount;
+                if (Discount > 0)
+                {
+                    return Price - Discount;
+                }
+                else
+                {
+                    return Discount;
+                }
             } 
         }
 

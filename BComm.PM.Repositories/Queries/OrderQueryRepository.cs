@@ -34,6 +34,18 @@ namespace BComm.PM.Repositories.Queries
             }
         }
 
+        public async Task<IEnumerable<Order>> GetAllOrdersForAllShops()
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var query = new StringBuilder()
+                    .AppendFormat("select * from {0}", TableNameConstants.OrdersTable)
+                    .ToString();
+
+                return await conn.QueryAsync<Order>(query);
+            }
+        }
+
         public async Task<IEnumerable<Order>> GetOrders(string shopId, bool isCompleted)
         {
             using (var conn = new SqlConnection(_connectionString))

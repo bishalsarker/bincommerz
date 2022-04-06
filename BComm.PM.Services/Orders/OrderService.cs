@@ -25,6 +25,7 @@ namespace BComm.PM.Services.Orders
         private readonly IProcessQueryRepository _processQueryRepository;
         private readonly IShopQueryRepository _shopQueryRepository;
         private readonly IDeliveryChargeQueryRepository _deliveryChargeQueryRepository;
+        private readonly ICouponQueryRepository _couponQueryRepository;
         private readonly IMapper _mapper;
         private readonly IDictionary<string, double> _deliveryChargeMap;
 
@@ -36,6 +37,7 @@ namespace BComm.PM.Services.Orders
             IOrderQueryRepository orderQueryRepository,
             IProcessQueryRepository processQueryRepository,
             IShopQueryRepository shopQueryRepository,
+            ICouponQueryRepository couponQueryRepository,
             IDeliveryChargeQueryRepository deliveryChargeQueryRepository,
             IMapper mapper)
         {
@@ -46,6 +48,7 @@ namespace BComm.PM.Services.Orders
             _processQueryRepository = processQueryRepository;
             _orderProcessLogCommandsRepository = orderProcessLogCommandsRepository;
             _shopQueryRepository = shopQueryRepository;
+            _couponQueryRepository = couponQueryRepository;
             _deliveryChargeQueryRepository = deliveryChargeQueryRepository;
             _mapper = mapper;
 
@@ -80,7 +83,7 @@ namespace BComm.PM.Services.Orders
                         {
                             await _orderCommandsRepository.Add(newOrderModel);
 
-                            var totalPayable = 0.00;
+                            var orderSubtotal = 0.00;
 
                             foreach (var product in productModels)
                             {
@@ -98,7 +101,22 @@ namespace BComm.PM.Services.Orders
                                     productPrice = product.Discount;
                                 }
  
-                                totalPayable = totalPayable + productPrice * orderItemQuantity;
+                                orderSubtotal = orderSubtotal + productPrice * orderItemQuantity;
+                            }
+
+                            var totalPayable = orderSubtotal;
+
+                            if (!string.IsNullOrEmpty(newOrderRequest.CouponCode))
+                            {
+                                var couponModel = await _couponQueryRepository.GetCouponByCode(newOrderRequest.CouponCode, shopId);
+
+                                if (couponModel != null)
+                                {
+                                    var discountAmount = totalPayable * (couponModel.Discount / 100);
+                                    totalPayable = totalPayable - discountAmount;
+                                    newOrderModel.CouponCode = couponModel.HashId;
+                                    newOrderModel.CouponDiscount = discountAmount;
+                                }
                             }
 
                             DeliveryCharge deliveryChargeModel = null;
@@ -119,6 +137,7 @@ namespace BComm.PM.Services.Orders
 
                             var shippingCharge = deliveryChargeModel.Amount;
 
+                            newOrderModel.OrderSubTotal = orderSubtotal;
                             newOrderModel.ShippingCharge = shippingCharge;
                             newOrderModel.TotalPayable = totalPayable + shippingCharge;
                             newOrderModel.TotalDue = totalPayable + shippingCharge;
@@ -213,6 +232,7 @@ namespace BComm.PM.Services.Orders
             var orderResponse = _mapper.Map<OrderResponse>(ordersModel);
             var orderItems = await _orderQueryRepository.GetOrderItems(orderId);
             orderResponse.Items = _mapper.Map<IEnumerable<OrderItemResponse>>(orderItems);
+
             var processModel = await _processQueryRepository.GetProcess(ordersModel.CurrentProcessId);
             orderResponse.CurrentProcess = _mapper.Map<ProcessResponse>(processModel);
 
@@ -379,6 +399,24 @@ namespace BComm.PM.Services.Orders
                     Message = "Error: " + e,
                     IsSuccess = false
                 };
+            }
+        }
+
+        public async Task MigrateOrderTotalAmount()
+        {
+            var allOrders = await _orderQueryRepository.GetAllOrdersForAllShops();
+
+            foreach (var order in allOrders)
+            {
+                var orderItems = await _orderQueryRepository.GetOrderItems(order.HashId);
+                double totalAmount = 0;
+                foreach (var orderItem in orderItems)
+                {
+                    totalAmount = totalAmount + orderItem.Price;
+                }
+
+                order.OrderSubTotal = totalAmount;
+                await _orderCommandsRepository.Update(order);
             }
         }
 

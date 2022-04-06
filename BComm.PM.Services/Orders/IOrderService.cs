@@ -13,7 +13,7 @@ namespace BComm.PM.Services.Orders
         Task<Response> GetAllOrders(string shopId, bool isCompleted);
         Task<Response> GetCanceledOrders(string shopId);
         Task<Response> GetOrder(string orderId);
-
+        Task MigrateOrderTotalAmount();
         Task<Response> TrackOrder(string orderId);
         Task<Response> UpdateProcess(ProcessUpdatePayload processUpdateRequest);
     }

@@ -24,6 +24,7 @@ namespace BComm.PM.Repositories.Common
         public static readonly string OrderItemsTable = OmSchemaName + "." + "order_items";
         public static readonly string OrderProcessLogsTable = OmSchemaName + "." + "order_process_logs";
         public static readonly string OrderPaymentLogsTable = OmSchemaName + "." + "order_payment_logs";
+        public static readonly string CouponsTable = OmSchemaName + "." + "coupons";
 
         public static readonly string PagesTable = CmSchemaName + "." + "pages";
         public static readonly string SlidersTable = CmSchemaName + "." + "sliders";

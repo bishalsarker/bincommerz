@@ -25,11 +25,17 @@ namespace BComm.PM.Models.Orders
         [Required]
         public string Address { get; set; }
 
+        public double OrderSubTotal { get; set; }
+
         public double TotalPayable { get; set; }
 
         public double TotalDue { get; set; }
 
         public double ShippingCharge { get; set; }
+
+        public string CouponCode { get; set; }
+
+        public double CouponDiscount{ get; set; }
 
         [Required]
         public string PaymentMethod { get; set; }
