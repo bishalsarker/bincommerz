@@ -2,6 +2,7 @@
 using BComm.PM.Models.Products;
 using BComm.PM.Services.Auth;
 using BComm.PM.Services.Categories;
+using BComm.PM.Services.Coupons;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
@@ -27,6 +28,7 @@ namespace BComm.PM.Web.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
+        private readonly ICouponService _couponService;
         private readonly IPageService _pageService;
         private readonly ISliderService _sliderService;
         private readonly IAuthService _authService;
@@ -40,6 +42,7 @@ namespace BComm.PM.Web.Controllers
             ICategoryService categoryService,
             IProductService productService,
             IOrderService orderService,
+            ICouponService couponService,
             IAuthService authService,
             ITemplateService templateService,
             IHttpContextAccessor httpContextAccessor,
@@ -50,6 +53,7 @@ namespace BComm.PM.Web.Controllers
             _categoryService = categoryService;
             _productService = productService;
             _orderService = orderService;
+            _couponService = couponService;
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
             _templateService = templateService;
@@ -97,6 +101,12 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> GetSimilarProducts(string productId)
         {
             return Ok(await _productService.GetSimilarProducts(productId));
+        }
+
+        [HttpGet("coupon/apply/{couponCode}/{amount}")]
+        public async Task<IActionResult> CheckCouponValidity(string couponCode, double amount, [FromHeader] string shop_id)
+        {
+            return Ok(await _couponService.GetCouponDiscount(couponCode, amount, shop_id));
         }
 
         [HttpPost("order/addnew")]

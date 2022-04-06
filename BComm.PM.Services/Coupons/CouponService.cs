@@ -137,6 +137,39 @@ namespace BComm.PM.Services.Coupons
             };
         }
 
+        public async Task<Response> GetCouponDiscount(string couponCode, double amount, string shopId)
+        {
+            try
+            {
+                var couponModel = await _couponQueryRepository.GetCouponByCode(couponCode, shopId);
+
+                if (couponModel == null)
+                {
+                    throw new Exception("Not a valid coupon code");
+                }
+
+                var discountAmount = amount * (couponModel.Discount / 100);
+
+                return new Response()
+                {
+                    Data = new CouponDiscountResponse()
+                    {
+                        DiscountAmount = discountAmount,
+                        NewAmount = amount - discountAmount
+                    },
+                    IsSuccess = true
+                };
+            } 
+            catch (Exception ex)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + ex.Message,
+                    IsSuccess = false
+                };
+            }
+        }
+
         public async Task<Response> GetCouponById(string couponId)
         {
             var couponModel = await _couponQueryRepository.GetCouponById(couponId);

@@ -109,5 +109,13 @@ namespace BComm.PM.Web.Controllers
         {
             return Ok(await _orderPaymentService.DeductPayment(newOrderPaymentRequest));
         }
+
+        [HttpPut("migrate/ordersubtotal")]
+        [Authorize]
+        public async Task<IActionResult> MigrateOrderSubtotal()
+        {
+            await _orderService.MigrateOrderTotalAmount();
+            return Ok();
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace BComm.PM.Repositories.Queries
         Task DeleteOrderProcessLogs(string orderId);
         Task<IEnumerable<int>> GetAllOrderCount(string shopId);
         Task<IEnumerable<Order>> GetAllOrders(string shopId);
+        Task<IEnumerable<Order>> GetAllOrdersForAllShops();
         Task<IEnumerable<int>> GetCanceledOrderCount(string shopId);
         Task<IEnumerable<Order>> GetCanceledOrders(string shopId);
         Task<Order> GetOrder(string orderId);
