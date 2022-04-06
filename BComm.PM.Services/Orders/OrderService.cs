@@ -106,19 +106,6 @@ namespace BComm.PM.Services.Orders
 
                             var totalPayable = orderSubtotal;
 
-                            if (!string.IsNullOrEmpty(newOrderRequest.CouponCode))
-                            {
-                                var couponModel = await _couponQueryRepository.GetCouponByCode(newOrderRequest.CouponCode, shopId);
-
-                                if (couponModel != null)
-                                {
-                                    var discountAmount = totalPayable * (couponModel.Discount / 100);
-                                    totalPayable = totalPayable - discountAmount;
-                                    newOrderModel.CouponCode = couponModel.HashId;
-                                    newOrderModel.CouponDiscount = discountAmount;
-                                }
-                            }
-
                             DeliveryCharge deliveryChargeModel = null;
 
                             if (newOrderRequest.DeliveryChargeId == "0000000000000000")
@@ -136,11 +123,25 @@ namespace BComm.PM.Services.Orders
                             }
 
                             var shippingCharge = deliveryChargeModel.Amount;
+                            totalPayable = totalPayable + shippingCharge;
+
+                            if (!string.IsNullOrEmpty(newOrderRequest.CouponCode))
+                            {
+                                var couponModel = await _couponQueryRepository.GetCouponByCode(newOrderRequest.CouponCode, shopId);
+
+                                if (couponModel != null)
+                                {
+                                    var discountAmount = Math.Round((totalPayable * (couponModel.Discount / 100)), MidpointRounding.AwayFromZero);
+                                    totalPayable = totalPayable - discountAmount;
+                                    newOrderModel.CouponCode = couponModel.HashId;
+                                    newOrderModel.CouponDiscount = discountAmount;
+                                }
+                            }
 
                             newOrderModel.OrderSubTotal = orderSubtotal;
                             newOrderModel.ShippingCharge = shippingCharge;
-                            newOrderModel.TotalPayable = totalPayable + shippingCharge;
-                            newOrderModel.TotalDue = totalPayable + shippingCharge;
+                            newOrderModel.TotalPayable = totalPayable;
+                            newOrderModel.TotalDue = totalPayable;
 
                             await _orderCommandsRepository.Update(newOrderModel);
 

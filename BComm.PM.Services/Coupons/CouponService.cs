@@ -148,7 +148,7 @@ namespace BComm.PM.Services.Coupons
                     throw new Exception("Not a valid coupon code");
                 }
 
-                var discountAmount = amount * (couponModel.Discount / 100);
+                var discountAmount = Math.Round((amount * (couponModel.Discount / 100)), MidpointRounding.AwayFromZero);
 
                 return new Response()
                 {
