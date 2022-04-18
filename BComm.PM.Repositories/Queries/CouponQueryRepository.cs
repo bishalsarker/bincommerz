@@ -25,7 +25,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Code, {0}.Discount, {0}.IsActive from {0} " +
+                    .AppendFormat("select {0}.* from {0} " +
                     "where {0}.ShopId=@shopid",
                     TableNameConstants.CouponsTable)
                     .ToString();
@@ -53,7 +53,7 @@ namespace BComm.PM.Repositories.Queries
             using (var conn = new SqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Code, {0}.Discount from {0} " +
+                    .AppendFormat("select {0}.* from {0} " +
                     "where {0}.Code=@couponcode and {0}.ShopId=@shopid",
                     TableNameConstants.CouponsTable)
                     .ToString();

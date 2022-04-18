@@ -3,6 +3,7 @@ using BComm.PM.Dto.Common;
 using BComm.PM.Dto.Orders;
 using BComm.PM.Dto.Payloads;
 using BComm.PM.Dto.Processes;
+using BComm.PM.Models.Coupons;
 using BComm.PM.Models.Orders;
 using BComm.PM.Models.Products;
 using BComm.PM.Repositories.Common;
@@ -131,10 +132,30 @@ namespace BComm.PM.Services.Orders
 
                                 if (couponModel != null)
                                 {
-                                    var discountAmount = Math.Round((totalPayable * (couponModel.Discount / 100)), MidpointRounding.AwayFromZero);
-                                    totalPayable = totalPayable - discountAmount;
-                                    newOrderModel.CouponCode = couponModel.HashId;
-                                    newOrderModel.CouponDiscount = discountAmount;
+                                    var isValidCoupon = false;
+
+                                    if (couponModel.MinimumPurchaseAmount > 0 && !(couponModel.MinimumPurchaseAmount <= totalPayable))
+                                    {
+                                        isValidCoupon = false;
+                                    }
+                                    else
+                                    {
+                                        isValidCoupon = true;
+                                    }
+
+                                    if (isValidCoupon)
+                                    {
+                                        var discountAmount = couponModel.Discount;
+
+                                        if (couponModel.DiscountType == CouponDiscountTypes.Percentage)
+                                        {
+                                            discountAmount = Math.Round((totalPayable * (couponModel.Discount / 100)), MidpointRounding.AwayFromZero);
+                                        }
+
+                                        totalPayable = totalPayable - discountAmount;
+                                        newOrderModel.CouponCode = couponModel.HashId;
+                                        newOrderModel.CouponDiscount = discountAmount;
+                                    }
                                 }
                             }
 

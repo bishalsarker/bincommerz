@@ -40,6 +40,15 @@ namespace BComm.PM.Services.Coupons
                 }
 
                 var couponModel = _mapper.Map<Coupon>(newCouponRequest);
+
+                if (couponModel.DiscountType == CouponDiscountTypes.FixedAmount)
+                {
+                    if (couponModel.Discount >= couponModel.MinimumPurchaseAmount)
+                    {
+                        throw new Exception("Minimum purchase amount should be greater than discount amount");
+                    }
+                }
+
                 couponModel.HashId = Guid.NewGuid().ToString("N");
                 couponModel.CreatedOn = DateTime.UtcNow;
                 couponModel.ShopId = shopId;
@@ -73,9 +82,21 @@ namespace BComm.PM.Services.Coupons
                     throw new Exception("Coupon doesn't exist");
                 }
 
-                existingCouponModel.Code = newCouponRequest.Payload.Code;
-                existingCouponModel.Discount = newCouponRequest.Payload.Discount;
-                existingCouponModel.IsActive = newCouponRequest.Payload.IsActive;
+                if (existingCouponModel.DiscountType == CouponDiscountTypes.FixedAmount)
+                {
+                    if (existingCouponModel.Discount >= existingCouponModel.MinimumPurchaseAmount)
+                    {
+                        throw new Exception("Minimum purchase amount should be greater than discount amount");
+                    }
+                }
+
+                var newCouponCodeModel = _mapper.Map<Coupon>(newCouponRequest.Payload);
+
+                existingCouponModel.Code = newCouponCodeModel.Code;
+                existingCouponModel.DiscountType = newCouponCodeModel.DiscountType;
+                existingCouponModel.MinimumPurchaseAmount = newCouponCodeModel.MinimumPurchaseAmount;
+                existingCouponModel.Discount = newCouponCodeModel.Discount;
+                existingCouponModel.IsActive = newCouponCodeModel.IsActive;
 
                 await _couponCommandsRepository.Update(existingCouponModel);
 
@@ -148,7 +169,17 @@ namespace BComm.PM.Services.Coupons
                     throw new Exception("Not a valid coupon code");
                 }
 
-                var discountAmount = Math.Round((amount * (couponModel.Discount / 100)), MidpointRounding.AwayFromZero);
+                if (couponModel.MinimumPurchaseAmount > 0 && !(couponModel.MinimumPurchaseAmount <= amount))
+                {
+                    throw new Exception("Not a valid coupon code");
+                }
+
+                var discountAmount = couponModel.Discount;
+
+                if (couponModel.DiscountType == CouponDiscountTypes.Percentage)
+                {
+                    discountAmount = Math.Round((amount * (couponModel.Discount / 100)), MidpointRounding.AwayFromZero);
+                }
 
                 return new Response()
                 {
