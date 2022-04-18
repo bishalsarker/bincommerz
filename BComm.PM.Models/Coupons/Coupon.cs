@@ -15,6 +15,12 @@ namespace BComm.PM.Models.Coupons
         public string Code { get; set; }
 
         [Required]
+        public CouponDiscountTypes DiscountType { get; set; }
+
+        [Required]
+        public double MinimumPurchaseAmount { get; set; }
+
+        [Required]
         public double Discount { get; set; }
 
         [Required]
@@ -22,5 +28,17 @@ namespace BComm.PM.Models.Coupons
 
         [Required]
         public string ShopId { get; set; }
+    }
+
+    public enum CouponDiscountTypes
+    {
+        Percentage = 1,
+        FixedAmount = 2
+    }
+
+    public enum CouponDiscountDurationTypes
+    {
+        NoDuration = 1,
+        FixedDuration = 2
     }
 }
