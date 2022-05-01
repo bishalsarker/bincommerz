@@ -6,6 +6,7 @@ using BComm.PM.Services.Coupons;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
+using BComm.PM.Services.ShopConfig;
 using BComm.PM.Services.Tags;
 using BComm.PM.Services.Templates;
 using BComm.PM.Services.Widgets;
@@ -35,6 +36,7 @@ namespace BComm.PM.Web.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITemplateService _templateService;
         private readonly IDeliveryChargeService _deliveryChargeService;
+        private readonly IShopConfigService _shopConfigService;
 
         public ShopController(
             IPageService pageService,
@@ -46,7 +48,8 @@ namespace BComm.PM.Web.Controllers
             IAuthService authService,
             ITemplateService templateService,
             IHttpContextAccessor httpContextAccessor,
-            IDeliveryChargeService deliveryChargeService)
+            IDeliveryChargeService deliveryChargeService,
+            IShopConfigService shopConfigService)
         {
             _pageService = pageService;
             _sliderService = sliderService;
@@ -58,6 +61,13 @@ namespace BComm.PM.Web.Controllers
             _httpContextAccessor = httpContextAccessor;
             _templateService = templateService;
             _deliveryChargeService = deliveryChargeService;
+            _shopConfigService = shopConfigService;
+        }
+
+        [HttpGet("config/app_urls")]
+        public async Task<IActionResult> GetAppUrls()
+        {
+            return Ok(await _shopConfigService.GetAppUrls());
         }
 
         [HttpGet("info")]

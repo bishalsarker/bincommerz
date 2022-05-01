@@ -8,6 +8,7 @@ using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
 using BComm.PM.Models.Tags;
 using BComm.PM.Models.Templates;
+using BComm.PM.Models.UrlMappings;
 using BComm.PM.Models.Widgets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -52,6 +53,8 @@ namespace BComm.PM.Repositories.Common
         public DbSet<Shop> Shops { get; set; }
 
         public DbSet<User> Users { get; set; }
+
+        public DbSet<UrlMappings> UrlMappings { get; set; }
 
 
         private readonly string _connectionString;
@@ -262,6 +265,21 @@ namespace BComm.PM.Repositories.Common
                .IsClustered(false);
 
             modelBuilder.Entity<User>()
+               .HasIndex(t => t.HashId)
+               .IsUnique(true)
+               .IsClustered(false);
+
+            modelBuilder.Entity<UrlMappings>()
+               .HasIndex(t => t.ShopId)
+               .IsUnique(false)
+               .IsClustered(false);
+
+            modelBuilder.Entity<UrlMappings>()
+               .HasIndex(t => t.UrlMapType)
+               .IsUnique(false)
+               .IsClustered(false);
+
+            modelBuilder.Entity<UrlMappings>()
                .HasIndex(t => t.HashId)
                .IsUnique(true)
                .IsClustered(false);

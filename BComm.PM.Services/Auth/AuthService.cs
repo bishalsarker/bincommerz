@@ -4,6 +4,7 @@ using BComm.PM.Dto.Common;
 using BComm.PM.Dto.Payloads;
 using BComm.PM.Models.Auth;
 using BComm.PM.Models.Images;
+using BComm.PM.Models.UrlMappings;
 using BComm.PM.Repositories.Common;
 using BComm.PM.Repositories.Queries;
 using BComm.PM.Services.Common;
@@ -31,6 +32,7 @@ namespace BComm.PM.Services.Auth
         private readonly ICommandsRepository<Image> _imagesCommandsRepository;
         private readonly IImagesQueryRepository _imagesQueryRepository;
         private readonly IImageUploadService _imageUploadService;
+        private readonly IUrlMappingsQueryRepository _urlMappingsQueryRepository;
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
         private readonly string _defaultLogoId = "default";
@@ -48,6 +50,7 @@ namespace BComm.PM.Services.Auth
             ICommandsRepository<Image> imagesCommandsRepository,
             IImagesQueryRepository imagesQueryRepository,
             IImageUploadService imageUploadService,
+            IUrlMappingsQueryRepository urlMappingsQueryRepository,
             IConfiguration configuration,
             IHostingEnvironment env,
             IMapper mapper)
@@ -60,6 +63,7 @@ namespace BComm.PM.Services.Auth
             _imagesCommandsRepository = imagesCommandsRepository;
             _imagesQueryRepository = imagesQueryRepository;
             _imageUploadService = imageUploadService;
+            _urlMappingsQueryRepository = urlMappingsQueryRepository;
             _mapper = mapper;
             _env = env;
             _hostURL = configuration.GetSection("HostURL").Value;

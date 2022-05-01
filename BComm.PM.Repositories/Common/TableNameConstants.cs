@@ -33,5 +33,6 @@ namespace BComm.PM.Repositories.Common
 
         public static readonly string ShopsTable = UserSchemaName + "." + "shops";
         public static readonly string UsersTable = UserSchemaName + "." + "users";
+        public static readonly string UrlMappingsTable = UserSchemaName + "." + "url_mappings";
     }
 }
