@@ -18,6 +18,13 @@ namespace BComm.PM.Models.UrlMappings
 
         [Required]
         public string Url { get; set; }
+
+        [Required]
+        public string Cname { get; set; }
+
+        public string CnameId { get; set; }
+
+        public string DnsId { get; set; }
     }
 
     public enum UrlMapTypes

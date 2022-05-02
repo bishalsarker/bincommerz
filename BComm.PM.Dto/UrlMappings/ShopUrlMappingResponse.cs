@@ -8,7 +8,7 @@ namespace BComm.PM.Dto.UrlMappings
     {
         public string AppUrl { get; set; }
 
-        public IEnumerable<UrlMappingResponse> Domains { get; set; }
+        public IEnumerable<DomainMappingResponse> Domains { get; set; }
 
         public string DomainDNSValue { get; set; }
     }

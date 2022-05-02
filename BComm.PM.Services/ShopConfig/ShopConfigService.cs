@@ -28,6 +28,9 @@ namespace BComm.PM.Services.ShopConfig
         private readonly string appDNSHost = "storepreview.bincommerz.com";
         private readonly string domainDNSHost = "storefront.bincommerz.com";
 
+        private readonly string storePreviewAppName = "bcomm-store-preview-paperbag";
+        private readonly string storeFrontAppName = "bcomm-store-front-paperbag";
+
         public ShopConfigService(
             IUrlMappingsQueryRepository urlMappingsQueryRepository,
             ICommandsRepository<UrlMappings> urlMappingsCommandRepository,
@@ -52,7 +55,7 @@ namespace BComm.PM.Services.ShopConfig
                 shopUrlMappingResponseModel.AppUrl = appUrl != null ? appUrl.Url : null;
 
                 var urlMappings = await _urlMappingsQueryRepository.GetUrlMappingsListByType(UrlMapTypes.Domain, shopId);
-                var urlMappingResponse = _mapper.Map<IEnumerable<UrlMappingResponse>>(urlMappings);
+                var urlMappingResponse = _mapper.Map<IEnumerable<DomainMappingResponse>>(urlMappings);
                 shopUrlMappingResponseModel.Domains = urlMappingResponse;
                 shopUrlMappingResponseModel.DomainDNSValue = domainDNSHost;
 
@@ -86,7 +89,9 @@ namespace BComm.PM.Services.ShopConfig
                 var shopModel = await _shopQueryRepository.GetShopById(shopId);
                 var userModel = await _userQueryRepository.GetById(shopModel.UserHashId);
 
-                var appUrl = await GenerateDNSName(userModel.UserName, appDNSHost);
+                var appDomain = userModel.UserName + ".bincommerz.com";
+                var herokuDomain = await GetDomainCname(storePreviewAppName, appDomain);
+                var appUrl = await GenerateDNSName(userModel.UserName, herokuDomain.cname);
 
                 var newUrlMapping = new UrlMappings()
                 {
@@ -94,6 +99,9 @@ namespace BComm.PM.Services.ShopConfig
                     CreatedOn = DateTime.UtcNow,
                     ShopId = shopId,
                     Url = appUrl.result.name,
+                    Cname = herokuDomain.cname,
+                    DnsId = appUrl.result.id,
+                    CnameId = herokuDomain.id,
                     UrlMapType = UrlMapTypes.AppUrl
                 };
 
@@ -126,12 +134,17 @@ namespace BComm.PM.Services.ShopConfig
                     throw new Exception("Domain already exists");
                 }
 
+                var herokuDomain = await GetDomainCname(storeFrontAppName, newDomainRequest.Url);
+
                 var newUrlMapping = new UrlMappings()
                 {
                     HashId = Guid.NewGuid().ToString("N"),
                     CreatedOn = DateTime.UtcNow,
                     ShopId = shopId,
                     Url = newDomainRequest.Url,
+                    Cname = herokuDomain.cname,
+                    CnameId = herokuDomain.id,
+                    DnsId = null,
                     UrlMapType = UrlMapTypes.Domain
                 };
 
@@ -164,6 +177,8 @@ namespace BComm.PM.Services.ShopConfig
                     throw new Exception("Domain doesn't exist");
                 }
 
+                await DeleteDomainCname(storeFrontAppName, existingDomain.CnameId);
+
                 await _urlMappingsCommandRepository.Delete(existingDomain);
 
                 return new Response()
@@ -187,6 +202,29 @@ namespace BComm.PM.Services.ShopConfig
             try
             {
                 var urlMappings = await _urlMappingsQueryRepository.GetAllUrlMappingsListByType(UrlMapTypes.AppUrl);
+                var urlMappingResponse = _mapper.Map<IEnumerable<UrlMappingResponse>>(urlMappings);
+
+                return new Response()
+                {
+                    Data = urlMappingResponse,
+                    IsSuccess = true
+                };
+            }
+            catch (Exception e)
+            {
+                return new Response()
+                {
+                    Message = "Error: " + e.Message,
+                    IsSuccess = false
+                };
+            }
+        }
+
+        public async Task<Response> GetDomainUrls()
+        {
+            try
+            {
+                var urlMappings = await _urlMappingsQueryRepository.GetAllUrlMappingsListByType(UrlMapTypes.Domain);
                 var urlMappingResponse = _mapper.Map<IEnumerable<UrlMappingResponse>>(urlMappings);
 
                 return new Response()
@@ -230,6 +268,57 @@ namespace BComm.PM.Services.ShopConfig
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             var dnsResponse = JsonSerializer.Deserialize<CloudflareDNSResponse>(content);
+
+            return dnsResponse;
+        }
+
+        private async Task<HerokuDomainResponse> GetDomainCname(string herokuApp, string domain)
+        {
+            var dnsRequest = new HerokuDomainRequest
+            {
+                hostname = domain,
+                sni_endpoint = null
+            };
+
+            var dnsData = JsonSerializer.Serialize(dnsRequest);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.heroku.com/apps/" + herokuApp + "/domains");
+            var mediaType = new MediaTypeWithQualityHeaderValue("application/vnd.heroku+json");
+            mediaType.Parameters.Add(new NameValueHeaderValue("version", "3"));
+            request.Headers.Accept.Add(mediaType);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "96247f0a-f52c-491e-a875-3c038b7ff712");
+            request.Content = new StringContent(dnsData, Encoding.UTF8);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            var response = await _httpClient.SendAsync(request);
+            // response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            var dnsResponse = JsonSerializer.Deserialize<HerokuDomainResponse>(content);
+
+            return dnsResponse;
+        }
+
+        private async Task<HerokuDomainResponse> DeleteDomainCname(string herokuApp, string domainId)
+        {
+            var dnsRequest = new HerokuDomainRequest
+            {
+                sni_endpoint = null
+            };
+
+            var dnsData = JsonSerializer.Serialize(dnsRequest);
+
+            var request = new HttpRequestMessage(HttpMethod.Delete, "https://api.heroku.com/apps/" + herokuApp + "/domains/" + domainId);
+            var mediaType = new MediaTypeWithQualityHeaderValue("application/vnd.heroku+json");
+            mediaType.Parameters.Add(new NameValueHeaderValue("version", "3"));
+            request.Headers.Accept.Add(mediaType);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "96247f0a-f52c-491e-a875-3c038b7ff712");
+            request.Content = new StringContent(dnsData, Encoding.UTF8);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            var dnsResponse = JsonSerializer.Deserialize<HerokuDomainResponse>(content);
 
             return dnsResponse;
         }

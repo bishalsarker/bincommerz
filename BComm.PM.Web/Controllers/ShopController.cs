@@ -70,6 +70,12 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _shopConfigService.GetAppUrls());
         }
 
+        [HttpGet("config/domains")]
+        public async Task<IActionResult> GetDomainUrls()
+        {
+            return Ok(await _shopConfigService.GetDomainUrls());
+        }
+
         [HttpGet("info")]
         public async Task<IActionResult> GetShopInfo([FromHeader] string shop_id)
         {

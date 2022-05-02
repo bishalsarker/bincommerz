@@ -4,12 +4,12 @@ using System.Text;
 
 namespace BComm.PM.Dto.UrlMappings
 {
-    public class UrlMappingResponse
+    public class DomainMappingResponse
     {
         public string Id { get; set; }
 
         public string Url { get; set; }
 
-        public string ShopId { get; set; }
+        public string DnsTarget { get; set; }
     }
 }

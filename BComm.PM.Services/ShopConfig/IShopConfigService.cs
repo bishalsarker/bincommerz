@@ -10,6 +10,7 @@ namespace BComm.PM.Services.ShopConfig
         Task<Response> AddDomain(UrlMappingPayload newDomainRequest, string shopId);
         Task<Response> DeleteDomain(string domainId);
         Task<Response> GetAppUrls();
+        Task<Response> GetDomainUrls();
         Task<Response> GetShopAllUrlMappings(string shopId);
     }
 }
