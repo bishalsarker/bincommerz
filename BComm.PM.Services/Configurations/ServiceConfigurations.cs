@@ -4,11 +4,13 @@ using BComm.PM.Services.Categories;
 using BComm.PM.Services.Common;
 using BComm.PM.Services.Coupons;
 using BComm.PM.Services.Mappings;
+using BComm.PM.Services.MethodAttributes;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
 using BComm.PM.Services.Reports;
 using BComm.PM.Services.ShopConfig;
+using BComm.PM.Services.Subscriptions;
 using BComm.PM.Services.Tags;
 using BComm.PM.Services.Templates;
 using BComm.PM.Services.Widgets;
@@ -45,6 +47,8 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<IDeliveryChargeService, DeliveryChargeService>();
             services.AddScoped<ICouponService, CouponService>();
             services.AddScoped<IShopConfigService, ShopConfigService>();
+            services.AddScoped<ISubscriptionService, SubscriptionService>();
+            services.AddScoped<SubscriptionCheckAttribute>();
         }
     }
 }

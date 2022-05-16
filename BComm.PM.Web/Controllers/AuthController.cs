@@ -9,7 +9,9 @@ using BComm.PM.Dto.Payloads;
 using BComm.PM.Dto.UrlMappings;
 using BComm.PM.Models.Auth;
 using BComm.PM.Services.Auth;
+using BComm.PM.Services.MethodAttributes;
 using BComm.PM.Services.ShopConfig;
+using BComm.PM.Services.Subscriptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,12 +25,18 @@ namespace BComm.PM.Web.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthService _authService;
         private readonly IShopConfigService _shopConfigService;
+        private readonly ISubscriptionService _subscriptionService;
 
-        public AuthController(IHttpContextAccessor httpContextAccessor, IAuthService authService, IShopConfigService shopConfigService)
+        public AuthController(
+            IHttpContextAccessor httpContextAccessor, 
+            IAuthService authService, 
+            IShopConfigService shopConfigService,
+            ISubscriptionService subscriptionService)
         {
             _httpContextAccessor = httpContextAccessor;
             _authService = authService;
             _shopConfigService = shopConfigService;
+            _subscriptionService = subscriptionService;
         }
 
         [HttpPost]
@@ -47,6 +55,7 @@ namespace BComm.PM.Web.Controllers
 
         [HttpGet("shopinfo")]
         [Authorize]
+        [ServiceFilter(typeof(SubscriptionCheckAttribute))]
         public async Task<IActionResult> GetShopInfo()
         {
             var claims = _httpContextAccessor.HttpContext.User.Claims;

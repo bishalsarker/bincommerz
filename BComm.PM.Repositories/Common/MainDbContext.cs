@@ -6,6 +6,7 @@ using BComm.PM.Models.Orders;
 using BComm.PM.Models.Pages;
 using BComm.PM.Models.Processes;
 using BComm.PM.Models.Products;
+using BComm.PM.Models.Subscriptions;
 using BComm.PM.Models.Tags;
 using BComm.PM.Models.Templates;
 using BComm.PM.Models.UrlMappings;
@@ -53,6 +54,8 @@ namespace BComm.PM.Repositories.Common
         public DbSet<Shop> Shops { get; set; }
 
         public DbSet<User> Users { get; set; }
+
+        public DbSet<Subscription> Subscriptions { get; set; }
 
         public DbSet<UrlMappings> UrlMappings { get; set; }
 
@@ -266,6 +269,16 @@ namespace BComm.PM.Repositories.Common
 
             modelBuilder.Entity<User>()
                .HasIndex(t => t.HashId)
+               .IsUnique(true)
+               .IsClustered(false);
+
+            modelBuilder.Entity<Subscription>()
+               .HasIndex(t => t.HashId)
+               .IsUnique(true)
+               .IsClustered(false);
+
+            modelBuilder.Entity<Subscription>()
+               .HasIndex(t => t.UserId)
                .IsUnique(true)
                .IsClustered(false);
 
