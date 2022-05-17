@@ -1,4 +1,6 @@
-﻿using BComm.PM.Dto.Common;
+﻿using AutoMapper;
+using BComm.PM.Dto;
+using BComm.PM.Dto.Common;
 using BComm.PM.Models.Subscriptions;
 using BComm.PM.Repositories.Queries;
 using System;
@@ -12,13 +14,16 @@ namespace BComm.PM.Services.Subscriptions
     {
         private readonly ISubscriptionQueryRepository _subscriptionQueryRepository;
         private readonly IShopQueryRepository _shopQueryRepository;
+        private readonly IMapper _mapper;
 
         public SubscriptionService(
             ISubscriptionQueryRepository subscriptionQueryRepository,
-            IShopQueryRepository shopQueryRepository)
+            IShopQueryRepository shopQueryRepository,
+            IMapper mapper)
         {
             _subscriptionQueryRepository = subscriptionQueryRepository;
             _shopQueryRepository = shopQueryRepository;
+            _mapper = mapper;
         }
 
         public async Task<Subscription> GetSubscription(string shopId)
@@ -28,5 +33,36 @@ namespace BComm.PM.Services.Subscriptions
 
             return subscription;
         }
+
+        public async Task<Response> GetSubscriptionStatus(string shopId)
+        {
+            try
+            {
+                var shop = await _shopQueryRepository.GetShopById(shopId);
+                var subscription = await _subscriptionQueryRepository.GetSubscription(shop.UserHashId);
+
+                if (subscription == null)
+                {
+                    throw new Exception("Invalid subscription");
+                }
+
+                var subResponse = _mapper.Map<SubscriptionResponse>(subscription);
+
+                return new Response()
+                {
+                    Data = subResponse,
+                    IsSuccess = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response()
+                {
+                    Message = "Category Orders Couldn't Be Updated",
+                    IsSuccess = false
+                };
+            }
+        }
+
     }
 }

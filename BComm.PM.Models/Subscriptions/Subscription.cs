@@ -32,9 +32,7 @@ namespace BComm.PM.Models.Subscriptions
 
         public int IntervalInMonths { get; set; }
 
-        public int NumberOfInvoices { get; set; }
-
-        public int NumberOfChargedInvoices { get; set; }
+        public DateTime ValidTill { get; set; }
 
         public DateTime NextPaymentOn { get; set; }
     }
