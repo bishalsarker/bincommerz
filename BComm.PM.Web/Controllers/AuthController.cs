@@ -55,7 +55,7 @@ namespace BComm.PM.Web.Controllers
 
         [HttpGet("shopinfo")]
         [Authorize]
-        [ServiceFilter(typeof(SubscriptionCheckAttribute))]
+        // [ServiceFilter(typeof(SubscriptionCheckAttribute))]
         public async Task<IActionResult> GetShopInfo()
         {
             var claims = _httpContextAccessor.HttpContext.User.Claims;

@@ -48,6 +48,11 @@ namespace BComm.PM.Services.Subscriptions
 
                 var subResponse = _mapper.Map<SubscriptionResponse>(subscription);
 
+                if (!subscription.IsActive)
+                {
+                    subResponse.CanAddCustomDomain = false;
+                }
+
                 return new Response()
                 {
                     Data = subResponse,

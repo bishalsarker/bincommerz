@@ -10,6 +10,10 @@ namespace BComm.PM.Dto
 
         public string PlanName { get; set; }
 
+        public int ProductEntryLimit { get; set; }
+
+        public bool CanAddCustomDomain { get; set; }
+
         public DateTime ValidTill { get; set; }
 
         public DateTime NextPaymentOn { get; set; }
