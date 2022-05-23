@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Dto.Template;
 using BComm.PM.Services.Common;
+using BComm.PM.Services.MethodAttributes;
 using BComm.PM.Services.Templates;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +11,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("templates")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class TemplateController : ControllerBase
     {
         private readonly ITemplateService _templateService;

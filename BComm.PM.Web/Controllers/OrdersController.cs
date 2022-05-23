@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Dto.Payloads;
 using BComm.PM.Services.Common;
+using BComm.PM.Services.MethodAttributes;
 using BComm.PM.Services.Orders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +11,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("orders")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;

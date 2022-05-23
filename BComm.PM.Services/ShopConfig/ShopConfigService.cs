@@ -20,6 +20,7 @@ namespace BComm.PM.Services.ShopConfig
         private readonly ICommandsRepository<UrlMappings> _urlMappingsCommandRepository;
         private readonly IUrlMappingsQueryRepository _urlMappingsQueryRepository;
         private readonly IShopQueryRepository _shopQueryRepository;
+        private readonly ISubscriptionQueryRepository _subscriptionQueryRepository;
         private readonly IUserQueryRepository _userQueryRepository;
         private readonly IMapper _mapper;
 
@@ -35,12 +36,14 @@ namespace BComm.PM.Services.ShopConfig
             IUrlMappingsQueryRepository urlMappingsQueryRepository,
             ICommandsRepository<UrlMappings> urlMappingsCommandRepository,
             IShopQueryRepository shopsQueryRepository,
+            ISubscriptionQueryRepository subscriptionQueryRepository,
             IUserQueryRepository userQueryRepository,
             IMapper mapper)
         {
             _urlMappingsQueryRepository = urlMappingsQueryRepository;
             _urlMappingsCommandRepository = urlMappingsCommandRepository;
             _shopQueryRepository = shopsQueryRepository;
+            _subscriptionQueryRepository = subscriptionQueryRepository;
             _userQueryRepository = userQueryRepository;
             _mapper = mapper;
         }
@@ -127,6 +130,14 @@ namespace BComm.PM.Services.ShopConfig
         {
             try
             {
+                var shop = await _shopQueryRepository.GetShopById(shopId);
+                var subscription = await _subscriptionQueryRepository.GetSubscription(shop.UserHashId);
+
+                if (!subscription.CanAddCustomDomain)
+                {
+                    throw new Exception("Not allowed for this action");
+                }
+
                 var existingDomain = await _urlMappingsQueryRepository.GetDomainByName(newDomainRequest.Url, shopId);
 
                 if (existingDomain != null)

@@ -12,6 +12,8 @@ namespace BComm.PM.Dto
 
         public int ProductEntryLimit { get; set; }
 
+        public int TotalProducts { get; set; }
+
         public bool CanAddCustomDomain { get; set; }
 
         public DateTime ValidTill { get; set; }

@@ -55,7 +55,6 @@ namespace BComm.PM.Web.Controllers
 
         [HttpGet("shopinfo")]
         [Authorize]
-        // [ServiceFilter(typeof(SubscriptionCheckAttribute))]
         public async Task<IActionResult> GetShopInfo()
         {
             var claims = _httpContextAccessor.HttpContext.User.Claims;
@@ -76,6 +75,7 @@ namespace BComm.PM.Web.Controllers
 
         [HttpPost("domains")]
         [Authorize]
+        [ServiceFilter(typeof(SubscriptionCheckAttribute))]
         public async Task<IActionResult> AddShopDomain(UrlMappingPayload newDomainRequest)
         {
             var claims = _httpContextAccessor.HttpContext.User.Claims;
@@ -86,6 +86,7 @@ namespace BComm.PM.Web.Controllers
 
         [HttpDelete("domains/delete/{domainId}")]
         [Authorize]
+        [ServiceFilter(typeof(SubscriptionCheckAttribute))]
         public async Task<IActionResult> DeleteShopDomain(string domainId)
         {
             var claims = _httpContextAccessor.HttpContext.User.Claims;

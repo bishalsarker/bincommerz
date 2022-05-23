@@ -14,15 +14,18 @@ namespace BComm.PM.Services.Subscriptions
     {
         private readonly ISubscriptionQueryRepository _subscriptionQueryRepository;
         private readonly IShopQueryRepository _shopQueryRepository;
+        private readonly IProductQueryRepository _productQueryRepository;
         private readonly IMapper _mapper;
 
         public SubscriptionService(
             ISubscriptionQueryRepository subscriptionQueryRepository,
+            IProductQueryRepository productQueryRepository,
             IShopQueryRepository shopQueryRepository,
             IMapper mapper)
         {
             _subscriptionQueryRepository = subscriptionQueryRepository;
             _shopQueryRepository = shopQueryRepository;
+            _productQueryRepository = productQueryRepository;
             _mapper = mapper;
         }
 
@@ -47,6 +50,7 @@ namespace BComm.PM.Services.Subscriptions
                 }
 
                 var subResponse = _mapper.Map<SubscriptionResponse>(subscription);
+                subResponse.TotalProducts = await _productQueryRepository.GetProductCount(shopId);
 
                 if (!subscription.IsActive)
                 {
