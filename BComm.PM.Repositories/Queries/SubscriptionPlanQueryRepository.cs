@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BComm.PM.Repositories.Queries
 {
-    public class SubscriptionPlanQueryRepository
+    public class SubscriptionPlanQueryRepository : ISubscriptionPlanQueryRepository
     {
         private readonly IEnumerable<Plan> _plans = new List<Plan>()
         {
@@ -17,7 +17,8 @@ namespace BComm.PM.Repositories.Queries
                 PlanName = "Free",
                 CanAddCustomDomain = false,
                 ProductEntryLimit = 30,
-                DurationType = DurationTypes.Monthly
+                DurationType = DurationTypes.Monthly,
+                SubscriptionType = SubscriptionTypes.Free
             },
             new Plan()
             {
@@ -25,14 +26,16 @@ namespace BComm.PM.Repositories.Queries
                 PlanName = "Basic",
                 CanAddCustomDomain = true,
                 ProductEntryLimit = 500,
-                DurationType = DurationTypes.Monthly
+                DurationType = DurationTypes.Monthly,
+                SubscriptionType = SubscriptionTypes.Paid
             },
             new Plan() {
                 HashId = "878dfe2e45354dd5b60c38d34fce3177",
                 PlanName = "Enterprise",
                 CanAddCustomDomain = true,
                 ProductEntryLimit = 0,
-                DurationType = DurationTypes.Monthly
+                DurationType = DurationTypes.Monthly,
+                SubscriptionType = SubscriptionTypes.Paid
             }
         };
 

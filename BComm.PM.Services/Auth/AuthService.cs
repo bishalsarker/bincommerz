@@ -4,6 +4,7 @@ using BComm.PM.Dto.Common;
 using BComm.PM.Dto.Payloads;
 using BComm.PM.Models.Auth;
 using BComm.PM.Models.Images;
+using BComm.PM.Models.Subscriptions;
 using BComm.PM.Models.UrlMappings;
 using BComm.PM.Repositories.Common;
 using BComm.PM.Repositories.Queries;
@@ -26,6 +27,8 @@ namespace BComm.PM.Services.Auth
     {
         private readonly ICommandsRepository<User> _userCommandsRepository;
         private readonly ICommandsRepository<Shop> _shopcommandsRepository;
+        private readonly ICommandsRepository<Subscription> _subscriptionCommandsRepository;
+        private readonly ISubscriptionPlanQueryRepository _subscriptionPLanQueryRepository;
         private readonly IClientsQueryRepository _clientsQueryRepository;
         private readonly IUserQueryRepository _userQueryRepository;
         private readonly IShopQueryRepository _shopsQueryRepository;
@@ -44,6 +47,8 @@ namespace BComm.PM.Services.Auth
         public AuthService(
             ICommandsRepository<User> userCommandsRepository,
             ICommandsRepository<Shop> shopcommandsRepository,
+            ICommandsRepository<Subscription> subscriptionCommandsRepository,
+            ISubscriptionPlanQueryRepository subscriptionPLanQueryRepository,
             IClientsQueryRepository clientsQueryRepository,
             IShopQueryRepository shopsQueryRepository,
             IUserQueryRepository userQueryRepository,
@@ -57,6 +62,8 @@ namespace BComm.PM.Services.Auth
         {
             _userCommandsRepository = userCommandsRepository;
             _shopcommandsRepository = shopcommandsRepository;
+            _subscriptionCommandsRepository = subscriptionCommandsRepository;
+            _subscriptionPLanQueryRepository = subscriptionPLanQueryRepository;
             _clientsQueryRepository = clientsQueryRepository;
             _userQueryRepository = userQueryRepository;
             _shopsQueryRepository = shopsQueryRepository;
@@ -112,14 +119,33 @@ namespace BComm.PM.Services.Auth
                 newAccountModel.IsActive = true;
                 newAccountModel.CreatedOn = DateTime.UtcNow;
 
-                newAccountModel.SubscriptionPlan = SubscriptionPlans.Free;
-
                 await _userCommandsRepository.Add(newAccountModel);
+
+                var subscriptionPlan = await _subscriptionPLanQueryRepository.GetPlan("fe259c4892564ea5b14710d332dae053");
+
+                var subscription = new Subscription()
+                {
+                    UserId = newAccountModel.HashId,
+                    PlanId = subscriptionPlan.HashId,
+                    PlanName = subscriptionPlan.PlanName,
+                    ProductEntryLimit = subscriptionPlan.ProductEntryLimit,
+                    CanAddCustomDomain = subscriptionPlan.CanAddCustomDomain,
+                    IsActive = true,
+                    Status = SubscriptionStatus.Active,
+                    DurationType = subscriptionPlan.DurationType,
+                    SubscriptionType = subscriptionPlan.SubscriptionType,
+                    IntervalInMonths = 120,
+                    ValidTill = DateTime.UtcNow.AddYears(10),
+                    NextPaymentOn = DateTime.UtcNow.AddYears(10),
+                    HashId = Guid.NewGuid().ToString("N")
+                };
+
+                await _subscriptionCommandsRepository.Add(subscription);
 
                 var newShopModel = new Shop();
                 newShopModel.HashId = Guid.NewGuid().ToString("N");
-                newShopModel.Name = "Bincommerz";
-                newShopModel.Description = "This is a demo shop";
+                newShopModel.Name = newAccountModel.UserName;
+                newShopModel.Description = "Welcome to my shop!";
                 newShopModel.Logo = "default";
 
                 var rnd = new Random();

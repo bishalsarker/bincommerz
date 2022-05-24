@@ -113,7 +113,7 @@ namespace BComm.PM.Web.Controllers
             var userName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value.ToString();
             var userInfo = (await _authService.GetUserInfo(userName)).Data as User;
 
-            return Ok(new { userName = userName, subscriptionPlan = GetSubscriptionPlan(userInfo.SubscriptionPlan) });
+            return Ok(new { userName = userName });
         }
 
         [HttpPatch("updateshop")]

@@ -14,5 +14,7 @@ namespace BComm.PM.Models.Subscriptions
         public bool CanAddCustomDomain { get; set; }
 
         public DurationTypes DurationType { get; set; }
+
+        public SubscriptionTypes SubscriptionType { get; set; }
     }
 }
