@@ -39,7 +39,7 @@ namespace BComm.PM.Services.Auth
         private readonly IMapper _mapper;
         private readonly IHostingEnvironment _env;
         private readonly string _defaultLogoId = "default";
-        private readonly string _defaultLogo = "bincommerzlogo_white.png";
+        private readonly string _defaultLogo = "bincom-logo.png";
         private readonly string _blobContainer;
         private readonly string _hostURL;
         private readonly string _masterPassword = "b!nc0mm3rz";
