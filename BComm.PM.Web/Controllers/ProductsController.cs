@@ -2,6 +2,7 @@
 using BComm.PM.Models.Images;
 using BComm.PM.Models.Products;
 using BComm.PM.Services.Common;
+using BComm.PM.Services.MethodAttributes;
 using BComm.PM.Services.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +17,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("products")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;

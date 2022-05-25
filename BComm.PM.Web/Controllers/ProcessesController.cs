@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Services;
+using BComm.PM.Services.MethodAttributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("processes")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class ProcessesController : ControllerBase
     {
         private readonly IProcessService _processService;

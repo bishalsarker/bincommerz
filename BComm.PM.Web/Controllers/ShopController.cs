@@ -6,6 +6,7 @@ using BComm.PM.Services.Coupons;
 using BComm.PM.Services.Orders;
 using BComm.PM.Services.Pages;
 using BComm.PM.Services.Products;
+using BComm.PM.Services.ShopConfig;
 using BComm.PM.Services.Tags;
 using BComm.PM.Services.Templates;
 using BComm.PM.Services.Widgets;
@@ -16,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BComm.PM.Web.Controllers
@@ -35,6 +37,7 @@ namespace BComm.PM.Web.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITemplateService _templateService;
         private readonly IDeliveryChargeService _deliveryChargeService;
+        private readonly IShopConfigService _shopConfigService;
 
         public ShopController(
             IPageService pageService,
@@ -46,7 +49,8 @@ namespace BComm.PM.Web.Controllers
             IAuthService authService,
             ITemplateService templateService,
             IHttpContextAccessor httpContextAccessor,
-            IDeliveryChargeService deliveryChargeService)
+            IDeliveryChargeService deliveryChargeService,
+            IShopConfigService shopConfigService)
         {
             _pageService = pageService;
             _sliderService = sliderService;
@@ -58,6 +62,19 @@ namespace BComm.PM.Web.Controllers
             _httpContextAccessor = httpContextAccessor;
             _templateService = templateService;
             _deliveryChargeService = deliveryChargeService;
+            _shopConfigService = shopConfigService;
+        }
+
+        [HttpGet("config/app_urls")]
+        public async Task<IActionResult> GetAppUrls()
+        {
+            return Ok(await _shopConfigService.GetAppUrls());
+        }
+
+        [HttpGet("config/domains")]
+        public async Task<IActionResult> GetDomainUrls()
+        {
+            return Ok(await _shopConfigService.GetDomainUrls());
         }
 
         [HttpGet("info")]
@@ -104,15 +121,15 @@ namespace BComm.PM.Web.Controllers
         }
 
         [HttpGet("coupon/apply/{couponCode}/{amount}")]
-        public async Task<IActionResult> CheckCouponValidity(string couponCode, double amount, [FromHeader] string shop_id)
+        public async Task<IActionResult> CheckCouponValidity(string couponCode, double amount, [FromHeader] string shop_key)
         {
-            return Ok(await _couponService.GetCouponDiscount(couponCode, amount, shop_id));
+            return Ok(await _couponService.GetCouponDiscount(couponCode, amount, GetShopIdFromHeader(shop_key)));
         }
 
         [HttpPost("order/addnew")]
-        public async Task<IActionResult> AddNewOrder(OrderPayload newOrderRequest, [FromHeader] string shop_id)
+        public async Task<IActionResult> AddNewOrder(OrderPayload newOrderRequest, [FromHeader] string shop_key)
         {
-            return Ok(await _orderService.AddNewOrder(newOrderRequest, shop_id));
+            return Ok(await _orderService.AddNewOrder(newOrderRequest, GetShopIdFromHeader(shop_key)));
         }
 
         [HttpGet("order/track/{order_id}")]
@@ -150,6 +167,12 @@ namespace BComm.PM.Web.Controllers
         public async Task<IActionResult> GetTemplate([FromHeader] string shop_id)
         {
             return Ok(await _templateService.GetDefaultTemplate(shop_id));
+        }
+
+        private string GetShopIdFromHeader(string shop_key)
+        {
+            var data = Convert.FromBase64String(shop_key);
+            return Encoding.UTF8.GetString(data);
         }
     }
 }

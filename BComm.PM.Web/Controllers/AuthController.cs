@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 using BComm.PM.Dto.Auth;
 using BComm.PM.Dto.Common;
 using BComm.PM.Dto.Payloads;
+using BComm.PM.Dto.UrlMappings;
 using BComm.PM.Models.Auth;
 using BComm.PM.Services.Auth;
+using BComm.PM.Services.MethodAttributes;
+using BComm.PM.Services.ShopConfig;
+using BComm.PM.Services.Subscriptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +24,19 @@ namespace BComm.PM.Web.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthService _authService;
+        private readonly IShopConfigService _shopConfigService;
+        private readonly ISubscriptionService _subscriptionService;
 
-        public AuthController(IHttpContextAccessor httpContextAccessor, IAuthService authService)
+        public AuthController(
+            IHttpContextAccessor httpContextAccessor, 
+            IAuthService authService, 
+            IShopConfigService shopConfigService,
+            ISubscriptionService subscriptionService)
         {
             _httpContextAccessor = httpContextAccessor;
             _authService = authService;
+            _shopConfigService = shopConfigService;
+            _subscriptionService = subscriptionService;
         }
 
         [HttpPost]
@@ -51,6 +63,48 @@ namespace BComm.PM.Web.Controllers
             return Ok(await _authService.GetShopInfo(shopId));
         }
 
+        [HttpGet("domains")]
+        [Authorize]
+        public async Task<IActionResult> GetShopDomains()
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+
+            return Ok(await _shopConfigService.GetShopAllUrlMappings(shopId));
+        }
+
+        [HttpPost("domains")]
+        [Authorize]
+        [ServiceFilter(typeof(SubscriptionCheckAttribute))]
+        public async Task<IActionResult> AddShopDomain(UrlMappingPayload newDomainRequest)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+
+            return Ok(await _shopConfigService.AddDomain(newDomainRequest, shopId));
+        }
+
+        [HttpDelete("domains/delete/{domainId}")]
+        [Authorize]
+        [ServiceFilter(typeof(SubscriptionCheckAttribute))]
+        public async Task<IActionResult> DeleteShopDomain(string domainId)
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+
+            return Ok(await _shopConfigService.DeleteDomain(domainId));
+        }
+
+        [HttpPost("domains/app_url")]
+        [Authorize]
+        public async Task<IActionResult> AddAppUrl()
+        {
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            var shopId = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+
+            return Ok(await _shopConfigService.AddAppUrl(shopId));
+        }
+
         [HttpGet("userinfo")]
         [Authorize]
         public async Task<IActionResult> GetUserInfo()
@@ -59,7 +113,7 @@ namespace BComm.PM.Web.Controllers
             var userName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value.ToString();
             var userInfo = (await _authService.GetUserInfo(userName)).Data as User;
 
-            return Ok(new { userName = userName, subscriptionPlan = GetSubscriptionPlan(userInfo.SubscriptionPlan) });
+            return Ok(new { userName = userName });
         }
 
         [HttpPatch("updateshop")]

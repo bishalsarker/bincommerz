@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Dto.Widgets;
 using BComm.PM.Services.Common;
+using BComm.PM.Services.MethodAttributes;
 using BComm.PM.Services.Widgets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("widgets/sliders/")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class SliderController : ControllerBase
     {
         private readonly ISliderService _sliderService;

@@ -1,6 +1,7 @@
 ﻿using BComm.PM.Dto.Payloads;
 using BComm.PM.Services.Common;
 using BComm.PM.Services.Coupons;
+using BComm.PM.Services.MethodAttributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("coupons")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class CouponController : ControllerBase
     {
         private readonly ICouponService _couponService;

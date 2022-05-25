@@ -1,5 +1,6 @@
 ﻿using BComm.PM.Dto.Payloads;
 using BComm.PM.Services.Common;
+using BComm.PM.Services.MethodAttributes;
 using BComm.PM.Services.Orders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +14,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("orders/settings/delivery-charge")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class DeliveryChargeController : ControllerBase
     {
         private readonly IDeliveryChargeService _deliveryChargeService;

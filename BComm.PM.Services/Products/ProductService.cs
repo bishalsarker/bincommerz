@@ -22,6 +22,7 @@ namespace BComm.PM.Services.Products
 {
     public class ProductService : IProductService
     {
+        private readonly ISubscriptionQueryRepository _subscriptionQueryRepository;
         private readonly ICommandsRepository<Product> _productCommandsRepository;
         private readonly ICommandsRepository<ProductTags> _productTagsCommandsRepository;
         private readonly ICommandsRepository<Image> _imagesCommandsRepository;
@@ -36,6 +37,7 @@ namespace BComm.PM.Services.Products
         private readonly IHostingEnvironment _env;
 
         public ProductService(
+            ISubscriptionQueryRepository subscriptionQueryRepository,
             ICommandsRepository<Product> productCommandsRepository,
             ICommandsRepository<ProductTags> productTagsCommandsRepository,
             ICommandsRepository<Image> imagesCommandsRepository,
@@ -49,6 +51,7 @@ namespace BComm.PM.Services.Products
             IMapper mapper,
             IHostingEnvironment env)
         {
+            _subscriptionQueryRepository = subscriptionQueryRepository;
             _productCommandsRepository = productCommandsRepository;
             _productTagsCommandsRepository = productTagsCommandsRepository;
             _imagesCommandsRepository = imagesCommandsRepository;
@@ -67,6 +70,15 @@ namespace BComm.PM.Services.Products
         {
             try
             {
+                var shop = await _shopQueryRepository.GetShopById(shopId);
+                var subscription = await _subscriptionQueryRepository.GetSubscription(shop.UserHashId);
+                var totalProduct = await _productQueryRepository.GetProductCount(shopId);
+
+                if (subscription.ProductEntryLimit > 0 && totalProduct > subscription.ProductEntryLimit)
+                {
+                    throw new Exception("Product limit reached");
+                }
+
                 var productModel = _mapper.Map<Product>(newProductRequest);
                 productModel.HashId = Guid.NewGuid().ToString("N");
                 productModel.ShopId = shopId;

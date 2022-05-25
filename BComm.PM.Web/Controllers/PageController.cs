@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Dto.Payloads;
+using BComm.PM.Services.MethodAttributes;
 using BComm.PM.Services.Pages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +14,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("pages")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class PageController : ControllerBase
     {
         private readonly IPageService _pageService;

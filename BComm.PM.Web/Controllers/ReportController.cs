@@ -1,4 +1,5 @@
-﻿using BComm.PM.Services.Reports;
+﻿using BComm.PM.Services.MethodAttributes;
+using BComm.PM.Services.Reports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("reports")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;

@@ -4,14 +4,16 @@ using BComm.PM.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BComm.PM.Repositories.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    partial class MainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220426144641_UrlMappingsTableAdded")]
+    partial class UrlMappingsTableAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,6 +106,9 @@ namespace BComm.PM.Repositories.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SubscriptionPlan")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -699,71 +704,6 @@ namespace BComm.PM.Repositories.Migrations
                     b.ToTable("products", "bcomm_pm");
                 });
 
-            modelBuilder.Entity("BComm.PM.Models.Subscriptions.Subscription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("CanAddCustomDomain")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DurationType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("HashId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("IntervalInMonths")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("NextPaymentOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PlanId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PlanName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductEntryLimit")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubscriptionType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ValidTill")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HashId")
-                        .IsUnique()
-                        .IsClustered(false);
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .IsClustered(false);
-
-                    b.ToTable("subscriptions", "bcomm_user");
-                });
-
             modelBuilder.Entity("BComm.PM.Models.Tags.ProductTags", b =>
                 {
                     b.Property<int>("Id")
@@ -875,18 +815,8 @@ namespace BComm.PM.Repositories.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Cname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CnameId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("DnsId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HashId")
                         .IsRequired()
@@ -910,9 +840,11 @@ namespace BComm.PM.Repositories.Migrations
                         .IsClustered(false);
 
                     b.HasIndex("ShopId")
+                        .IsUnique()
                         .IsClustered(false);
 
                     b.HasIndex("UrlMapType")
+                        .IsUnique()
                         .IsClustered(false);
 
                     b.ToTable("url_mappings", "bcomm_user");

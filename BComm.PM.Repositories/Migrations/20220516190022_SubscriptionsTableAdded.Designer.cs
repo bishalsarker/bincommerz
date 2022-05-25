@@ -4,14 +4,16 @@ using BComm.PM.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BComm.PM.Repositories.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    partial class MainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220516190022_SubscriptionsTableAdded")]
+    partial class SubscriptionsTableAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,6 +106,9 @@ namespace BComm.PM.Repositories.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SubscriptionPlan")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -728,6 +733,12 @@ namespace BComm.PM.Repositories.Migrations
                     b.Property<DateTime>("NextPaymentOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("NumberOfChargedInvoices")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberOfInvoices")
+                        .HasColumnType("int");
+
                     b.Property<string>("PlanId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -747,9 +758,6 @@ namespace BComm.PM.Repositories.Migrations
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ValidTill")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

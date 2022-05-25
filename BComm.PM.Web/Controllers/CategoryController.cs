@@ -2,6 +2,7 @@
 using BComm.PM.Dto.Categories;
 using BComm.PM.Services.Categories;
 using BComm.PM.Services.Common;
+using BComm.PM.Services.MethodAttributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace BComm.PM.Web.Controllers
 {
     [Route("categories")]
     [ApiController]
+    [ServiceFilter(typeof(SubscriptionCheckAttribute))]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;

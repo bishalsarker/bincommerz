@@ -22,8 +22,6 @@ namespace BComm.PM.Models.Auth
         public bool IsEmailVerified { get; set; }
 
         public bool IsActive { get; set; }
-
-        public SubscriptionPlans SubscriptionPlan { get; set; }
     }
 
     public enum SubscriptionPlans
