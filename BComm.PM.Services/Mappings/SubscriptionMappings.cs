@@ -11,7 +11,9 @@ namespace BComm.PM.Services.Mappings
     {
         public SubscriptionMappings()
         {
-            CreateMap<Subscription, SubscriptionResponse>();
+            CreateMap<Subscription, SubscriptionResponse>()
+            .ForMember(dest => dest.Id,
+            opt => opt.MapFrom(src => src.HashId));
         }
     }
 }

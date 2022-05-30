@@ -297,7 +297,7 @@ namespace BComm.PM.Services.ShopConfig
             var mediaType = new MediaTypeWithQualityHeaderValue("application/vnd.heroku+json");
             mediaType.Parameters.Add(new NameValueHeaderValue("version", "3"));
             request.Headers.Accept.Add(mediaType);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "96247f0a-f52c-491e-a875-3c038b7ff712");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "60aa4fce-9b93-4c96-8ae3-6c7b87f4ea78");
             request.Content = new StringContent(dnsData, Encoding.UTF8);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 

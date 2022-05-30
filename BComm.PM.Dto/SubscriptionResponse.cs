@@ -6,6 +6,8 @@ namespace BComm.PM.Dto
 {
     public class SubscriptionResponse
     {
+        public string Id { get; set; }
+
         public bool IsActive { get; set; }
 
         public string PlanName { get; set; }
