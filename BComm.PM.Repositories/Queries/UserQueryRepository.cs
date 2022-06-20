@@ -61,5 +61,18 @@ namespace BComm.PM.Repositories.Queries
                 return result.FirstOrDefault();
             }
         }
+
+        public async Task<IEnumerable<User>> GetAllUsers()
+        {
+            var query = new StringBuilder()
+                    .AppendFormat("select * from {0}",
+                    TableNameConstants.UsersTable)
+                    .ToString();
+
+            using (IDbConnection conn = new SqlConnection(_connectionString))
+            {
+                return await conn.QueryAsync<User>(query);
+            }
+        }
     }
 }

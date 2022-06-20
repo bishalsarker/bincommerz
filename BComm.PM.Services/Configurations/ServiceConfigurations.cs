@@ -1,4 +1,5 @@
 ﻿using BComm.PM.Repositories.Common;
+using BComm.PM.Services.Admin;
 using BComm.PM.Services.Auth;
 using BComm.PM.Services.Categories;
 using BComm.PM.Services.Common;
@@ -48,6 +49,7 @@ namespace BComm.PM.Services.Configurations
             services.AddScoped<ICouponService, CouponService>();
             services.AddScoped<IShopConfigService, ShopConfigService>();
             services.AddScoped<ISubscriptionService, SubscriptionService>();
+            services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<SubscriptionCheckAttribute>();
         }
     }
