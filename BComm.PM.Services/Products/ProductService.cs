@@ -337,7 +337,7 @@ namespace BComm.PM.Services.Products
 
             if (sortBy.Equals("newest"))
             {
-                sortCol = "AddedOn";
+                sortCol = "\"AddedOn\"";
                 sortDirection = "desc";
             }
 
