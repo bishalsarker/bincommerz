@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BComm.PM.Web.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("account")]
     public class AccountController : Controller
     {

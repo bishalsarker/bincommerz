@@ -2,6 +2,7 @@
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -22,12 +23,12 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<DeliveryCharge> GetDeliveryChargeById(string deliveryChargeId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * " +
                     "from {0} " +
-                    "where {0}.HashId=@deliverychargeid",
+                    "where {0}.\"HashId\"=@deliverychargeid",
                     TableNameConstants.DeliveryChargesTable)
                     .ToString();
 
@@ -39,12 +40,12 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<DeliveryCharge>> GetAllDeliveryCharges(string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Title, {0}.Amount " +
+                    .AppendFormat("select {0}.\"HashId\", {0}.\"Title\", {0}.\"Amount\" " +
                     "from {0} " +
-                    "where {0}.ShopId=@shopid",
+                    "where {0}.\"ShopId\"=@shopid",
                     TableNameConstants.DeliveryChargesTable)
                     .ToString();
 
