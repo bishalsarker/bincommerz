@@ -3,6 +3,7 @@ using BComm.PM.Models.Tags;
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -23,10 +24,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<int> GetProductCount(string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select count(Id) from {0} where ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .AppendFormat("select count(\"Id\") from {0} where \"ShopId\"=@shopid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 return await conn.ExecuteScalarAsync<int>(query, new { @shopid = shopId });
@@ -35,11 +36,11 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Product>> GetAllProducts(string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select {0}.* " +
-                    "from {0} where {0}.ShopId=@shopid",
+                    "from {0} where {0}.\"ShopId\"=@shopid",
                     TableNameConstants.ProductsTable)
                     .ToString();
 
@@ -49,11 +50,11 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Product>> GetOutOfStockProducts(string shopId, double reodrerLevel)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select HashId, Name, StockQuantity " +
-                    "from {0} where ShopId=@shopid and StockQuantity <= @reorderlevel",
+                    .AppendFormat("select \"HashId\", \"Name\", \"StockQuantity\" " +
+                    "from {0} where \"ShopId\"=@shopid and \"StockQuantity\" <= @reorderlevel",
                     TableNameConstants.ProductsTable)
                     .ToString();
 
@@ -65,36 +66,37 @@ namespace BComm.PM.Repositories.Queries
             string shopId, IEnumerable<string> tagList, IEnumerable<string> ignoredProducts, 
             string sortCol, string sortOrder, int offset, int rows, string searchQuery)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
-                    "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
+                    .AppendFormat("select {0}.\"HashId\", {0}.\"Name\", {0}.\"Price\", {0}.\"Discount\", {0}.\"StockQuantity\", " +
+                    "{1}.\"Directory\" as ImageDirectory, {1}.\"ThumbnailImage\" as ImageUrl " +
                     "from {0} " +
-                    "left join {1} on {0}.ImageUrl={1}.HashId " +
-                    "where {0}.ShopId=@shopid ",
+                    "left join {1} on {0}.\"ImageUrl\"={1}.\"HashId\" " +
+                    "where {0}.\"ShopId\"=@shopid ",
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();
 
                 var taggedProducts = new List<ProductTags>();
 
-                taggedProducts = (await conn.QueryAsync<ProductTags>(
-                        "select distinct ProductHashId from " + TableNameConstants.ProductTagsTable + " where TagHashId in @tagids and ProductHashId not in @ignoredproducts",
-                        new { @tagids = tagList, @ignoredproducts = ignoredProducts }))
-                        .ToList();
+                var productTagQuery = "select distinct \"ProductHashId\" from " + 
+                    TableNameConstants.ProductTagsTable + " where \"TagHashId\" in " + GetListString(tagList.ToList()) + 
+                    " and \"ProductHashId\" not in " + GetListString(ignoredProducts.ToList());
+
+                taggedProducts = (await conn.QueryAsync<ProductTags>(productTagQuery)).ToList();
 
                 query = query + new StringBuilder()
-                    .AppendFormat("and {0}.HashId in @productids ",
+                    .AppendFormat("and {0}.\"HashId\" in " + GetListString(taggedProducts.Select(x => x.ProductHashId).ToList()),
                     TableNameConstants.ProductsTable)
                     .ToString();
 
                 if (!string.IsNullOrEmpty(searchQuery))
                 {
                     query = query + new StringBuilder()
-                    .AppendFormat("and ({0}.Name like N'%" + searchQuery + " %' or " +
-                    "{0}.Name like N'% " + searchQuery + " %' or " +
-                    "{0}.Name like N'% " + searchQuery + "%') ",
+                    .AppendFormat("and ({0}.\"Name\" like N'%" + searchQuery + " %' or " +
+                    "{0}.\"Name\" like N'% " + searchQuery + " %' or " +
+                    "{0}.\"Name\" like N'% " + searchQuery + "%') ",
                     TableNameConstants.ProductsTable)
                     .ToString();
                 }
@@ -115,22 +117,22 @@ namespace BComm.PM.Repositories.Queries
                 Console.WriteLine(query);
 
                 return await conn.QueryAsync<Product>(query, new { 
-                    @shopid = shopId, @productids = taggedProducts.Select(x => x.ProductHashId).ToList() 
+                    @shopid = shopId 
                 });
             }
         }
 
         public async Task<IEnumerable<Product>> GetProductsByKeywords(string keyword, string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select {0}.HashId, {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
-                    "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
+                    .AppendFormat("select {0}.\"HashId\", {0}.\"Name\", {0}.\"Description\", {0}.\"Price\", {0}.\"Discount\", {0}.\"StockQuantity\", " +
+                    "{1}.\"Directory\" as ImageDirectory, {1}.\"ThumbnailImage\" as ImageUrl " +
                     "from {0} " +
-                    "inner join {1} on {0}.ImageUrl={1}.HashId and {0}.ShopId=@shopid " +
-                    "where {0}.Name like N'% " + keyword + " %'" +
-                    "or {0}.Description like N'% " + keyword + " %'",
+                    "inner join {1} on {0}.\"ImageUrl\"={1}.\"HashId\" and {0}.\"ShopId\"=@shopid " +
+                    "where {0}.\"Name\" like N'% " + keyword + " %'" +
+                    "or {0}.\"Description\" like N'% " + keyword + " %'",
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();
@@ -141,18 +143,18 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Product> GetProductById(string productId, bool resolveImage)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var queryAllCol = new StringBuilder()
-                    .AppendFormat("select * from {0} where HashId=@productid", TableNameConstants.ProductsTable)
+                    .AppendFormat("select * from {0} where \"HashId\"=@productid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 var queryWithImageDirectory = new StringBuilder()
-                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, {0}.ShopId, " +
-                    "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
+                    .AppendFormat("select {0}.\"Name\", {0}.\"Description\", {0}.\"Price\", {0}.\"Discount\", {0}.\"StockQuantity\", {0}.\"ShopId\", " +
+                    "{1}.\"Directory\" as ImageDirectory, {1}.\"ThumbnailImage\" as ImageUrl " +
                     "from {0} " +
-                    "left join {1} on {0}.ImageUrl={1}.HashId " +
-                    "where {0}.HashId=@productid",
+                    "left join {1} on {0}.\"ImageUrl\"={1}.\"HashId\" " +
+                    "where {0}.\"HashId\"=@productid",
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();
@@ -167,18 +169,18 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Product>> GetProductsBySlug(string slug, bool resolveImage)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var queryAllCol = new StringBuilder()
-                    .AppendFormat("select * from {0} where Slug=@slug", TableNameConstants.ProductsTable)
+                    .AppendFormat("select * from {0} where \"Slug\"=@slug", TableNameConstants.ProductsTable)
                     .ToString();
 
                 var queryWithImageDirectory = new StringBuilder()
-                    .AppendFormat("select {0}.Name, {0}.Description, {0}.Price, {0}.Discount, {0}.StockQuantity, " +
-                    "{1}.Directory as ImageDirectory, {1}.ThumbnailImage as ImageUrl " +
+                    .AppendFormat("select {0}.\"Name\", {0}.\"Description\", {0}.\"Price\", {0}.\"Discount\", {0}.\"StockQuantity\", " +
+                    "{1}.\"Directory\" as ImageDirectory, {1}.\"ThumbnailImage\" as ImageUrl " +
                     "from {0} " +
-                    "left join {1} on {0}.ImageUrl={1}.HashId " +
-                    "where {0}.Slug=@slug",
+                    "left join {1} on {0}.\"ImageUrl\"={1}.\"HashId\" " +
+                    "where {0}.\"Slug\"=@slug",
                     TableNameConstants.ProductsTable,
                     TableNameConstants.ImagesTable)
                     .ToString();
@@ -191,10 +193,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Product>> GetProductsById(List<string> productIds, string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select HashId, Name, Price, Discount, StockQuantity from {0} where HashId in @productids and ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .AppendFormat("select \"HashId\", \"Name\", \"Price\", \"Discount\", \"StockQuantity\" from {0} where \"HashId\" in @productids and \"ShopId\"=@shopid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 return await conn.QueryAsync<Product>(query, new { @productids = productIds, @shopid = shopId });
@@ -203,10 +205,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Product> GetProductByTag(string tagId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select Id, ShopId, Name, Description, StockQuantity from {0} where HashId=@tagid", TableNameConstants.ProductsTable)
+                    .AppendFormat("select \"Id\", \"ShopId\", \"Name\", \"Description\", \"StockQuantity\" from {0} where \"HashId\"=@tagid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 var model = await conn.QueryAsync<Product>(query, new { @tagid = tagId });
@@ -217,14 +219,22 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task UpdateProductStock(string productId, string shopId, double newStock)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("update {0} set StockQuantity=@newstock where HashId=@productids and ShopId=@shopid", TableNameConstants.ProductsTable)
+                    .AppendFormat("update {0} set \"StockQuantity\"=@newstock where \"HashId\"=@productids and \"ShopId\"=@shopid", TableNameConstants.ProductsTable)
                     .ToString();
 
                 await conn.ExecuteAsync(query, new { @productids = productId, @shopid = shopId, @newstock = newStock });
             }
+        }
+
+        private string GetListString(List<string> list)
+        {
+            if (!list.Any()) return $"('')";
+
+            var ids = list.Select(x => $"'{x}'").ToList();
+            return $"({string.Join(",", ids)})";
         }
     }
 }

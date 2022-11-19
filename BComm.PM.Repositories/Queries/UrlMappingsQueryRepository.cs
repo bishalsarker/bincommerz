@@ -2,6 +2,7 @@
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,11 +25,11 @@ namespace BComm.PM.Repositories.Queries
         public async Task<UrlMappings> GetDomainById(string domainId)
         {
             var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where HashId=@domainid;",
+                    .AppendFormat("select * from {0} where \"HashId\"=@domainid;",
                     TableNameConstants.UrlMappingsTable)
                     .ToString();
 
-            using (IDbConnection conn = new SqlConnection(_connectionString))
+            using (IDbConnection conn = new NpgsqlConnection(_connectionString))
             {
                 return (await conn.QueryAsync<UrlMappings>(query, new { domainid = domainId })).FirstOrDefault();
             }
@@ -37,11 +38,11 @@ namespace BComm.PM.Repositories.Queries
         public async Task<UrlMappings> GetDomainByName(string domainName, string shopId)
         {
             var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where Url = @domainname and UrlMapType=2 and ShopId=@shopid",
+                    .AppendFormat("select * from {0} where \"Url\" = @domainname and \"UrlMapTyp\"e=2 and \"ShopId\"=@shopid",
                     TableNameConstants.UrlMappingsTable)
                     .ToString();
 
-            using (IDbConnection conn = new SqlConnection(_connectionString))
+            using (IDbConnection conn = new NpgsqlConnection(_connectionString))
             {
                 return (await conn.QueryAsync<UrlMappings>(query, new { domainname = domainName, shopid = shopId })).FirstOrDefault();
             }
@@ -50,11 +51,11 @@ namespace BComm.PM.Repositories.Queries
         public async Task<IEnumerable<UrlMappings>> GetUrlMappingsListByType(UrlMapTypes mapType, string shopId)
         {
             var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where UrlMapType=@maptype and ShopId=@shopid",
+                    .AppendFormat("select * from {0} where \"UrlMapType\"=@maptype and \"ShopId\"=@shopid",
                     TableNameConstants.UrlMappingsTable)
                     .ToString();
 
-            using (IDbConnection conn = new SqlConnection(_connectionString))
+            using (IDbConnection conn = new NpgsqlConnection(_connectionString))
             {
                 return await conn.QueryAsync<UrlMappings>(query, new { maptype = mapType, shopid = shopId });
             }
@@ -63,11 +64,11 @@ namespace BComm.PM.Repositories.Queries
         public async Task<IEnumerable<UrlMappings>> GetAllUrlMappingsListByType(UrlMapTypes mapType)
         {
             var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where UrlMapType=@maptype;",
+                    .AppendFormat("select * from {0} where \"UrlMapType\"=@maptype;",
                     TableNameConstants.UrlMappingsTable)
                     .ToString();
 
-            using (IDbConnection conn = new SqlConnection(_connectionString))
+            using (IDbConnection conn = new NpgsqlConnection(_connectionString))
             {
                 return await conn.QueryAsync<UrlMappings>(query, new { maptype = mapType });
             }

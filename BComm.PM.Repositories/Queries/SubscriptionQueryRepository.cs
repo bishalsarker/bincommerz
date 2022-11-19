@@ -2,6 +2,7 @@
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -22,10 +23,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Subscription> GetSubscription(string userId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where UserId=@userid", TableNameConstants.SubscriptionsTable)
+                    .AppendFormat("select * from {0} where \"UserId\"=@userid", TableNameConstants.SubscriptionsTable)
                     .ToString();
 
                 var result = await conn.QueryAsync<Subscription>(query, new { userid = userId });

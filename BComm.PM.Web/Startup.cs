@@ -10,6 +10,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System;
+using BComm.PM.Repositories.Migrators;
+using System.Threading.Tasks;
+using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
 namespace BComm.PM.Web
 {
@@ -59,6 +64,45 @@ namespace BComm.PM.Web
             services.AddBusinessServices();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Bincommerz API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    Description = "Bearer Authentication with JWT Token",
+                    Type = SecuritySchemeType.Http
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Id = "Bearer",
+                                Type = ReferenceType.SecurityScheme
+                            }
+                        },
+                        new List<string>()
+                    }
+                });
+            });
+
+            bool migrateData = bool.Parse(Configuration.GetSection("DbConfig:migrateData").Value);
+
+            if (migrateData)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Data Migration Initialized");
+                var dataMigrator = new DataMigrator(Configuration);
+                Task.Run(() => dataMigrator.Migrate());
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +111,11 @@ namespace BComm.PM.Web
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                });
             }
 
             app.UseHttpsRedirection();

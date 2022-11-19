@@ -2,6 +2,7 @@
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -22,10 +23,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Template>> GetTemplates(string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select Name, IsDefault, HashId from {0} where ShopId=@shopid", TableNameConstants.TemplatesTable)
+                    .AppendFormat("select \"Name\", \"IsDefault\", \"HashId\" from {0} where \"ShopId\"=@shopid", TableNameConstants.TemplatesTable)
                     .ToString();
 
                 return await conn.QueryAsync<Template>(query, new { @shopid = shopId });
@@ -34,10 +35,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Template> GetTemplate(string templateId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where HashId=@hashid", TableNameConstants.TemplatesTable)
+                    .AppendFormat("select * from {0} where \"HashId\"=@hashid", TableNameConstants.TemplatesTable)
                     .ToString();
 
                 var result = await conn.QueryAsync<Template>(query, new { @hashid = templateId });
@@ -48,10 +49,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Template> GetDefaultTemplate(string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where ShopId=@shopid and IsDefault=@isdefault", TableNameConstants.TemplatesTable)
+                    .AppendFormat("select * from {0} where \"ShopId\"=@shopid and \"IsDefault\"=@isdefault", TableNameConstants.TemplatesTable)
                     .ToString();
 
                 var result = await conn.QueryAsync<Template>(query, new { @shopid = shopId, @isdefault = true });
