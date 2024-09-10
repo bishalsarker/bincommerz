@@ -17,7 +17,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace BComm.PM.Repositories.Common
 {
-    public class MainDbContext : DbContext
+    public class LagecyDbContext : DbContext
     {
         public DbSet<Tag> Tags { get; set; }
 
@@ -62,13 +62,13 @@ namespace BComm.PM.Repositories.Common
 
         private readonly string _connectionString;
 
-        public MainDbContext(IConfiguration configuration)
+        public LagecyDbContext(IConfiguration configuration)
         {
             bool migrateData = bool.Parse(configuration.GetSection("DbConfig:migrateData").Value);
 
             if (migrateData)
             {
-                _connectionString = configuration.GetSection("DbConfig:migratorConfig:to").Value;
+                _connectionString = configuration.GetSection("DbConfig:migratorConfig:from").Value;
             }
             else
             {
@@ -78,10 +78,10 @@ namespace BComm.PM.Repositories.Common
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_connectionString, 
+            optionsBuilder.UseSqlServer(_connectionString,
                 x => x.MigrationsHistoryTable(
-                    HistoryRepository.DefaultTableName,
-                    "bcomm"));
+                HistoryRepository.DefaultTableName,
+                "bcomm"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

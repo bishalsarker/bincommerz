@@ -2,6 +2,7 @@
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -22,10 +23,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Shop> GetShopByUserId(string userId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where UserHashId=@userid", TableNameConstants.ShopsTable)
+                    .AppendFormat("select * from {0} where \"UserHashId\"=@userid", TableNameConstants.ShopsTable)
                     .ToString();
 
                 var result = await conn.QueryAsync<Shop>(query, new { @userid = userId });
@@ -36,10 +37,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Shop> GetShopById(string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where HashId=@shopid", TableNameConstants.ShopsTable)
+                    .AppendFormat("select * from {0} where \"HashId\"=@shopid", TableNameConstants.ShopsTable)
                     .ToString();
 
                 var result = await conn.QueryAsync<Shop>(query, new { @shopid = shopId });

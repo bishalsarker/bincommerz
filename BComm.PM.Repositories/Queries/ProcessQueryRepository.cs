@@ -2,6 +2,7 @@
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -22,10 +23,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Process> GetProcess(string processId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where HashId=@processid", TableNameConstants.ProcessTable)
+                    .AppendFormat("select * from {0} where \"HashId\"=@processid", TableNameConstants.ProcessTable)
                     .ToString();
 
                 var result = await conn.QueryAsync<Process>(query, new { @processid = processId });
@@ -36,10 +37,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Process> GetNextProcess(string shopId, int currentStep)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where ShopId=@shopid and StepNumber=@nextstep", TableNameConstants.ProcessTable)
+                    .AppendFormat("select * from {0} where \"ShopId\"=@shopid and \"StepNumber\"=@nextstep", TableNameConstants.ProcessTable)
                     .ToString();
 
                 var result = await conn.QueryAsync<Process>(query, new { @shopid = shopId, @nextstep = currentStep + 1 });

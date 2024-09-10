@@ -2,6 +2,7 @@
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -22,10 +23,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Slider>> GetSliders(string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where ShopId=@shopid", TableNameConstants.SlidersTable)
+                    .AppendFormat("select * from {0} where \"ShopId\"=@shopid", TableNameConstants.SlidersTable)
                     .ToString();
 
                 return await conn.QueryAsync<Slider>(query, new { @shopid = shopId });
@@ -34,10 +35,10 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Slider> GetSlider(string sliderId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
-                    .AppendFormat("select * from {0} where HashId=@sliderid", TableNameConstants.SlidersTable)
+                    .AppendFormat("select * from {0} where \"HashId\"=@sliderid", TableNameConstants.SlidersTable)
                     .ToString();
 
                 var result = await conn.QueryAsync<Slider>(query, new { @sliderid = sliderId });
@@ -48,7 +49,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<SliderImage> GetSliderImage(string sliderImageId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select {0}.*, " +
@@ -68,7 +69,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task DeleteSlider(string sliderId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("delete from {0} where HashId=@sliderid", TableNameConstants.SlidersTable)
@@ -80,7 +81,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task DeleteSliderImage(string sliderImageId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("delete from {0} where HashId=@slideid", TableNameConstants.SliderImagesTable)
@@ -92,7 +93,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task DeleteSliderImages(string sliderId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("delete from {0} where SliderId=@sliderid", TableNameConstants.SliderImagesTable)
@@ -104,7 +105,7 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<SliderImage>> GetSliderImages(string sliderId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select {0}.HashId, {0}.Title, {0}.Description, {0}.ButtonText, {0}.ButtonUrl, {0}.ImageId, " +

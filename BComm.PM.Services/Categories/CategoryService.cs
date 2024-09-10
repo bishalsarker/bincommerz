@@ -54,7 +54,14 @@ namespace BComm.PM.Services.Categories
                 catModel.ParentCategoryId = newCategoryRequest.ParentCategoryId;
 
                 var lastAddedCategory = await _categoryQueryRepository.GetLastAddedCategory(shopId);
-                catModel.OrderNumber = lastAddedCategory.OrderNumber + 1;
+
+                if (lastAddedCategory == null)
+                {
+                    catModel.OrderNumber = 1;
+                } else
+                {
+                    catModel.OrderNumber = lastAddedCategory.OrderNumber + 1;
+                }
 
                 var existingCategoryModel = await _categoryQueryRepository.GetCategoryBySlug(catModel.Slug, shopId);
 

@@ -2,6 +2,7 @@
 using BComm.PM.Repositories.Common;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -22,12 +23,12 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Page> GetById(string pageId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * " +
                     "from {0} " +
-                    "where {0}.HashId=@hashid",
+                    "where {0}.\"HashId\"=@hashid",
                     TableNameConstants.PagesTable)
                     .ToString();
 
@@ -39,12 +40,12 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Page>> GetAllPages(string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * " +
                     "from {0} " +
-                    "where {0}.ShopId=@shopid",
+                    "where {0}.\"ShopId\"=@shopid",
                     TableNameConstants.PagesTable)
                     .ToString();
 
@@ -55,12 +56,12 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<IEnumerable<Page>> GetByCategory(PageCategories category, string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * " +
                     "from {0} " +
-                    "where {0}.IsPublished='true' and {0}.Category=@cat and {0}.ShopId=@shopid",
+                    "where {0}.\"IsPublished\"='true' and {0}.\"Category\"=@cat and {0}.\"ShopId\"=@shopid",
                     TableNameConstants.PagesTable)
                     .ToString();
 
@@ -70,12 +71,12 @@ namespace BComm.PM.Repositories.Queries
 
         public async Task<Page> GetByCategoryAndSlug(PageCategories category, string slug, string shopId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 var query = new StringBuilder()
                     .AppendFormat("select * " +
                     "from {0} " +
-                    "where {0}.IsPublished='true' and {0}.Category=@cat and {0}.Slug=@slug and {0}.ShopId=@shopid",
+                    "where {0}.\"IsPublished\"='true' and {0}.\"Category\"=@cat and {0}.\"Slug\"=@slug and {0}.\"ShopId\"=@shopid",
                     TableNameConstants.PagesTable)
                     .ToString();
 
